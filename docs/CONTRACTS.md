@@ -38,7 +38,11 @@ Project contains a `media` map keyed by MediaId. Each MediaRef has:
 
 Canonical origin is the selected video's first displayed decoded PTS `t0`. Source timestamps remain in the manifest; audio offset is `audio_first_effective_pts - t0`, not independently zeroed. A missing final frame duration/timestamp produces `AMBIGUOUS_MEDIA_TIMING` until an explicit documented policy resolves it. Count is not derived from nominal FPS × container duration alone.
 
-**Proposed normalization rule:** duration `D` is the selected decoded video's presentation span; `F=max(1, round_half_up(24*D))`. Store D, F and quantization error (absolute error <=1/48 s under this rule). Produce exactly F real decoded CFR frames at PTS `j/24`, using a documented timestamp resampler (candidate FFmpeg fps nearest rounding) and explicit EOF correction to F. Log drops/duplicates and any last-frame hold; never change playback speed by reinterpreting metadata. Verify PTS and decoded count, not just average_frame_rate. Missing frames/discontinuities are errors or explicit held intervals recorded in provenance. No motion interpolation by default.
+**Proposed normalization rule:** duration `D>0` is the selected decoded video's presentation span; `R=round_half_up(24*D)` and `F=max(1,R)`. Store D, R, F, signed `duration_error=F/24-D` and `duration_clamp` provenance: applied flag, reason (`minimum_one_frame` when applied, otherwise null), before_frame_count=R and after_frame_count=F.
+
+Unclamped rounding has `abs(R/24-D)<=1/48 s`. For `D>=1/48 s`, R>=1 and F=R, so `abs(duration_error)<=1/48 s`. For `0<D<1/48 s`, R=0 and the minimum-one-frame clamp gives F=1: `duration_error=1/24-D`, strictly less than `1/24 s` but greater than `1/48 s`. Record the clamp and actual duration extension; do not report the ordinary half-frame bound for this case. Example: D=1/120 s → R=0 → F=1 → duration_error=1/30 s. At D=1/48 s, half-up rounding gives R=F=1 without a clamp and error=1/48 s. These bounds remain within the existing <=1-output-frame export acceptance.
+
+Produce exactly F real decoded CFR frames at PTS `j/24`, using a documented timestamp resampler (candidate FFmpeg fps nearest rounding) and explicit EOF correction to F. Log drops/duplicates and any last-frame hold; never change playback speed by reinterpreting metadata. Verify PTS and decoded count, not just average_frame_rate. Missing frames/discontinuities are errors or explicit held intervals recorded in provenance. No motion interpolation by default.
 
 Normalize once, stream to a disk artifact and PTS manifest. Window access uses canonical frame indices; keyframe seek must decode/discard to the exact boundary. Do not independently resample each segment. Time normalization and spatial preparation have separate keys so a prompt edit does not re-decode media.
 
@@ -48,7 +52,7 @@ Normalize once, stream to a disk artifact and PTS manifest. Window access uses c
 |---|---|
 | `kind`, `schema_version`, `id`, `revision` | `kmin.project`, `2.0.0`, Id, monotonically increasing integer for saved edits |
 | `fps`, `frame_count`, `source_media_id`, `canonical_media_id` | fps exactly `{num:24,den:1}`; measured positive F; source/canonical MediaId |
-| `normalization`, `media` | Recipe/version/t0/D/F/PTS digest/drop-hold report; MediaRef map |
+| `normalization`, `media` | Recipe/version/t0/D/R/F, signed duration_error, duration_clamp applied/reason/before/after provenance, PTS digest/drop-hold report; MediaRef map |
 | `defaults`, `controls`, `render_profiles` | Settings; ControlSpec map; immutable compatibility profiles with version/evidence level |
 | `segments` | Ordered Segment array covering `[0,F)` exactly once; contiguous, no unintended overlap/gap; IDs independent of order |
 | `audio_timeline` | AudioTimeline below |

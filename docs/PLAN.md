@@ -94,6 +94,7 @@ Everything in this table is future acceptance, not results. Record CPU/logic, sy
 | Case | Required evidence / gate |
 |---|---|
 | Tiny clip / short tail | L=1 pads to N=124; L=346 → 173/173 useful, N=175, exact coverage. Real padded sample checks quality; shape minimum alone cannot. M1-02/04. |
+| Sub-frame source span | D=1/120 s → rounded R=0 → minimum F=1 → duration error=1/30 s, with applied duration-clamp provenance. Ordinary D>=1/48 rounding error <=1/48 s; clamped 0<D<1/48 error <1/24 s. Document/formula boundary checks below; real decoded-media acceptance remains future M1-02. |
 | Exactly 15 s | F=360 → 180+180 useful, N=192 each, 12 pad each; export 360. Never submit 362/discard to 345. Real M1-04 assembly. |
 | Continuation cap | Useful capacity <=345-C, all overhead in N. Proposed C=22/F=360 plan 192 then 168 useful, N=192 each; no runtime claim. M2-05. |
 | Long input | Streamed disk media; F=1000 no-context 334/333/333/N=345; quotas, multiple-window measured plateau/recovery. CPU planning is not long GPU evidence. M1-02/M2-02. |
@@ -111,6 +112,8 @@ Everything in this table is future acceptance, not results. Record CPU/logic, sy
 
 Video: export exactly F useful frames, PTS 1/24, declared dimensions, no duplicate head/pad, canonical-source duration error <=1 frame without accumulation. PCM slice counts use global Q exactly, rounding <=1 output sample, codec presentation delay separately measured, no growing offset. Generated-audio corrections/seams are reported.
 
+Normalization compares F/24 with the decoded source span D: error <=1/48 s when D>=1/48 s; the minimum-one-frame case 0<D<1/48 s records its clamp and error <1/24 s. Exactly F CFR frames and the <=1-frame export acceptance remain required; the bounds do not permit per-window duration errors to accumulate.
+
 ## Environment, publication and review
 
 This M0 permits docs edits/checks, local doc commit and **own assigned-branch push using existing origin SSH**, with commit/compare handoff. No PR claim/create/merge, auth/config changes, M1/M2 launch, installs/weights/paid calls/uploads/inference or user ComfyUI changes. A recorded publication-route blocker is reported privately in AO and not retried. Main/other worktrees and branches remain untouched.
@@ -124,5 +127,7 @@ M0 checks only documentation: owned paths/cards, V01–V20 reconciliation, sourc
 Original brief blob: 77e34e02374483fc19be006dc5d5b78e40f15042; canonical SHA256: 81B86AB34ADD27455F5A6B4F37652050A5DDE0FEEB024F25616FF1D53D6C513B. Check canonical Git and checkout bytes separately because line-ending conversion differs. Fresh check results/counts and final commit/branch are supplied after verification; no code/media/GPU PASS follows from them.
 
 **Document-check receipt, 2026-10-05 Europe/Moscow:** 23 Markdown files inspected; 87 local file/anchor links resolved; 31 table column structures checked; six illustrative JSON records parsed with coherent proposed versions/intervals. Reconciliation contains V01–V20, N01–N28, 24 source-ledger entries and 12 complete outcome cards with required read paths/interfaces/base/dependency gates. Integer calculations checked the four no-context length examples, the proposed 22-frame continuation example and 12 absolute-audio-boundary cases; these are document/formula checks, not implementation or media tests.
+
+**Document-review follow-up:** exact rational calculations checked five source-duration cases: D=1/120 s, D=1/48 s minus/plus 1/48000 s, D=1/48 s exactly, and D=1/24 s. The short-span case gives R=0, F=1, duration_error=1/30 s, confirming that the old unconditional <=1/48 s statement was incorrect. Below the threshold the clamp is applied and error <1/24 s; at/above it ordinary error <=1/48 s holds. CONTRACTS and M1-02 now require explicit duration-clamp provenance while preserving exact F and <=1-frame export acceptance. These are documentation/formula checks only; no implementation test or media execution occurred. Source pins and other research conclusions are unchanged.
 
 The 22 changed paths are documentation only; staged `git diff --check` passed. Original brief canonical blob/SHA and pre-edit checkout bytes match. Public path/privacy and stale-interface scans passed, with a manual scope/evidence/common-commit review. AO static preview of this PLAN was inspected: eight headings and two tables are present, browser errors are empty; Mermaid is displayed as a source block in that preview. The final commit/push receipt is supplied in AO and the handoff. **No code/media/model/GPU verification was performed; implementation remains NOT STARTED.**
