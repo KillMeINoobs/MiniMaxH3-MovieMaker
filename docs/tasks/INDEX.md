@@ -1,40 +1,55 @@
 # Durable task journal
 
-This directory is the project's Markdown journal, **not an AO built-in task/dependency system**. Cards describe proposed outcomes; no worker is launched by them. All interface/file names are proposals. [Plan](../PLAN.md), [contracts](../CONTRACTS.md), [research](../RESEARCH.md), [architecture](../ARCHITECTURE.md) and [brief](../PROJECT_BRIEF.md) form the handoff.
+This Markdown directory is our journal, **not an AO built-in scheduler**. Cards describe proposed outcomes and do not launch workers. Read [direction](../PRODUCT_DIRECTION_V2V.md), [plan](../PLAN.md), [research](../RESEARCH.md), [architecture](../ARCHITECTURE.md), [contracts 2.0.0](../CONTRACTS.md), [nodes](../NODE_CATALOG.md) and [workflow specification](../WORKFLOW_SPEC.md) after the preserved brief.
 
-## Status and ownership
+## Ownership and status
 
-| ID / card | Proposed owner | Status | Blocker / integration rule |
-|---|---|---|---|
-| M0-DOCS | Current documentation worker | Document checks passed; ready for human review | Draft PR handoff; no implementation/GPU work |
-| [M1-01 foundation](M1-01-FOUNDATION.md) | One foundation owner, unassigned | PROPOSED / NOT STARTED | Human M0 decision + exact C0 |
-| [M1-02 media](M1-02-MEDIA.md) | Media owner, unassigned | PROPOSED / NOT STARTED | Integrated checked CF |
-| [M1-03 H3](M1-03-H3.md) | Adapter owner, unassigned | PROPOSED / NOT STARTED | CF for start; CM integrated before final adapter integration |
-| [M1-04 GPU gate](M1-04-GPU-GATE.md) | Single named resource owner, unassigned | GPU NOT PERFORMED / NOT STARTED | CH + explicit environment/assets/model authorization and availability |
-| [M2-01 editor](M2-01-EDITOR.md) | Editor owner, unassigned | PROPOSED / GATED | Real M1 receipt accepted at CG |
-| [M2-02 runner](M2-02-RUNNER.md) | Runner owner, unassigned | PROPOSED / GATED | CG; editor integrated before final joint UI checks |
-
-Starting policy: <=2 implementing workers concurrently. Shared schemas/package/lockfiles/skeleton have exactly one first owner. GPU/ComfyUI/ports/output/venv/models have one sequential resource owner, named by AO session ID before access; there is **no current reservation**. Future code review uses a separate AO reviewer and fixes return to owner. No built-in subagents or nested orchestrators are implied.
-
-## Common commit register
-
-| Label | Meaning | Full SHA / current status |
+| ID / card | Outcome owner | Status / next gate |
 |---|---|---|
-| B0 | Verified original main/base | `8e8cf7253862f94b7787d7065babf2878064ef82` |
-| C0 | Accepted, integrated M0 docs | UNASSIGNED; coordinator records after human review/integration |
-| CF | M1-01 integrated/reviewed/checked foundation | NOT CREATED |
-| CM | CF + integrated/checked M1-02 media | NOT CREATED |
-| CH | CM + integrated/reviewed M1-03 adapter | NOT CREATED |
-| CG | CH + reviewed real M1-04 evidence and accepted gate | NOT CREATED; GPU NOT PERFORMED |
-| CE / CR | Editor / runner outcome integration commits | NOT CREATED |
-| CM2 | Both M2 outcomes integrated, checked and reviewed | NOT CREATED |
+| First M0 | Original documentation outcome | Published documentation base D0; not integrated into main |
+| M0-V2V-REVISION | Sole research/documentation owner | Revised docs; verification/publication receipt supplied in AO; no implementation |
+| [M1-01 foundation](M1-01-FOUNDATION.md) | One foundation owner, unassigned | PROPOSED / NOT STARTED; actual reviewed C0 |
+| [M1-02 media](M1-02-MEDIA.md) | Media owner, unassigned | PROPOSED / NOT STARTED; checked CF |
+| [M1-03 H3](M1-03-H3.md) | Adapter owner, unassigned | PROPOSED / NOT STARTED; CF start, actual CM for finish |
+| [M1-04 GPU gate](M1-04-GPU-GATE.md) | One allocated GPU owner, unassigned | GPU NOT PERFORMED / NOT STARTED; CH + execution resources |
+| [M2-01 editor](M2-01-EDITOR.md) | Editor owner, unassigned | PROPOSED / GATED; accepted real CG |
+| [M2-02 runner](M2-02-RUNNER.md) | Runner owner, unassigned | PROPOSED / GATED; CG, final actual CE+CR |
+| [M2-03 scene prompts](M2-03-SCENE-PROMPTS.md) | Scene-intelligence owner, unassigned | PROPOSED / GATED; joint CT |
+| [M2-04 identity](M2-04-IDENTITY.md) | Identity owner, unassigned | PROPOSED / GATED; checked CI |
+| [M2-05 continuity](M2-05-CONTINUITY.md) | Continuity owner, unassigned | PROPOSED / GATED; checked CB |
+| [M2-06 workflows](M2-06-WORKFLOWS.md) | Workflow owner, unassigned | PROPOSED / GATED; checked CC, real assets/receipts |
+| [M3-01 controls](M3-01-CONTROLS.md) | Controls owner, unassigned | PROPOSED / GATED; accepted CW |
+| [M3-02 modes](M3-02-MODES.md) | Creation-mode owner, unassigned | PROPOSED / GATED; accepted CW |
 
-Each launch record must include task/owner AO session, actual workspace/branch/HEAD, exact full base SHA, dependencies present on that SHA, interface version, changed-area ownership, resources, publication authorization, acceptance receipts and reviewer. A symbolic label alone is insufficient to start. Integration means reachable on the shared reviewed branch, with its checks run; never assume another branch's files or use an unmerged PR as if in base.
+Every outcome owner includes ordinary tests/docs. Shared schemas/package manifests/lockfiles/skeleton have one first foundation owner; consumers request amendments. Initial <=2 simultaneous IMPLEMENTING workers is project policy, not AO capacity. This revision has one worker and launches none. Future code review uses a separate AO reviewer; fixes return to the owner.
 
-Dependency order: `C0 → M1-01 → CF → (M1-02, M1-03) → CM → M1-03 integration → CH → M1-04 → CG → (M2-01, M2-02) → CM2`. Media and adapter can start from CF; final adapter integration includes CM. Editor and runner can start from CG on agreed interfaces/areas; final joint verification includes both integrated outcomes. Record every actual common SHA before the next phase.
+GPU/H3/ComfyUI/ports/output/venv/model changes are sequential under one explicitly named allocated resource owner. No current reservation. Worktrees/Cloud do not establish GPU availability or isolation.
 
-## Journal update policy
+## Checked common commit register
 
-Append meaningful decisions/checkpoints/blockers/receipts to the relevant card, update this index and record integration SHAs. No task advances by elapsed time or an optimistic checkbox. Ordinary unit/media tests and docs remain with the outcome owner; GPU evidence is labeled separately. Artifacts reported through AO do not imply task completion. Public receipts redact local machine/session diagnostics and asset paths; no personal media is published without explicit authorization.
+| Label | Meaning | Actual full SHA / status |
+|---|---|---|
+| B0 | First-M0 parent/original base | 8e8cf7253862f94b7787d7065babf2878064ef82 |
+| D0 | Exact task research/document base; published first M0 | 1bfcc50e204797862b2bbc014fce00e4694c122c |
+| C0 | Accepted revised M0 common commit for future implementation | UNASSIGNED; coordinator records actual SHA after review |
+| CF | Reviewed/checked integrated foundation | NOT CREATED |
+| CM | CF + checked media outcome | NOT CREATED |
+| CH | CM + reviewed/checked adapter integration | NOT CREATED |
+| CG | CH + real reviewed sample and accepted GPU decision | NOT CREATED; GPU NOT PERFORMED |
+| CE / CR | Checked editor / runner outcomes | NOT CREATED |
+| CT | Editor+runner actually integrated and jointly checked | NOT CREATED |
+| CI | CT + accepted scene-prompt automation | NOT CREATED |
+| CB | CI + accepted optional-image binding/comparison | NOT CREATED |
+| CC | CB + accepted within-shot state/cut/reset evidence | NOT CREATED |
+| CW | CC + real accepted ready V2V collection/workflows | NOT CREATED |
+| CCTRL / CMODES | Accepted extra control / creation-mode outcomes | NOT CREATED |
 
-M0 final commit/PR are supplied through AO handoff to avoid a self-referential commit hash. Publishing only M0 docs is authorized here. Later tasks await their own assignment/authorization; no merge is automatic.
+No label grants authorization or guarantees files exist. Launch record requires task/owner, actual workspace/branch/HEAD, full base SHA, dependencies present and checks on that SHA, interface version, owned areas, environment/publication scope, allocated GPU owner if needed, acceptance receipts and reviewer. Integrated means on the explicitly selected shared checked branch; no automatic merge into main. Never treat an unmerged dependency's files as common-base contents.
+
+Ordering: C0 → CF → media/adapter; adapter finish includes CM → CH → real CG → editor/runner → CT → scene prompts CI → optional identity CB → continuity CC → ready workflows CW → extra controls/modes. CPU work may parallel only on agreed checked interfaces/areas; GPU work always sequential.
+
+## Journal policy and revision handoff
+
+Append meaningful decisions/blockers/receipts to the relevant card, update statuses and record actual SHAs before dependencies start. No advancement by elapsed time, checkbox or upstream demo. CPU/media/browser/load/GPU evidence stays separate. Artifact reports do not imply completion. Sanitized public records use project-relative asset IDs/hashes; private media/session/native-model/auth/machine diagnostics stay in AO.
+
+M0-V2V-REVISION: original brief preserved; explicit latest-direction supersessions, V01–V20 reconciliation, 28 proposed node roles, future non-executable workflow acceptance, contract proposal 2.0.0 and 12 outcome cards. Only documents are changed. Final checks/commit/own-branch push and compare are handed off through AO to avoid embedding a self-referential SHA. Existing PR-route blocker is not retried; no PR ownership/create/merge or main integration. All implementation remains NOT STARTED.

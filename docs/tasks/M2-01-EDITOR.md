@@ -1,17 +1,19 @@
-# M2-01 — Minimal VID2VA timeline editor
+# M2-01 — Editable scenes and persistent timeline
 
-- **Goal:** editable source segments/prompts that persist truthfully inside a ComfyUI workflow.
-- **Scope:** approved source player/proxies/thumbnails, 24 FPS scale/cursor, add/move/delete/numeric split markers, selected segment panel, inherited/local prompt/control/seed/audio state, save/load/missing-media/relink; visible unsupported-mode drafts retained. Ordinary UI/serialization checks and docs belong to this owner.
-- **Non-goals:** multitrack editor, implementing all generation modes/refs, hidden prompt rewrite, backend sampler changes, imitation run buttons, GPU concurrency.
-- **Inputs/read paths:** `AGENTS.md`, brief, contracts, architecture, plan/journal; integrated M1 implementation and reviewed real sample receipt on CG; pinned JS extension docs and chosen actual frontend APIs.
-- **Outputs/owned areas (proposed):** `web/` editor/state/style areas excluding runner-owned `web/run/`; UI adapter wiring to existing v1 project interfaces, corresponding UI tests/docs. Shared contracts/package/lockfiles remain foundation-owned.
-- **Dependencies/base requirement:** start only after human accepts the **real M1 gate** at exact reviewed/checked **CG**. Verify receipt exists on common base; NOT PERFORMED is not an automatic substitute. Runner may parallel on CG with agreed event/area contracts. Integrate editor as CE; final combined verification includes runner outcome CR.
-- **Interface version:** `KVD-WORKER/1.0.0`, schema 1.0.0; versioned editor/run events and saved project payload validated against foundation contract. Shared amendment requires new common SHA.
-- **Acceptance evidence:** real browser add/move/delete/numeric markers conserve `[0,F)` exactly, adjacent distinct prompts/inheritance, stable IDs save/reload, retained inactive mode drafts, missing/changed/Unicode-path state/relink, visible prepared/canvas/output sizes; actions wired to actual runner when integrated. No large UI before GPU gate; no GPU PASS inferred from browser checks.
-- **Environment/resources:** session-owned approved ComfyUI preview only after runtime authorization; no server/dependency/install changes just to display assets. Any ComfyUI/GPU use follows single named resource owner. At most two implementations with runner.
-- **Publication policy:** future task assignment supplies publication scope; same owner owns UI result/tests/docs, separate AO review and owner fixes. Screenshots/media sanitized; no private source upload.
-- **Status/blockers:** PROPOSED / GATED / NOT STARTED. No CG or real GPU receipt; editor functionality does not exist.
+- **Goal:** A user edits scene boundaries and per-scene prompts, then restores that state from a ComfyUI workflow.
+- **Scope:** Player/proxies/scale/cursor; add/move/delete/numeric editorial markers; separate technical-window overlay; selected scene inheritance/local prompts/control/seed/audio; project workflow persistence/missing-asset relink. Own ordinary UI tests/docs.
+- **Non-goals:** Full multitrack editor, VLM/detection/identity/state backend, core patches, fake run buttons or GPU concurrency.
+- **Inputs/read paths:** AGENTS.md, README.md, docs/PROJECT_BRIEF.md, docs/PRODUCT_DIRECTION_V2V.md, docs/RESEARCH.md, docs/ARCHITECTURE.md, docs/CONTRACTS.md, docs/NODE_CATALOG.md, docs/WORKFLOW_SPEC.md, docs/PLAN.md, docs/tasks/INDEX.md and this card.
+- **Outputs/new paths (proposed):** web/editor/, nodes/editor/; tests/editor/; docs/workflows/EDITOR.md. Agreed shared editor/run events consumed from foundation; web/run belongs to runner.
+- **Dependencies/base commit:** Accepted real M1 CG with exact reviewed/checked SHA and receipt. May parallel runner on agreed disjoint event/area contract. Editor integration CE; final actual joint CT includes checked CR, not presumed runner files. Research/document base D0 is 1bfcc50e204797862b2bbc014fce00e4694c122c; it is not an automatic launch base.
+- **Interfaces:** KVD-WORKER/2.0.0 Project/Segment/PromptRecipe drafts and versioned events. Frozen accepted state differs from new drafts; technical windows never become editorial records.
+- **Acceptance:** Real browser player/markers/numeric edits conserve [0,F); adjacent distinct prompts/inheritance/IDs survive save/reload; missing/changed/Unicode assets relink; window overlay distinct; actual canvas/output sizes and unsupported mode drafts visible. Runner actions are genuinely wired for final CT checks.
+- **Checks:** Future python -m pytest tests/editor for serialization/events plus actual browser interaction/save/reload/missing-file checks on selected core/frontend pair; git diff --check. Browser alone is not H3 PASS.
+- **Environment:** Authorized session-owned ComfyUI preview; actual frontend version/hooks checked, DaSiWa visual ideas only. No server/dependencies just for static docs; no assumed user ComfyUI access.
+- **GPU ownership:** CPU/UI by default; real shared ComfyUI/H3 interactions sequential under named allocated owner. Target resources not assumed from worktree.
+- **Publication/review:** NOT STARTED; this M0 does not authorize implementation/publishing. Later assignment supplies scope; one owner includes ordinary tests/docs, separate AO reviewer, fixes return to owner. No private assets/session/auth/machine diagnostics in public outputs.
+- **Status/blockers:** PROPOSED / NOT STARTED; required common SHA, owner, implementation/environment/publication allocation not supplied. GPU NOT PERFORMED. Technical gates above are future blockers, not evidence of a failed run.
 
 ## Journal
 
-M0: UI boundary proposed only; no JavaScript/package/server was created.
+First M0 established the short proof and shared-base policy. M0-V2V-REVISION reconciles this outcome with the updated product direction and proposed 2.0.0 interfaces. No code, fixture/media generation, dependency install, inference or task launch occurred.

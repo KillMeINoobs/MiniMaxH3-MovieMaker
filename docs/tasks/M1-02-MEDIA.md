@@ -1,17 +1,19 @@
-# M1-02 — Canonical media, window planning and accurate export
+# M1-02 — Source to real CFR24, legal plan and accurate export
 
-- **Goal:** a source-independent proof of exact 24 FPS coverage, legal windows, preserved display geometry and nonaccumulating audio timeline.
-- **Scope:** actual-PTS probe/normalization to disk; fingerprint/timing manifest; balanced frame planner; bounded window preparation, rotation/SAR/padding; continuous PCM/sample boundaries; ordered checked CPU export and layer-specific cache invalidation. Own ordinary logic/media tests and docs with this result.
-- **Non-goals:** neural inference, ControlNet loading, UI editor, hidden RGB references, continuation, resuming queue requests.
-- **Inputs/read paths:** shared M1-01 output on CF; `AGENTS.md`, `docs/PROJECT_BRIEF.md`, `docs/CONTRACTS.md` media/window/spatial/audio sections, `docs/RESEARCH.md` S01/S03/S16, `docs/ARCHITECTURE.md`, `docs/PLAN.md`, journal.
-- **Outputs/owned areas (proposed):** `kmin_video_director/media/`, `planning/`, `assembly/`; corresponding ordinary tests/synthetic fixtures; media validation documentation. Shared schemas/package/dependencies stay with foundation owner.
-- **Dependencies/base requirement:** start only from integrated reviewed checked **CF**, exact full SHA recorded, interfaces present there. Integrate result as CM and record checks/SHA. Adapter may work on CF but must integrate CM before consuming real media code; no unmerged-branch assumption.
-- **Interface version:** `KVD-WORKER/1.0.0` ProbeMedia/NormalizeMedia/PlanWindows/PrepareWindow/AssembleExport; schema 1.0.0. Common changes go through foundation owner and a new base.
-- **Acceptance evidence:** actual decoded CFR PTS 1/24 and exact F; short tail/360/long balanced coverage, all N lattice/cap valid; padding absent from output; 23.976/29.97/30/60/VFR and missing EOF timing handled; audio +/- offsets and boundary impulses with Q rounding, one encode and measured codec delay; mute/no audio; 4:3/portrait/rotation/SAR/off-grid/odd codec sizes; spaces/Cyrillic paths; prompt does not invalidate Canny preparation dependencies; streaming memory checked. No H3/GPU PASS claim.
-- **Environment/resources:** approved synthetic media, authorized existing FFmpeg/ffprobe or chosen equivalent; record binary/version/build. CPU only, Windows paths, no personal-asset search, no dependency installation beyond assignment scope or user ComfyUI changes. Fixture generation is future task work, not performed in M0.
-- **Publication policy:** future assignment must explicitly authorize publishing; ordinary tests/docs in same outcome PR. Personal media private; no weights. Separate reviewer; owner fixes failures.
-- **Status/blockers:** PROPOSED / NOT STARTED; waits for CF, owner/environment authorization and implementation scope. User's two named test files are not available.
+- **Goal:** Adding a source gives measured 24 FPS media, understandable legal windows and an exact CPU export.
+- **Scope:** Actual-PTS probe/resampling to disk; canonical/hash manifest; balanced no-context windows; bounded geometry/pad preparation; global PCM/sample mapping; checked assembly and scoped caches. Own ordinary logic/media tests/docs.
+- **Non-goals:** Neural inference, model loading, timeline editor, source appearance refs, continuation or queue recovery.
+- **Inputs/read paths:** AGENTS.md, README.md, docs/PROJECT_BRIEF.md, docs/PRODUCT_DIRECTION_V2V.md, docs/RESEARCH.md, docs/ARCHITECTURE.md, docs/CONTRACTS.md, docs/NODE_CATALOG.md, docs/WORKFLOW_SPEC.md, docs/PLAN.md, docs/tasks/INDEX.md and this card.
+- **Outputs/new paths (proposed):** kmin_video_director/media/, planning/, assembly/, nodes/media/; tests/media/, tests/planning/, tests/assembly/; docs/validation/M1_MEDIA.md. Shared schemas/registration/dependencies stay foundation-owned.
+- **Dependencies/base commit:** Start only on reviewed/integrated/checked CF with full assigned SHA and actual 2.0.0 interfaces. Integrate/check CM and record its SHA; adapter's final integration consumes CM, not an unmerged branch. Research/document base D0 is 1bfcc50e204797862b2bbc014fce00e4694c122c; it is not an automatic launch base.
+- **Interfaces:** ProbeMedia, NormalizeMedia, PlanWindows, PrepareWindow, AssembleExport; KVD-WORKER/2.0.0. Initial context none; future context-aware planner extensions negotiate through foundation.
+- **Acceptance:** Actual decoded F and PTS 1/24; L=1/346/360/1000 coverage, legal N/pad trimming; fractional/VFR/gaps/EOF; +/- audio offset and boundary impulses/global Q/one encode/codec delay; mute/no audio; display rotation/SAR/4:3/portrait/off-grid/odd-codec behavior; Unicode/spaces; streamed working set/disk quota. Duration error <=1 frame without accumulation, PCM rounding <=1 sample.
+- **Checks:** Future python -m pytest tests/media tests/planning tests/assembly; approved synthetic frame-number/impulse media with recorded ffprobe decoded PTS/counts/sample/dimension receipts and peak process RAM; git diff --check. CPU export is not H3 evidence.
+- **Environment:** Existing approved FFmpeg/ffprobe or reviewed equivalent; record exact binary/build/license/version. No personal-media search, downloads or ComfyUI changes; named chat assets are not supplied.
+- **GPU ownership:** None. Media/adapter may implement on CF within initial <=2 policy; all real shared-runtime validation waits for allocated sequential owner.
+- **Publication/review:** NOT STARTED; this M0 does not authorize implementation/publishing. Later assignment supplies scope; one owner includes ordinary tests/docs, separate AO reviewer, fixes return to owner. No private assets/session/auth/machine diagnostics in public outputs.
+- **Status/blockers:** PROPOSED / NOT STARTED; required common SHA, owner, implementation/environment/publication allocation not supplied. GPU NOT PERFORMED. Technical gates above are future blockers, not evidence of a failed run.
 
 ## Journal
 
-M0: contracts and acceptance described only; no FFmpeg/media/unit tests executed.
+First M0 established the short proof and shared-base policy. M0-V2V-REVISION reconciles this outcome with the updated product direction and proposed 2.0.0 interfaces. No code, fixture/media generation, dependency install, inference or task launch occurred.

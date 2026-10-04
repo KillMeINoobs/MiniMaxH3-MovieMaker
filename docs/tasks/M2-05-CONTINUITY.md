@@ -1,0 +1,19 @@
+# M2-05 — Within-shot continuation, cuts and compatible resume
+
+- **Goal:** A user continues a shot over technical windows, resets at cuts and resumes verified state without duplicated video/audio.
+- **Scope:** Evaluate pinned Motion-Context with native Fun/ref profile; bounded hashed AV checkpoints/tail mapping, context-aware planning/maps, cut/group policy, one final trim/global audio fitting and dependent invalidation. Own ordinary tests/docs and real seam comparison.
+- **Non-goals:** Wholesale Chain/slot deletion runtime, unlimited loop, perfect identity/motion guarantees, silent fallback/reset, appending context beyond cap or reusing unverified state.
+- **Inputs/read paths:** AGENTS.md, README.md, docs/PROJECT_BRIEF.md, docs/PRODUCT_DIRECTION_V2V.md, docs/RESEARCH.md, docs/ARCHITECTURE.md, docs/CONTRACTS.md, docs/NODE_CATALOG.md, docs/WORKFLOW_SPEC.md, docs/PLAN.md, docs/tasks/INDEX.md and this card.
+- **Outputs/new paths (proposed):** kmin_video_director/continuity/, adapters/motion_context/, web/continuity/; tests/continuity/; docs/validation/M2_CONTINUITY.md. Extend existing planner/finalizer by agreed interfaces on this sequential base.
+- **Dependencies/base commit:** Actual checked CB with prompt/identity/no-ref receipts. Verify full SHA/profile before implementation; integrate/check CC only after real combined-path review. Research/document base D0 is 1bfcc50e204797862b2bbc014fce00e4694c122c; it is not an automatic launch base.
+- **Interfaces:** ResolveContinuation/CheckpointContinuation, ContinuationState and window context/output mappings, KVD-WORKER/2.0.0. Motion loaded-list state is adapter-specific, not stock decode LATENT.
+- **Acceptance:** Real within-shot native ControlNet+refs+context and separate cut reset; 5/22/39/56 tail/profile/layout/phase compatibility; all C+U+pad=N<=345; maps aligned to predecessor head. First head profile explicitly uses audio_context_length=0 (follow video), maps actual audio-grid overhang and rejects unbudgeted earlier history. Padded prior latent tail rejected or explicitly remapped via tested decoded-tail/replanned path. Exactly-once trimming, absolute Q/generated-audio corrections/seams, preserve PCM unaffected; incompatible geometry/profile resets; predecessor edit invalidates successors until cut; checkpoint resume hashes verified; memory/disk budgets measured.
+- **Checks:** Future python -m pytest tests/continuity; source-layout conformance, padded-tail/phase/cut/invalidation fixtures; actual same-shot/ref/control AV seam, audio-count/restart and memory receipts. Upstream math/layout checks are not real combination PASS.
+- **Environment:** Approved Motion/native versions and existing models/VAEs; private PackedLayout assumptions feature-checked, licenses/notices reviewed. No global patches/clears/unrelated process termination; missing profile means BLOCKED variant.
+- **GPU ownership:** One named allocated sequential owner for state/H3/shared-ComfyUI experiments; raw AV, decoded-tail fallback and audio continuation require actual separate evidence.
+- **Publication/review:** NOT STARTED; this M0 does not authorize implementation/publishing. Later assignment supplies scope; one owner includes ordinary tests/docs, separate AO reviewer, fixes return to owner. No private assets/session/auth/machine diagnostics in public outputs.
+- **Status/blockers:** PROPOSED / NOT STARTED; required common SHA, owner, implementation/environment/publication allocation not supplied. GPU NOT PERFORMED. Technical gates above are future blockers, not evidence of a failed run.
+
+## Journal
+
+First M0 established the short proof and shared-base policy. M0-V2V-REVISION adds this outcome for the updated product direction and proposed 2.0.0 interfaces. No code, fixture/media generation, dependency install, inference or task launch occurred.

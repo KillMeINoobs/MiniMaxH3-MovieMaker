@@ -1,109 +1,128 @@
-# M1/M2 implementation proposal
+# V2V-first staged product plan
 
-**M0 handoff only. No implementation or GPU validation has occurred. GPU validation NOT PERFORMED.** The plan is ready for human review, not permission to execute its tasks. [Brief](PROJECT_BRIEF.md), [research](RESEARCH.md), [architecture](ARCHITECTURE.md), [contracts 1.0.0](CONTRACTS.md) and [task journal](tasks/INDEX.md) are the input package. Proposed package: ComfyUI-KMIN-VideoDirector, Windows-first, no mandatory WSL or paid API.
+**M0-V2V-REVISION: documentation only; no implementation launched; GPU NOT PERFORMED.** Follow the [preserved brief](PROJECT_BRIEF.md) and [superseding direction](PRODUCT_DIRECTION_V2V.md), [research](RESEARCH.md), [architecture](ARCHITECTURE.md), [contracts 2.0.0](CONTRACTS.md), [proposed nodes](NODE_CATALOG.md), [future workflow acceptance](WORKFLOW_SPEC.md) and [journal/cards](tasks/INDEX.md). Nothing in this inventory is implemented.
 
-Goal: prove short source → actual 24 FPS → exact legal window plan → Canny → native H3 → useful-frame/audio export and control-off comparison, then build the smallest useful VID2VA editor. Full multimode/reference support and continuation are later research.
+Goal: a complete usable ComfyUI video node collection, built around gameplay/low-poly → cinematic V2V. Prove a short no-ref Canny/native-H3 path first. Then deliver scenes and reliable long-input execution, editable analyzed/enhanced prompts, optional image identity, measured continuation/cut resets, and real workflows. Additional controls and creation modes extend that product.
 
-## Sequence and common commits
+## Bases and checked common commits
 
-Base B0 is `8e8cf7253862f94b7787d7065babf2878064ef82`. C0 means the **human-reviewed integrated M0 documentation commit**, not a worker's unmerged branch. It cannot name its own final SHA inside this same commit; the coordinator must record the exact SHA in the journal/assignment after integration. Subsequent labels are also integration milestones, never presumed files from another branch.
+Exact document revision base **D0**: 1bfcc50e204797862b2bbc014fce00e4694c122c (first M0, not merged into main). Parent **B0**: 8e8cf7253862f94b7787d7065babf2878064ef82. This revision advances only its assigned branch from B0 to D0 before editing; it does not integrate main. Neither main nor an unreviewed documentation branch is an automatic implementation launch base.
 
-```mermaid
+**C0** means the accepted revised-document common commit; its actual full SHA must be recorded by the coordinator after review. The revision cannot embed its own final SHA. A checked common commit may live on an explicitly selected shared integration branch; no main merge is implied. Each dependent verifies the actual full SHA, required interfaces/files and checks there. Symbolic labels and presumed unmerged files are insufficient.
+
+~~~mermaid
 flowchart TD
-  C0[Approved M0 common commit C0] --> F[M1-01 shared foundation: one owner]
-  F --> CF[Integrated reviewed checked CF]
-  CF --> M[M1-02 canonical media, planning and export]
-  CF --> H[M1-03 Canny and native H3 adapter]
-  M --> CM[Integrated checked media commit CM]
-  CM --> HI[M1-03 finish real media interface integration]
+  C0[Accepted checked revised M0 C0] --> F[M1-01 portable foundation]
+  F --> CF[Checked common CF]
+  CF --> M[M1-02 real CFR24 media and plan]
+  CF --> H[M1-03 Canny and native adapter]
+  M --> CM[Checked media CM]
+  CM --> HI[M1-03 integration on CM]
   H --> HI
-  HI --> CH[Common integrated M1 commit CH]
-  CH --> G[M1-04 sequential named GPU owner: real sample and control-off]
-  G --> CG[Reviewed real GPU receipt and accepted gate CG]
-  CG --> E[M2-01 minimal timeline editor]
-  CG --> R[M2-02 selected runs, recovery and export]
-  E --> CM2[Integrated checked M2 common commit]
-  R --> CM2
-```
+  HI --> CH[Checked integrated M1 CH]
+  CH --> G[M1-04 short real sample and comparison]
+  G --> CG[Accepted GPU gate CG]
+  CG --> E[M2-01 editable scene timeline]
+  CG --> R[M2-02 bounded runs and recovery]
+  E --> CT[Both outcomes checked together CT]
+  R --> CT
+  CT --> I[M2-03 editable scene intelligence]
+  I --> CI[Checked prompt gate CI]
+  CI --> B[M2-04 optional subject image identity]
+  B --> CB[Checked identity gate CB]
+  CB --> K[M2-05 continuation and cut resets]
+  K --> CC[Checked continuity gate CC]
+  CC --> W[M2-06 real ready V2V workflows]
+  W --> CW[Accepted V2V release CW]
+  CW --> C[M3-01 controls and mixed decision]
+  CW --> V[M3-02 native creation modes]
+~~~
 
-- Foundation has **one first owner** for schemas, package metadata, dependencies/lockfiles, registration skeleton and shared helpers. No downstream implementation before CF is integrated, checked and separately reviewed.
-- At most **two simultaneous implementing workers**, the user's starting policy. After CF, media and adapter may work on the same checked base with their agreed interfaces; adapter's integration finish waits for CM. It cannot assume media code exists on CF. Its final result is integrated into CH with CM before GPU work.
-- A separate AO reviewer reviews future code; fixes return to each owner. Reviewer is not a second implementation owner. Do not let review/integration change the common contract without foundation coordination.
-- GPU validation/ComfyUI changes are sequential, owned by one **named AO session** recorded before start. Currently unassigned and unreserved. Worktrees do not isolate GPU, ports, output, venv or model settings. Cloud capability is unknown.
-- M2 starts only from CG after real M1 acceptance. An explicit GPU NOT PERFORMED report documents a blocker; it does not automatically open the large editor gate. If resources cannot be provided, the human decides whether to revise scope.
-- No M1/M2 worker, reviewer, GPU process or nested orchestrator is launched by M0.
+- **One first foundation owner** controls shared schemas/errors, package metadata/dependencies/lockfiles, skeleton and conformance fixtures. Downstream starts after reviewed/checked integration CF. Amendments return to that owner and yield a new actual common SHA.
+- Initial project policy: **at most two simultaneous IMPLEMENTING workers**, not an AO platform limit. Media/adapter may start on CF; adapter finishes on a common commit containing CM. Editor/runner may start on CG in separate areas/event contracts; joint acceptance uses integrated CT.
+- Explicit central gates are CI (prompt automation), CB (identity), CC (continuity), CW (ready workflows). These are product priorities, not generic M3 nice-to-haves. Optional features preserve manual/no-ref operation, but advertised variants need real supported-backend receipts.
+- Future code review uses a **separate AO reviewer**; fixes return to the outcome owner. No implementer/reviewer/GPU session is launched here.
+- GPU/H3/shared-ComfyUI work is sequential under one named allocated resource owner. Worktrees do not isolate GPU, venv, ports, output or model settings. Cloud GPU availability is unknown; no reservation exists now.
+- GPU NOT PERFORMED is an honest unexecuted/blocked gate, not PASS. If a real M1 sample is unavailable, report it before any large timeline and return the gate/scope decision to the human; M2 does not open automatically.
 
-## Outcome-sized task summaries
+## Outcome backlog
 
-The linked cards include scope/non-goals, exact read paths, proposed output areas, dependencies/common-base rules, interfaces, acceptance/resources/publication and blockers. Each owner owns the outcome plus its ordinary tests/docs.
+Each card owns one user-visible result plus ordinary tests/docs. Shared metadata/schemas remain foundation-owned; paths/interfaces are proposals.
 
-| ID | Outcome | Proposed owner / starts from | Exit evidence |
+| Card | User-visible outcome | Starting/final common commit | Node groups |
 |---|---|---|---|
-| [M1-01](tasks/M1-01-FOUNDATION.md) | Versioned shared foundation and license/dependency decisions | One foundation owner, C0 | Serialization/validation/import checks and separate review → CF |
-| [M1-02](tasks/M1-02-MEDIA.md) | Real CFR media, balanced legal windows, spatial/audio-accurate CPU export | Media owner, CF | Synthetic media frame/PTS/sample/dimension receipts plus ordinary tests → CM |
-| [M1-03](tasks/M1-03-H3.md) | Canny and native graph adapter with strict compatibility/receipts | Adapter owner, CF; final integration on CM | Controlled inputs/empty refs, normal execution events and exact finalization; mocks labeled, then CH |
-| [M1-04](tasks/M1-04-GPU-GATE.md) | Real controlled/control-off sample on an authorized matched environment | Named GPU resource owner, CH | Actual H3 output, timings/memory/count/audio/wiring receipt reviewed → CG |
-| [M2-01](tasks/M2-01-EDITOR.md) | Minimal VID2VA source/marker/prompt editor and workflow persistence | Editor owner, CG | Real browser state/actions, marker conservation/save/reload/missing-media checks |
-| [M2-02](tasks/M2-02-RUNNER.md) | Serial selected/full runs, cancellation/retry/recovery/assembly | Runner owner, CG; integrated editor before final UI checks | Owned queue/ledger reconciliation, selected rerun and complete export receipts → CM2 |
+| [M1-01 foundation](tasks/M1-01-FOUNDATION.md) | Load/save and validate portable projects without optional models | C0 → CF | N01; shared records/interfaces |
+| [M1-02 media](tasks/M1-02-MEDIA.md) | Add source → measured CFR24, legal plan, accurate CPU export | CF → CM | N02/N03/N10/N12/N23 |
+| [M1-03 H3](tasks/M1-03-H3.md) | Canny preview and checked bounded native H3 path; refs not forced | CF; final CM → CH | Manual N11; N13/N15/N16/N20/N26 |
+| [M1-04 GPU gate](tasks/M1-04-GPU-GATE.md) | Short real controlled/off sample and resource/visual comparison | CH → CG after review/decision | N24 + M1 path |
+| [M2-01 editor](tasks/M2-01-EDITOR.md) | Editable scene/local prompts and workflow persistence | CG → CE; joint CT | N04/N06/N25 |
+| [M2-02 runner](tasks/M2-02-RUNNER.md) | Serial selected/full runs, recovery/retry and export without holes | CG → CR; CE+CR → CT | N21/N22; N23/N24 integration |
+| [M2-03 scene prompts](tasks/M2-03-SCENE-PROMPTS.md) | Review cut proposals and bounded VLM/enhancer prompt drafts | CT → CI | N05/N07/N09; structured N11 |
+| [M2-04 identity](tasks/M2-04-IDENTITY.md) | Optional appearance images bind subjects across scenes | CI → CB | N08; reference N11/N15 |
+| [M2-05 continuity](tasks/M2-05-CONTINUITY.md) | Continue a shot, reset at cuts and resume compatible state | CB → CC | N17–N19; context N10/N20/N22 |
+| [M2-06 workflows](tasks/M2-06-WORKFLOWS.md) | Actual supplied usable V2V workflows and setup/receipts | CC → CW | N28 + accepted V2V collection |
+| [M3-01 controls](tasks/M3-01-CONTROLS.md) | Validated Depth/Pose/Gray and evidence-based mixed decision | CW → CCTRL | N14/N26; updated workflow |
+| [M3-02 modes](tasks/M3-02-MODES.md) | Tested native text/keyframe/full-reference creation modes | CW → CMODES | N27/N28; updated workflow |
 
-## M1 shortest proof
+M3 controls/modes can share a base with disjoint areas; GPU validation and shared workflow changes stay sequential. Record their checked combined release. Unsupported mixed controls stay disabled with an explicit evidence-based reason.
 
-1. Human accepts M0 choices and assigns C0/foundation owner/publication scope. Resolve project license/borrowing before implementation distribution. Confirm current source pins or record deliberate updated pins.
-2. Foundation publishes and integrates CF. Media owner produces a real 24/1 canonical artifact and measured manifest, a legal plan, an explicit spatial transform, a continuous audio timeline and CPU assembly checks. Adapter owner develops the agreed v1 interfaces from CF; optional backends absent must not break import.
-3. Adapter integrates against CM, builds a **bounded** native window graph from known profile schemas, outputs Canny preview, asserts exact N/H/W, empty appearance/guide/inpaint sockets and visible prompt. Native queue/sampler/model management remain authoritative. Source-only/mocked adapter checks are identified as such.
-4. Integrate and review CH. Name one GPU owner and obtain specific authorization for environment access/changes, test media and any missing model availability. No task silently installs, downloads or mutates working ComfyUI. Without that authorization/resources, record the blocker and NOT PERFORMED.
-5. Run one small real source clip with the checked profile, source preserve audio when present, no character references, turbo off. Run paired control-off with the same seed/prompt/window/dimensions/sampler/profile except patch disabled. Retain source/control/on/off/frame-count/audio/provenance receipts locally; do not upload personal media by default.
-6. Check the two-window 360-useful-frame boundary case and padding removal, spatial cases at feasible small dimensions, actual export FPS/PTS and audio impulse alignment. Record bounded repeated-window memory and cancellation behavior. Real generation is separate from CPU long-input planning and synthetic media tests.
-7. Separate AO review of implementation and evidence; owner fixes failures. Human reviews visual structural benefit/limitations and the resource profile. A valid run can show weak Canny benefit; report it honestly instead of claiming photorealism. Accept CG only when functional M1 checks and the real comparison exist.
+## M1 shortest verified path
 
-The recommended initial model recipe follows the pinned native **Ref2VA base + original converted Union**, references empty. Union 2.0 is an explicitly different candidate profile, not an untested substitution. If only v2 is already available, verify matching conversion/block/AdaLN/metadata and record that deliberate profile before a run. Neither model availability nor 16 GB fit is promised.
+1. Accept revised M0, record C0 and assign foundation/publication scope. Implement/check shared 2.0.0 records and optional-import-safe skeleton; separately review/integrate CF.
+2. Media produces actual timestamp normalization, canonical disk artifacts, balanced no-context windows, spatial transforms and absolute audio accounting. Adapter works against CF conformance fixtures, knowing real media code is absent there.
+3. Integrate CM; finish adapter on that actual common commit. Expand normal native nodes, exact Canny maps, frozen visible prompt/seed/profile and useful finalization. Source RGB/audio ref, guide and inpaint inputs are absent; refs/context empty. Review/check CH.
+4. Allocate one GPU owner with approved media and existing runtime/models. Template converted Ref2VA + original Union is first recipe. A deliberate v2 profile needs ten-block/AdaLN/post_norm/conversion validation, not filename substitution. No implicit installs/downloads/ComfyUI changes.
+5. Run a short clip with source audio preserved if present and a same-setting control-off. Check actual CFR24/counts/geometry/audio, timings and memory. Include F=360 two-window assembly, repeated-window lifetime and cancellation. Retain local receipts and honest human judgment of Canny benefit/photorealism limits.
+6. Review actual evidence independently of CPU/mocks and accept CG. Missing resources produce GPU NOT PERFORMED and the exact blocker; no fit claim or automatic large editor launch.
 
-## Acceptance evidence matrix
+## Central V2V product gates
 
-Everything here is **future acceptance**, not test results. CPU tests prove logic, media integration proves timestamps/samples/geometry, UI proves actual interactions, and GPU proves the native model path. Record each as PASS/FAIL/BLOCKED/NOT PERFORMED with scope and receipts.
+**CT timeline/runner:** manual scenes/prompts, exact coverage/persistence, bounded owned queue requests and durable recovery. Detection proposals and window edges are separate layers. Browser closure stops new submissions after the active owned window; reconcile before resume/retry.
 
-| Case | Required logic/media evidence | GPU/UI boundary |
-|---|---|---|
-| Short useful clip / tail | 1-frame useful window pads to recipe floor; L=346 balances 173/173 useful, N=175; adjacent ranges exact, no lost/duplicate output | Real short padded sample establishes usable behavior; shape minimum alone is not quality evidence |
-| Exactly 15 seconds | Canonical F=360; useful 180+180, N=192 each, total useful export 360, padding removed, every inference <=15 s | Real checked bounded runs/assembly before CG; no submitting 362 or rounding down to 345 |
-| Long input | e.g. F=1000 useful 334/333/333, N=345 each; arbitrary long source streamed, balanced plan and exact coverage | CPU/media evidence first; no claim long GPU execution until memory/serial behavior is measured |
-| 23.976 / 29.97 / 30 / 60 FPS | Actual source rational rates/PTS; real drop/duplicate normalization to 24/1, speed/duration preserved within count quantization | Native receives canonical batches, not renamed rate metadata |
-| VFR / discontinuities | Per-frame PTS fixtures, defined final endpoint, F policy; timestamp gaps/duplicates explicit; output increments 1/24 | Report ambiguous timing as blocked/error, not nominal-FPS success |
-| Audio offsets / fractional samples | Positive/negative source starts and impulses at beginning/boundaries/end; Q absolute boundaries; continuous PCM and one final encode | Preserve source outside H3 refs; no accumulated shift; codec presentation delay measured |
-| Mute / no audio | Mute exports no track; missing source soundtrack stays absent with visible note; video coverage unaffected | Joint H3 audio inference may still occur; no lip-sync claim |
-| 4:3 / portrait / rotation / SAR | Small feasible fixtures; declared transform shared by RGB/map/result; displayed output geometry preserved | Actual sample dimensions checked; no hidden stretch/crop |
-| Off-grid / odd sizes | 640×360→640×384→640×360 example; odd-codec incompatibility explicit; pad masks/maps align | No silent upscale/downscale/codec-size adjustment |
-| Spaces / Cyrillic paths | Probe/decode/cache/export/save/relink via literal argument arrays; fingerprints and IDs survive | Browser missing/relinked asset state checked; no personal-file scanning |
-| Control off / no refs | Frozen settings and graph provenance differ only in control application; reference/keyframe/guide/inpaint inputs absent | Two actual H3 outputs + Canny/source preview; structural comparison recorded by human |
-| Cancel / retry / cache | Prior completed results retained; in-flight incomplete inactive; request receipt reconciled before retry; prompt edit preserves Canny cache, geometry edit invalidates it | Normal interruption and owned queue behavior measured; mocks cannot replace native evidence |
+**CI scene prompts:** streamed detector proposals/manual correction; actual supported Qwen VLM with bounded frame/time/token coverage; editable observations and independent text-enhancer adapter. Validate three/six-block recipes, dialogue locks, manifest/guide versions and local window timing; test missing optional backend/manual fallback and scoped teardown before H3. Source and desired output styles are separate. A string-only enhancer or embedded H3 encoder cannot replace the VLM.
 
-M1 pass requires measured F and export F exact, each useful frame covered once, no exported padding/context, actual output PTS 24/1, required dimensions, source-relative duration error <=1 frame without accumulation. Audio requires exact global PCM slice counts, <=1 output sample rounding, separately measured codec delay, and no growing offset with window count. Record generated-audio correction/seam limitations separately from preserve-audio correctness.
+**CB identity:** optional images/stable subjects and real local labels/sockets. Compare two scenes with no-ref / bound-ref / cleared or reordered refs on a matched native Fun profile. Assess identity across a cut, recording limits. Never route raw source RGB to appearance/inpaint automatically.
 
-M2 adds actual load/player/scale/cursor, add/move/delete/numeric markers, adjacent prompts/inheritance, selected/full sequential run, progress/cancel/retry/export and workflow save/load/missing-path recovery. No mocked working buttons. Saved drafts of unsupported modes do not enable those modes.
+**CC continuity:** actual native Fun + refs + Motion-Context combination. Compatible same-shot windows carry bounded state; cuts/profile/geometry changes reset it. C+U+padding<=345 on the lattice; maps align to predecessor history. First head profile explicitly makes audio follow video and maps audio-grid overhang instead of inheriting a longer independent audio window. Padded latent tails need a verified mapping or explicit decoded-tail/replanned fallback. One trim and absolute audio fitting; predecessor edits invalidate successors to reset, independently from identity.
 
-## Resource, publication and review policy
+**CW ready workflows:** real UI/API assets with registered nodes, exact required/optional dependencies and model profiles, relink/setup/manual/no-ref variants and actual Windows load/run/resource/recovery/identity/continuity receipts. Illustrative JSON/proposed nodes cannot satisfy ready. [WORKFLOW_SPEC](WORKFLOW_SPEC.md) governs acceptance.
 
-M0 authorizes docs-only commit/push and **one documentation-only draft PR to main**; no redundant issues and no automatic merge. It does not authorize executing this backlog or future runtime changes. Every future task assignment names publication scope; default until assigned is not started/no publishing. Private media, machine paths, session logs and owner diagnostics stay in AO/local evidence, not public PR text.
+## Future checks and acceptance
 
-One named GPU owner holds the resource for preflight, model loading, smoke, cancellation and receipts; others do CPU-only work. Any needed user ComfyUI modification/model download requires specific future authorization. No mandatory WSL, paid inference/API or assumption of cloud GPU access. Choose the measured small configuration transparently; never hide a quality downgrade to fit memory.
+Everything in this table is future acceptance, not results. Record CPU/logic, synthetic media, browser, load/preflight and GPU separately as PASS/FAIL/BLOCKED/NOT PERFORMED; queue events alone are not success.
 
-Reviewers use a separate AO session after changes exist. A reviewer does not take code ownership; each fix returns to its owner and is pushed/rechecked under the assignment's scope. Integrate only checked common commits and update the journal's full SHA records before dependent starts.
+| Case | Required evidence / gate |
+|---|---|
+| Tiny clip / short tail | L=1 pads to N=124; L=346 → 173/173 useful, N=175, exact coverage. Real padded sample checks quality; shape minimum alone cannot. M1-02/04. |
+| Exactly 15 s | F=360 → 180+180 useful, N=192 each, 12 pad each; export 360. Never submit 362/discard to 345. Real M1-04 assembly. |
+| Continuation cap | Useful capacity <=345-C, all overhead in N. Proposed C=22/F=360 plan 192 then 168 useful, N=192 each; no runtime claim. M2-05. |
+| Long input | Streamed disk media; F=1000 no-context 334/333/333/N=345; quotas, multiple-window measured plateau/recovery. CPU planning is not long GPU evidence. M1-02/M2-02. |
+| Fractional/VFR | 23.976/29.97/30/60/VFR PTS/drop/duplicate receipts; preserved speed, 24/1 increments, EOF/discontinuity policy explicit. |
+| Geometry | 4:3/portrait/rotation/SAR/off-grid; 640x360 → canvas 640x384 → 640x360; same coordinates for RGB/maps/masks/results; odd-codec limits visible. |
+| Audio | +/- offsets, boundary/end impulses, absolute Q, continuous PCM, one encode and measured codec delay. Preserve/mute/no audio distinct from generated audio and refs; no accumulating shift. |
+| Files/state | Project-relative IDs/hashes/paths, spaces/Cyrillic, save/relink/stable IDs/overrides/version rejection; no guessed assets. |
+| Control/no refs | Actual same-settings on/off except patch; empty appearance/guide/inpaint sockets; Canny/source preview. M1-03/04. |
+| Scenes | Add/move/delete/numeric markers and distinct prompts; cut accept/reject/adjust, false cuts/fades/HUD cases; independent window overlay. M2-01/03. |
+| Analysis/prompts | All scene chunks covered with max gaps/uncertainties and resampling; real VLM backend, accepted visible text, no invented dialogue/no-clobber edits. M2-03. |
+| Images | Socket/label agreement, presence across scenes, clearing/reorder/relink and no-ref regression; actual combined profile/quality/resource report. M2-04. |
+| Continuation | Same-shot/cut/profile/padded-tail cases; combined profile, one trim/global samples, compatible restart and honest seams/drift. M2-05. |
+| Recovery/cache | Owned cancellation, prior receipts retained, ambiguous requests reconciled, prompt edit reuses maps, predecessor invalidation stops at reset. M2-02/05. |
+| Workflow usability | Actual import/no fake nodes, setup/relink, optional-dependency absence, manual path, budgets and full receipts. M2-06; M3 updates. |
 
-## M0 requirements checklist
+Video: export exactly F useful frames, PTS 1/24, declared dimensions, no duplicate head/pad, canonical-source duration error <=1 frame without accumulation. PCM slice counts use global Q exactly, rounding <=1 output sample, codec presentation delay separately measured, no growing offset. Generated-audio corrections/seams are reported.
 
-These checkmarks identify document coverage; verification receipts are recorded below after checks. They do not certify the proposed runtime.
+## Environment, publication and review
 
-- [x] Required AGENTS/README/brief/research/architecture/contracts/plan/index and coherent task cards.
-- [x] Brief preserved unchanged; missing personal test assets and no extension/GPU result stated.
-- [x] Primary revision/date/path/license ledger; frame, duration, dimensions, conditioning, model/control compatibility, queue/memory/audio evidence and unknowns.
-- [x] Versioned typed Project/Segment/GenerationWindow/ControlSpec/RenderResult, stable IDs, ranges/inheritance/media fingerprints/transforms/audio/status/errors/cache/migration and worker interfaces.
-- [x] Outcome-sized owners with ordinary tests/docs, one shared foundation owner, checked common bases, <=2 implementing workers, separate reviewers and named sequential GPU-resource gate.
-- [x] Real 24 FPS/count/useful coverage/padding/audio/dimensions/control-off and all requested edge cases in future acceptance.
-- [x] No M1/M2 launch; docs-only publication scope; GPU validation NOT PERFORMED.
-- [x] Document verification receipt finalized: diff whitespace, local link/path/JSON/source consistency, full requirement review and brief hash.
+This M0 permits docs edits/checks, local doc commit and **own assigned-branch push using existing origin SSH**, with commit/compare handoff. No PR claim/create/merge, auth/config changes, M1/M2 launch, installs/weights/paid calls/uploads/inference or user ComfyUI changes. A recorded publication-route blocker is reported privately in AO and not retried. Main/other worktrees and branches remain untouched.
 
-## Document verification receipt
+Future assignments identify full checked SHA, owner/interfaces, dependencies actually present, approved media/runtime/model availability, publication scope/checks/reviewer and one sequential GPU owner when applicable. Public evidence is sanitized; private native-session/auth/machine diagnostics stay in AO. Reviewer does not take ownership; owners fix/recheck. docs/tasks is a journal, not AO scheduling.
 
-Document-only checks on 2026-10-04 UTC: all 8 required paths and 6 task cards present (14 Markdown files); 40 local file links resolve; all 5 illustrative JSON fragments parse; every card has the required ownership/dependency/interface/acceptance/resource/publication/status fields. The 16 source groups were reviewed against the inspected revisions/paths/licenses, with FFmpeg's unversioned publication limitation retained. Requirement review found all requested cases and gates covered. Staged `git diff --cached --check` passed for all new/changed files; only Markdown is staged. The brief's SHA256 matches `81B86AB34ADD27455F5A6B4F37652050A5DDE0FEEB024F25616FF1D53D6C513B`, and its raw working-file Git blob equals the staged blob (no byte normalization in the committed brief). Public machine/session diagnostic scan was clear. PLAN was opened through AO static preview without a new server/dependency/launch configuration.
+## Document verification
 
-No extension unit/media/GPU tests were implemented or run. These are documentation checks, not H3 evidence. Final commit/branch/draft PR and detailed machine/session provenance are reported through AO; C0 remains unassigned until human review/integration. M1/M2 and reviewer/GPU work remain unstarted.
+M0 checks only documentation: owned paths/cards, V01–V20 reconciliation, source pins/evidence levels, local file/anchor links, illustrative JSON parsing (partial records are not implemented schemas), coherent 2.0.0 records/common-commit ordering, docs-only diff, git diff --check, unchanged brief canonical blob/SHA and pre-edit checkout bytes, and no public private-session/machine/auth diagnostics. Preview primary docs/PLAN.md using existing AO static preview, with no new server/dependency/launch configuration.
+
+Original brief blob: 77e34e02374483fc19be006dc5d5b78e40f15042; canonical SHA256: 81B86AB34ADD27455F5A6B4F37652050A5DDE0FEEB024F25616FF1D53D6C513B. Check canonical Git and checkout bytes separately because line-ending conversion differs. Fresh check results/counts and final commit/branch are supplied after verification; no code/media/GPU PASS follows from them.
+
+**Document-check receipt, 2026-10-05 Europe/Moscow:** 23 Markdown files inspected; 87 local file/anchor links resolved; 31 table column structures checked; six illustrative JSON records parsed with coherent proposed versions/intervals. Reconciliation contains V01–V20, N01–N28, 24 source-ledger entries and 12 complete outcome cards with required read paths/interfaces/base/dependency gates. Integer calculations checked the four no-context length examples, the proposed 22-frame continuation example and 12 absolute-audio-boundary cases; these are document/formula checks, not implementation or media tests.
+
+The 22 changed paths are documentation only; staged `git diff --check` passed. Original brief canonical blob/SHA and pre-edit checkout bytes match. Public path/privacy and stale-interface scans passed, with a manual scope/evidence/common-commit review. AO static preview of this PLAN was inspected: eight headings and two tables are present, browser errors are empty; Mermaid is displayed as a source block in that preview. The final commit/push receipt is supplied in AO and the handoff. **No code/media/model/GPU verification was performed; implementation remains NOT STARTED.**

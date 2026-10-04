@@ -1,17 +1,19 @@
-# M1-01 — Shared contract and package foundation
+# M1-01 — Portable project and shared foundation
 
-- **Goal:** one checked common foundation for every downstream owner.
-- **Scope:** implement versioned serialization/validation/error types and interface conformance examples; minimal ComfyUI registration/import skeleton; shared version/cache-key helpers; dependency tooling and project license/borrowing decisions. One first owner controls all schemas, manifests, lockfiles and shared skeleton.
-- **Non-goals:** media pipeline, H3 inference, timeline editor, model download, environment modification, exhaustive multimode support.
-- **Inputs/read paths:** `AGENTS.md`, `README.md`, `docs/PROJECT_BRIEF.md`, `docs/RESEARCH.md`, `docs/ARCHITECTURE.md`, `docs/CONTRACTS.md`, `docs/PLAN.md`, this card and `docs/tasks/INDEX.md`.
-- **Outputs/owned areas (proposed):** `schemas/`, `kmin_video_director/contracts/`, shared version/error helpers, root registration/package/dependency files and any chosen lockfile, foundational tests/conformance fixtures, updated contract/license docs. Other owners request changes here rather than edit shared files concurrently.
-- **Dependencies/base requirement:** human accepts M0 and records exact integrated C0. Start only from that checked SHA, verifying actual HEAD and doc contents. Publish/review/integrate the outcome as CF and record full SHA before any downstream start.
-- **Interface version:** `KVD-WORKER/1.0.0`, `kmin.*` schema 1.0.0; approve any amendment in docs first and give consumers the revised common SHA.
-- **Acceptance evidence:** round-trip stable IDs/Unicode/overrides; reject unknown major/required capability; invalid ranges/seed/digests explicit; migration preserves originals; cache keys deterministic with effective defaults; import without Depth/Pose/model weights; package/shared metadata reviewed. Tests and docs belong to this owner. These checks are not H3 evidence.
-- **Environment/resources:** CPU Windows-compatible implementation; no mandatory WSL. Dependency installation for verification requires assignment scope; do not modify the user's working ComfyUI/venv. No GPU or port ownership.
-- **Publication policy:** NOT AUTHORIZED by M0 backlog; future assignment must name commit/push/PR scope. Prefer one outcome PR with tests/docs after permission applies. No personal data/weights. Separate AO reviewer; fixes return to owner.
-- **Status/blockers:** PROPOSED / NOT STARTED. Blocked on human M0 decision, exact C0, named owner and implementation/publication authorization; license choice/borrowed-code attribution must be resolved before distribution.
+- **Goal:** A user can load/save and validate one portable project; every downstream owner has the same checked interface.
+- **Scope:** Implement the proposed 2.0.0 records, validation/serialization/errors, migration policy/conformance fixtures and import-safe registration skeleton. Sole first owner for shared schemas/helpers/package metadata/dependencies/lockfiles and license/attribution decisions.
+- **Non-goals:** Media decoding, H3/VLM inference, timeline UI, model download or user-environment changes.
+- **Inputs/read paths:** AGENTS.md, README.md, docs/PROJECT_BRIEF.md, docs/PRODUCT_DIRECTION_V2V.md, docs/RESEARCH.md, docs/ARCHITECTURE.md, docs/CONTRACTS.md, docs/NODE_CATALOG.md, docs/WORKFLOW_SPEC.md, docs/PLAN.md, docs/tasks/INDEX.md and this card.
+- **Outputs/new paths (proposed):** schemas/project.schema.json and other shared record schemas; kmin_video_director/contracts/; shared registration/version/errors; root package/dependency files and chosen lockfile; tests/contracts/, tests/imports/; contract/license documentation.
+- **Dependencies/base commit:** Human-reviewed revised M0 C0; full SHA UNASSIGNED. Do not start on main or assume first M0 is integrated. Verify assigned actual C0 HEAD/read paths, implement/review/check/integrate CF and record its full SHA before dependent starts. Research/document base D0 is 1bfcc50e204797862b2bbc014fce00e4694c122c; it is not an automatic launch base.
+- **Interfaces:** KVD-WORKER/2.0.0; kmin.* schema 2.0.0. Publish conformance fixtures for media/render and later draft/binding/state interfaces, with unsupported runtime features rejected.
+- **Acceptance:** Stable IDs/hashes/Unicode/project-relative paths/overrides round-trip; reject absolute/traversal locators, unknown major/required features and invalid ranges/seeds/digests; explicit migration preserves original; deterministic cache defaults; project can load/save without optional Depth/Pose/VLM/enhancer/models. Shared license/notices reviewed before distribution.
+- **Checks:** Future python -m pytest tests/contracts tests/imports; schema/conformance JSON parse, import with optional packages absent, public-path/privacy and git diff --check. No GPU PASS from these checks.
+- **Environment:** CPU Windows-compatible environment assigned separately; no mandatory WSL. Verification dependencies may be used/installed only within future assignment scope, never inferred from M0.
+- **GPU ownership:** None; do not access GPU/ComfyUI runtime. Future real consumers use one allocated sequential owner.
+- **Publication/review:** NOT STARTED; this M0 does not authorize implementation/publishing. Later assignment supplies scope; one owner includes ordinary tests/docs, separate AO reviewer, fixes return to owner. No private assets/session/auth/machine diagnostics in public outputs.
+- **Status/blockers:** PROPOSED / NOT STARTED; required common SHA, owner, implementation/environment/publication allocation not supplied. GPU NOT PERFORMED. Technical gates above are future blockers, not evidence of a failed run.
 
 ## Journal
 
-M0: card authored; no code, package/lockfile or task launch exists.
+First M0 established the short proof and shared-base policy. M0-V2V-REVISION reconciles this outcome with the updated product direction and proposed 2.0.0 interfaces. No code, fixture/media generation, dependency install, inference or task launch occurred.
