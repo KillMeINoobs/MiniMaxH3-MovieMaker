@@ -16,7 +16,80 @@
       "flags": {},
       "order": 0,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "ffmpeg_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffmpeg_path"
+          }
+        },
+        {
+          "name": "ffprobe_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffprobe_path"
+          }
+        },
+        {
+          "name": "disk_quota_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "disk_quota_mb"
+          }
+        },
+        {
+          "name": "working_set_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "working_set_mb"
+          }
+        },
+        {
+          "name": "source_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "source_file"
+          }
+        },
+        {
+          "name": "video_stream",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "video_stream"
+          }
+        },
+        {
+          "name": "audio_stream",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "audio_stream"
+          }
+        },
+        {
+          "name": "endpoint_duration",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "endpoint_duration"
+          }
+        }
+      ],
       "outputs": [
         {
           "name": "probe",
@@ -75,6 +148,62 @@
           "name": "source_media",
           "type": "KVD_MEDIA",
           "link": 1
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "ffmpeg_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffmpeg_path"
+          }
+        },
+        {
+          "name": "ffprobe_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffprobe_path"
+          }
+        },
+        {
+          "name": "disk_quota_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "disk_quota_mb"
+          }
+        },
+        {
+          "name": "working_set_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "working_set_mb"
+          }
+        },
+        {
+          "name": "audio_mode",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "audio_mode"
+          }
+        },
+        {
+          "name": "sample_rate",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "sample_rate"
+          }
         }
       ],
       "outputs": [
@@ -134,7 +263,72 @@
       "flags": {},
       "order": 2,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "native_schema_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "native_schema_file"
+          }
+        },
+        {
+          "name": "structural_control",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "structural_control"
+          }
+        },
+        {
+          "name": "model_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "model_file"
+          }
+        },
+        {
+          "name": "clip_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "clip_file"
+          }
+        },
+        {
+          "name": "video_vae_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "video_vae_file"
+          }
+        },
+        {
+          "name": "audio_vae_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "audio_vae_file"
+          }
+        },
+        {
+          "name": "patch_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "patch_file"
+          }
+        }
+      ],
       "outputs": [
         {
           "name": "render_profile",
@@ -198,6 +392,22 @@
           "name": "render_profile",
           "type": "KVD_RENDER_PROFILE",
           "link": 4
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "prompt"
+          }
+        },
+        {
+          "name": "seed",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "seed"
+          }
         }
       ],
       "outputs": [
@@ -254,6 +464,54 @@
           "name": "render_profile",
           "type": "KVD_RENDER_PROFILE",
           "link": 6
+        },
+        {
+          "name": "control_mode",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "control_mode"
+          }
+        },
+        {
+          "name": "low_threshold",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "low_threshold"
+          }
+        },
+        {
+          "name": "high_threshold",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "high_threshold"
+          }
+        },
+        {
+          "name": "strength",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "strength"
+          }
+        },
+        {
+          "name": "start_percent",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "start_percent"
+          }
+        },
+        {
+          "name": "end_percent",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "end_percent"
+          }
         }
       ],
       "outputs": [
@@ -352,6 +610,14 @@
           "name": "project",
           "type": "KVD_PROJECT",
           "link": 9
+        },
+        {
+          "name": "window_index",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "window_index"
+          }
         }
       ],
       "outputs": [
@@ -424,6 +690,46 @@
           "name": "spatial",
           "type": "KVD_SPATIAL",
           "link": 12
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "ffmpeg_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffmpeg_path"
+          }
+        },
+        {
+          "name": "ffprobe_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffprobe_path"
+          }
+        },
+        {
+          "name": "disk_quota_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "disk_quota_mb"
+          }
+        },
+        {
+          "name": "working_set_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "working_set_mb"
+          }
         }
       ],
       "outputs": [
@@ -483,6 +789,54 @@
           "name": "project",
           "type": "KVD_PROJECT",
           "link": 14
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "ffmpeg_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffmpeg_path"
+          }
+        },
+        {
+          "name": "ffprobe_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffprobe_path"
+          }
+        },
+        {
+          "name": "disk_quota_bytes",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "disk_quota_bytes"
+          }
+        },
+        {
+          "name": "working_set_bytes",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "working_set_bytes"
+          }
+        },
+        {
+          "name": "timeout_seconds",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "timeout_seconds"
+          }
         }
       ],
       "outputs": [
@@ -534,6 +888,14 @@
           "name": "window",
           "type": "KVD_WINDOW",
           "link": 15
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "prompt"
+          }
         }
       ],
       "outputs": [
@@ -648,7 +1010,24 @@
       "flags": {},
       "order": 11,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "unet_name",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "unet_name"
+          }
+        },
+        {
+          "name": "weight_dtype",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "weight_dtype"
+          }
+        }
+      ],
       "outputs": [
         {
           "name": "MODEL",
@@ -681,7 +1060,32 @@
       "flags": {},
       "order": 12,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "clip_name",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "clip_name"
+          }
+        },
+        {
+          "name": "type",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "type"
+          }
+        },
+        {
+          "name": "device",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "device"
+          }
+        }
+      ],
       "outputs": [
         {
           "name": "CLIP",
@@ -715,7 +1119,16 @@
       "flags": {},
       "order": 13,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "vae_name",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "vae_name"
+          }
+        }
+      ],
       "outputs": [
         {
           "name": "VAE",
@@ -747,7 +1160,16 @@
       "flags": {},
       "order": 14,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "vae_name",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "vae_name"
+          }
+        }
+      ],
       "outputs": [
         {
           "name": "VAE",
@@ -779,7 +1201,16 @@
       "flags": {},
       "order": 15,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "name",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "name"
+          }
+        }
+      ],
       "outputs": [
         {
           "name": "MODEL_PATCH",
@@ -866,6 +1297,30 @@
           "name": "order_token",
           "type": "KVD_ORDER",
           "link": null
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "native_schema_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "native_schema_file"
+          }
+        },
+        {
+          "name": "working_set_bytes",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "working_set_bytes"
+          }
         }
       ],
       "outputs": [
@@ -953,6 +1408,70 @@
           "name": "audio",
           "type": "AUDIO",
           "link": 32
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "ffmpeg_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffmpeg_path"
+          }
+        },
+        {
+          "name": "ffprobe_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffprobe_path"
+          }
+        },
+        {
+          "name": "disk_quota_bytes",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "disk_quota_bytes"
+          }
+        },
+        {
+          "name": "working_set_bytes",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "working_set_bytes"
+          }
+        },
+        {
+          "name": "timeout_seconds",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "timeout_seconds"
+          }
+        },
+        {
+          "name": "attempt",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "attempt"
+          }
+        },
+        {
+          "name": "request_id",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "request_id"
+          }
         }
       ],
       "outputs": [
@@ -1023,6 +1542,70 @@
           "name": "audio_timeline",
           "type": "KVD_AUDIO_TIMELINE",
           "link": 40
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "ffmpeg_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffmpeg_path"
+          }
+        },
+        {
+          "name": "ffprobe_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffprobe_path"
+          }
+        },
+        {
+          "name": "disk_quota_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "disk_quota_mb"
+          }
+        },
+        {
+          "name": "working_set_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "working_set_mb"
+          }
+        },
+        {
+          "name": "selection",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "selection"
+          }
+        },
+        {
+          "name": "codec",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "codec"
+          }
+        },
+        {
+          "name": "odd_dimensions",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "odd_dimensions"
+          }
         }
       ],
       "outputs": [
@@ -1078,6 +1661,30 @@
           "name": "project",
           "type": "KVD_PROJECT",
           "link": 41
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "project_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_file"
+          }
+        },
+        {
+          "name": "overwrite",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "overwrite"
+          }
         }
       ],
       "outputs": [
@@ -1128,6 +1735,22 @@
           "name": "control",
           "type": "KVD_CONTROL",
           "link": 42
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "preview_frame",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "preview_frame"
+          }
         }
       ],
       "outputs": [
@@ -1621,7 +2244,12 @@
         "First-window generation only: full export requires one planned window. Keep Assemble muted for longer partial plans.",
         "Native Canny CPU contour, installed H3 model compatibility, GPU fit and rendered quality are NOT PERFORMED.",
         "Initial baseline diffusion checkpoint is absent from the supplied resource schema; never substitute another model."
-      ]
+      ],
+      "reviewed_amendments": [
+        "88b8441894479a99ed5d79894c2e7eddcffac72e",
+        "f231a5180dc2ab0825860dbb5928d22862587e7e"
+      ],
+      "widget_input_policy": "explicit definition-owned inputs; nonwidgets then widgets; frontend1.53.6 source-reviewed, native load unperformed"
     }
   },
   "version": 0.4

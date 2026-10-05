@@ -62,21 +62,24 @@ def validate_workflow(workflow, native):
         assert tuple(p['name'] for p in node['outputs']) == tuple(names)
         assert [p['slot_index'] for p in node['outputs']] == list(range(len(outputs)))
         ports, widgets, required = {}, [], set()
-        converted = {p['name'] for p in node['inputs'] if 'widget' in p}
         for group in ('required', 'optional'):
             for key, specification in fields.get(group, {}).items():
                 kind = specification[0]
                 if isinstance(kind, list) or kind in ('STRING', 'INT', 'FLOAT', 'BOOLEAN', 'COMBO'):
                     widgets.append((key, specification))
-                    if key not in converted:
-                        continue
-                    ports[key] = kind if isinstance(kind, str) else 'COMBO'
-                    assert next(p for p in node['inputs'] if p['name'] == key)['widget'] == {'name': key}
+                    continue
                 else:
                     ports[key] = kind
                 if group == 'required':
                     required.add(key)
+        # Reviewed frontend1.53.6 creates nonwidgets, then every widget socket.
+        # Author them explicitly so load/serialize cannot silently add inputs.
+        for key, specification in widgets:
+            kind = specification[0]
+            ports[key] = kind if isinstance(kind, str) else 'COMBO'
+            assert next(p for p in node['inputs'] if p['name'] == key)['widget'] == {'name': key}
         assert {p['name']: p['type'] for p in node['inputs']} == ports
+        assert [p['name'] for p in node['inputs']] == list(ports)
         assert len(node['widgets_values']) == len(widgets)
         for (key, specification), value in zip(widgets, node['widgets_values']):
             kind = specification[0]
@@ -125,7 +128,8 @@ def test_diagnostics_match_actual_merged_and_native_metadata(name, count, links,
     assert gates == ([('UNETLoader', 'unet_name', BASE)] if count == 23 else [])
 
 
-@pytest.mark.parametrize('fault', ['required_link', 'output_slot', 'unknown_class', 'bad_enum', 'bad_literal'])
+@pytest.mark.parametrize('fault', ['required_link', 'output_slot', 'unknown_class', 'bad_enum', 'bad_literal',
+                                 'missing_widget', 'wrong_widget', 'widget_type', 'widget_order'])
 def test_schema_preflight_rejects_broken_artifact(fault, actual_native_schemas):
     workflow = deepcopy(read('m1_canny_preview.json'))
     if fault == 'required_link': workflow['nodes'][-1]['inputs'][0]['link'] = None
@@ -133,7 +137,11 @@ def test_schema_preflight_rejects_broken_artifact(fault, actual_native_schemas):
     elif fault == 'unknown_class': workflow['nodes'][-1]['type'] = 'FictionalPreview'
     elif fault == 'bad_enum': workflow['nodes'][3]['widgets_values'][0] = 'pose'
     elif fault == 'bad_literal': workflow['nodes'][3]['widgets_values'][1] = 5
-    with pytest.raises((AssertionError, KeyError, IndexError)):
+    elif fault == 'missing_widget': workflow['nodes'][0]['inputs'].pop()
+    elif fault == 'wrong_widget': workflow['nodes'][0]['inputs'][0]['widget']['name'] = 'wrong'
+    elif fault == 'widget_type': workflow['nodes'][0]['inputs'][0]['type'] = 'INT'
+    elif fault == 'widget_order': workflow['nodes'][0]['inputs'].reverse()
+    with pytest.raises((AssertionError, KeyError, IndexError, StopIteration)):
         validate_workflow(workflow, actual_native_schemas)
 
 

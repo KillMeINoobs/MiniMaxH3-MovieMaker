@@ -16,7 +16,80 @@
       "flags": {},
       "order": 0,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "ffmpeg_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffmpeg_path"
+          }
+        },
+        {
+          "name": "ffprobe_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffprobe_path"
+          }
+        },
+        {
+          "name": "disk_quota_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "disk_quota_mb"
+          }
+        },
+        {
+          "name": "working_set_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "working_set_mb"
+          }
+        },
+        {
+          "name": "source_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "source_file"
+          }
+        },
+        {
+          "name": "video_stream",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "video_stream"
+          }
+        },
+        {
+          "name": "audio_stream",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "audio_stream"
+          }
+        },
+        {
+          "name": "endpoint_duration",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "endpoint_duration"
+          }
+        }
+      ],
       "outputs": [
         {
           "name": "probe",
@@ -75,6 +148,62 @@
           "name": "source_media",
           "type": "KVD_MEDIA",
           "link": 1
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "ffmpeg_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffmpeg_path"
+          }
+        },
+        {
+          "name": "ffprobe_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffprobe_path"
+          }
+        },
+        {
+          "name": "disk_quota_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "disk_quota_mb"
+          }
+        },
+        {
+          "name": "working_set_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "working_set_mb"
+          }
+        },
+        {
+          "name": "audio_mode",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "audio_mode"
+          }
+        },
+        {
+          "name": "sample_rate",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "sample_rate"
+          }
         }
       ],
       "outputs": [
@@ -147,6 +276,22 @@
           "name": "render_profile",
           "type": "KVD_RENDER_PROFILE",
           "link": null
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "prompt"
+          }
+        },
+        {
+          "name": "seed",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "seed"
+          }
         }
       ],
       "outputs": [
@@ -206,6 +351,54 @@
           "name": "render_profile",
           "type": "KVD_RENDER_PROFILE",
           "link": 5
+        },
+        {
+          "name": "control_mode",
+          "type": "COMBO",
+          "link": null,
+          "widget": {
+            "name": "control_mode"
+          }
+        },
+        {
+          "name": "low_threshold",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "low_threshold"
+          }
+        },
+        {
+          "name": "high_threshold",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "high_threshold"
+          }
+        },
+        {
+          "name": "strength",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "strength"
+          }
+        },
+        {
+          "name": "start_percent",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "start_percent"
+          }
+        },
+        {
+          "name": "end_percent",
+          "type": "FLOAT",
+          "link": null,
+          "widget": {
+            "name": "end_percent"
+          }
         }
       ],
       "outputs": [
@@ -303,6 +496,14 @@
           "name": "project",
           "type": "KVD_PROJECT",
           "link": 8
+        },
+        {
+          "name": "window_index",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "window_index"
+          }
         }
       ],
       "outputs": [
@@ -373,6 +574,46 @@
           "name": "spatial",
           "type": "KVD_SPATIAL",
           "link": 11
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "ffmpeg_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffmpeg_path"
+          }
+        },
+        {
+          "name": "ffprobe_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffprobe_path"
+          }
+        },
+        {
+          "name": "disk_quota_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "disk_quota_mb"
+          }
+        },
+        {
+          "name": "working_set_mb",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "working_set_mb"
+          }
         }
       ],
       "outputs": [
@@ -432,6 +673,54 @@
           "name": "project",
           "type": "KVD_PROJECT",
           "link": 13
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "ffmpeg_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffmpeg_path"
+          }
+        },
+        {
+          "name": "ffprobe_path",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "ffprobe_path"
+          }
+        },
+        {
+          "name": "disk_quota_bytes",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "disk_quota_bytes"
+          }
+        },
+        {
+          "name": "working_set_bytes",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "working_set_bytes"
+          }
+        },
+        {
+          "name": "timeout_seconds",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "timeout_seconds"
+          }
         }
       ],
       "outputs": [
@@ -481,6 +770,22 @@
           "name": "control",
           "type": "KVD_CONTROL",
           "link": 14
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "preview_frame",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "preview_frame"
+          }
         }
       ],
       "outputs": [
@@ -699,7 +1004,12 @@
         "Reviewed media CM69ed is integrated in source; native Canny/live preview and GPU/H3 acceptance remain pending."
       ],
       "generation_dependencies": [],
-      "preparation_profile": "media builtin source-only 24 FPS/grid32/5+17k shape policy, no model components"
+      "preparation_profile": "media builtin source-only 24 FPS/grid32/5+17k shape policy, no model components",
+      "reviewed_amendments": [
+        "88b8441894479a99ed5d79894c2e7eddcffac72e",
+        "f231a5180dc2ab0825860dbb5928d22862587e7e"
+      ],
+      "widget_input_policy": "explicit definition-owned inputs; nonwidgets then widgets; frontend1.53.6 source-reviewed, native load unperformed"
     }
   },
   "version": 0.4

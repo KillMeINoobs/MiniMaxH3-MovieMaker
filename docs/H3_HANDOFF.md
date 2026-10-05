@@ -23,9 +23,25 @@ The coordinator subsequently released the whole reviewed media common
 [Media source/CPU approval](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/3#pullrequestreview-5417990776)
 is a dependency receipt, not H3 approval. All five media handlers and eight
 media nodes are now present; owned I/O consumes their actual backend, decoded
-PTS, global sample-boundary and result-selection helpers. Shared/media paths
-remain identical to CM69ed. Initial obsolete ac335 assertions were resolved
+PTS, global sample-boundary and result-selection helpers. Production media,
+contracts, schemas and dependency files remain identical to CM69ed. Initial
+obsolete ac335 assertions were resolved
 through whole c923 integration, without editing or suppressing shared tests.
+
+The final coordinator release also adopts two exact independently reviewed
+local amendments through normal whole merges: media test-only
+`88b8441894479a99ed5d79894c2e7eddcffac72e` at merge
+`bf48c3764a9433c62d6fc696f13ef17fd13a760c`, then foundation
+`f231a5180dc2ab0825860dbb5928d22862587e7e` (including reviewed c08) at merge
+`8ed8d1fff53ed3af9417a93878f39fc0a6bf2d71`. The former keeps required media
+handlers/classes/import safety while accepting owned extensions; the latter
+retains strict native fixture comparison and explicitly authors its widget
+sockets. Their local source/synthetic approval is not full H3/native/GPU
+acceptance. Published media/foundation refs and PR2/PR3 remain unchanged.
+The separate foundation owner has recorded its four-node registration,
+roundtrip and fresh-page/Russian persistence check. Full visual foundation
+acceptance remains incomplete. That receipt does not cover aggregate25-node
+registration, these H3 workflows, native Canny, model loading or generation.
 
 ## Callable boundary
 
@@ -172,6 +188,12 @@ Do these steps only after independent H3 source review and separately allocated
 installation/native-node preflight. Both artifacts have static checks against
 the actual merged classes and native handoffs; **neither has been loaded or
 queued**. Output nodes remain muted and paths remain blank for human setup.
+The reviewed frontend1.53.6 rule materializes definition-owned widget inputs
+after nonwidget inputs. Both artifacts now explicitly author those sockets,
+including their stable widget-name association and unlinked defaults. Existing
+link endpoint indices, output slots, widget values, prompts and titles are
+preserved. Static metadata checks reject missing/wrong/reordered widget sockets;
+native H3 workflow load/roundtrip/layout remains unperformed.
 
 ### Phase A: video → CFR24 → window → native Canny preview
 

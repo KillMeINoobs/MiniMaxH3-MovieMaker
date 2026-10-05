@@ -9,9 +9,15 @@ are diagnostic, with muted outputs.
 The whole independently reviewed media common
 `69ed44577550b8545a40cc3209a488d9fcd13fda` is integrated by normal merge
 `74eb530c0fd9445a6bfb603a9c9182a982a5781b`, preserving owned 9185151 and
-CM69ed parents. Shared/media paths and KVD-WORKER/2.0.0 / data/schema 2.0.0
-remain unchanged. [Media review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/3#pullrequestreview-5417990776)
+CM69ed parents. Production media/contracts/dependencies and KVD-WORKER/2.0.0 /
+data/schema 2.0.0 remain unchanged. [Media review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/3#pullrequestreview-5417990776)
 approves that dependency only.
+
+Exact reviewed local media-test amendment88b844 and foundationf231 (including
+c08) were then normally merged whole, preserving every parent. Their full SHAs
+and merge commits are in [the handoff](../H3_HANDOFF.md). Shared owner content
+is included exactly; it was not manually rewritten. Published media/foundation
+refs remain69ed/c923. Independent full H3 review still follows this candidate.
 
 The isolated environment retains the unchanged verification lock. No
 Torch/Kornia/runtime package was installed. Existing FFmpeg/ffprobe
@@ -22,10 +28,10 @@ media I/O; private executable/capture paths and detailed receipts stay in AO.
 
 | Check | Actual outcome / limit |
 | --- | --- |
-| Final integrated Python CPU suite | 340 passed, two failed, two skipped in89.08s. Both failures are unchanged media tests requiring exactly five handlers/twelve nodes; integrated H3 adds four handlers/thirteen nodes. No assertions were edited or suppressed |
+| Final integrated Python CPU suite | 381 passed, zero failures, two explicit skips in85.22s after both reviewed whole merges and owned widget corrections; prior340PASS/2FAIL/2SKIP preserved below |
 | Media/H3 integration regressions | 16 passes: real normalization/preparation, explicit off, exact authored prompt, actual GraphBuilder links, constructed decoded AV, finalization, result selection and export |
 | Aggregate control disk budget | One pass: constructed raw RGB plus recipe receipt share the actual reviewed operation quota; these are not Canny contour bytes |
-| Both workflow schema preflights | Nine passes: actual integrated classes plus immutable 32-class native capture and separate PreviewImage schema; 10/15 preparation and 23/43 generation nodes/links |
+| Both workflow schema preflights | 13 focused passes: actual integrated classes plus immutable32-class capture and PreviewImage supplement; explicit native widget sockets, typed ports and unchanged10/15 preparation /23/43 generation nodes/links |
 | Native Canny synthetic contour | **NOT PERFORMED**; isolated environment lacks native Comfy/Torch/Kornia. Opt-in skip is not a fallback/mock contour receipt |
 | Native GraphBuilder | Hash-checked actual stdlib-only source `dabb3f75952a1398891ed87ad853d4ea9c929f322ce6997d4ea916adbc2f209d`; no native executor/sampler/model import or call |
 | Graph/profile/header checks | Actual links/ports/required parameters, exact prompt/u64 seed, structural off, stale/profile/AdaLN/v1-v2/dtype/malformed-envelope rejection; checkpoint headers and model availability are explicitly synthetic |
@@ -33,7 +39,7 @@ media I/O; private executable/capture paths and detailed receipts stay in AO.
 | Source/global audio | Original global PCM and nonzero source offset retained byte-for-byte in synthetic export; no audio-guide conditioning |
 | Generated audio bridge | Constructed stereo32k PCM on the actual 40Hz/800-sample native grid; useful trim, reported endpoint pad, one resample to Project rate/layout, absolute Q counts and two-window impulse boundary; native Torch AUDIO conversion unperformed |
 | Collection/history | Actual reviewed selection, complete Project.media closure, current JSON array, distinct attempt artifact IDs, changed PCM digest, and partial coverage rejection without source fallback |
-| EN/RU/frontend | 44 passed, including actual shared language helpers and owned host/module callbacks; no live UI/layout/save-reload acceptance |
+| EN/RU/frontend | 54 passed, zero failures/skips in484.0403ms; actual shared/owned modules in synthetic hosts, not live H3 UI acceptance |
 | Resource metadata | Original 32-class capture and separate PreviewImage supplement hashes checked. Baseline UNET filename absent: honest `MODEL_INCOMPATIBLE` before checkpoint access |
 | Installed custom nodes, real workflow/contours/H3/GPU/quality/cancel/VRAM and human result | **NOT PERFORMED / BLOCKED** at separately allocated runtime and human gates |
 
@@ -44,13 +50,23 @@ stub the absent native Canny call and labels that limitation. No contour
 accuracy PASS is inferred.
 
 The initial full collection found identical media/adapter test module names;
-an owned adapter test-package marker resolves that collision. The completed run
-above reports the remaining two media-owned exact-registry assertions honestly.
-The coordinator routed an extension-aware test-only amendment to the media
-owner. Final publication waits for its exact independently reviewed SHA and a
-normal whole-merge instruction. No shared test source was changed, disabled or
-excluded. Historical pre-CM215-pass/two-skip and42-frontend-pass evidence is
-retained separately from this integrated run.
+an owned adapter test-package marker resolves that collision. The first CM69ed
+combined run was340PASS/2FAIL/2SKIP in89.08s, plus44frontend passes; the two
+failures were unchanged media-owned exact-registry assumptions. That complete
+failed outcome stays in its original AO log and is not relabeled green. The
+coordinator routed an extension-aware test-only correction to owner8 and
+separately reviewed/released exact88b844. Its whole merge resolves the shared
+assumptions while retaining required handler/class/port/import checks. No
+shared test was disabled or excluded. Pre-CM215-pass/two-skip and42-frontend
+receipts remain historical evidence.
+
+Applying the reviewed frontend widget rule adds38 unlinked sockets to the
+preparation artifact and77 to the generation artifact. A static before/after
+receipt verifies all preexisting inputs, links, IDs, output slots, titles,
+positions and widget values are unchanged; the already linked results_json
+widget retains its actual link. Tests also reject absent/misnamed/mistyped or
+reordered widget inputs. This source-backed modeling is not native workflow
+loading or serialization acceptance.
 
 ## Integration observations
 
