@@ -96,3 +96,31 @@ coherent candidate requires independent pinned review before deployment;
 installed ac335 stays unchanged.
 Shared-runtime allocation is retained and CF remains unaccepted. No node,
 workflow, model, media or GPU execution occurred.
+
+The later exact-c923 source/synthetic review approved that correction. Its
+approved archive was deployed with unchanged backend; the single live fixture
+attempt then rejected a stable serialization mismatch. The failed projection
+was not captured, so no exact changed field or cause is established. Registration
+and ordinary EN/RU save/readback/restoration do not accept the blocked graph,
+layout or CF gates.
+
+The current local-only diagnostics preparation retains the existing rejection
+and recovery rules and records complete stable projections plus a typed first
+JSON-path difference on semantic failure, or explicitly unavailable capture.
+The source-preparation fallback finding PREP-DIAG1 was reproduced and corrected:
+unavailable diagnostics have guarded, bounded error formatting and a complete
+envelope budget check, retaining original rejection/cleanup/verified recovery.
+Owner checks passed; that local c08 candidate subsequently received independent
+source/synthetic approval and was separately deployed for one diagnostic attempt.
+Published PR2 remains exact c923. Its strict failure captured six added unlinked
+native widget sockets; all other stable fields and two links were unchanged.
+Native source explains the input contract, while the exclusive runtime writer
+remains unknown. The two owned fixtures now explicitly declare those six inputs,
+with a focused source-supported synthetic normalization regression. No comparator,
+backend/interface or ordinary-selector change belongs to this correction. Its
+new local candidate requires separate exact review; no publication/deployment or
+corrected browser retry is released. Installed c08 remains fixed. Four selectors/
+captions were observed, only three help/status blocks; the fourth is unobserved.
+Screenshot 10060 produced no image. Full graph/reload/layout/CF remains blocked.
+M1-02/M1-03 CPU-only work has separate exact-common-base releases; shared runtime,
+CF and native H3/GPU acceptance remain ungranted.

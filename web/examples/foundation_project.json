@@ -16,7 +16,16 @@
       "flags": {},
       "order": 0,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "project_json",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_json"
+          }
+        }
+      ],
       "outputs": [
         {
           "name": "project",
@@ -104,6 +113,30 @@
           "name": "project",
           "type": "KVD_PROJECT",
           "link": 2
+        },
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "project_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_file"
+          }
+        },
+        {
+          "name": "overwrite",
+          "type": "BOOLEAN",
+          "link": null,
+          "widget": {
+            "name": "overwrite"
+          }
         }
       ],
       "outputs": [
@@ -146,7 +179,24 @@
       "flags": {},
       "order": 3,
       "mode": 0,
-      "inputs": [],
+      "inputs": [
+        {
+          "name": "project_root",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_root"
+          }
+        },
+        {
+          "name": "project_file",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "project_file"
+          }
+        }
+      ],
       "outputs": [
         {
           "name": "project",
