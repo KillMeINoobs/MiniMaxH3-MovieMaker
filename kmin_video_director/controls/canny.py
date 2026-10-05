@@ -4,7 +4,7 @@ from importlib import metadata
 from pathlib import Path
 import math
 
-from ..contracts import cache_key, cache_locator
+from ..contracts import cache_key, cache_locator, digest_json
 from ..contracts.worker import ControlArtifact
 from ..errors import fail
 from .storage import checked_media_path, check_geometry, raw_frames, write_raw
@@ -80,7 +80,8 @@ def build_control(prepared,control,*,context):
     low,high = params['low_threshold'],params['high_threshold']
     thresholds(low,high)
     rect = spatial['content_rect']
-    budget = int(context.versions.get('working_set_bytes','268435456'))
+    from ..adapters.native_h3.media_bridge import integer_limit
+    budget = integer_limit(context,'working_set_bytes',268435456)
     if budget <= 0 or rect['width']*rect['height']*160 + spatial['canvas_width']*spatial['canvas_height']*6 > budget:
         fail('RESOURCE_LIMIT','The content frame exceeds the explicit Canny working-set budget.')
     checked_media_path(prepared.media,context)
@@ -105,5 +106,11 @@ def build_control(prepared,control,*,context):
                 padded[start:start+rect['width']*3] = edges[y*rect['width']*3:(y+1)*rect['width']*3]
             previous,previous_map = frame,bytes(padded)
             yield previous_map
-    media = write_raw(maps(),relative,prepared.frame_count,width,height,'control_map',VERSION,context)
+    implementation_version = VERSION+'+'+digest_json(backend[2])['hex']
+    media = write_raw(maps(),relative,prepared.frame_count,width,height,'control_map',implementation_version,context)
+    from ..adapters.native_h3.media_bridge import write_json
+    write_json({'version':VERSION,'native_implementation':backend[2],'recipe':control.to_dict(),
+        'prepared_digest':prepared.media['fingerprint']['digest'],'spatial':spatial,
+        'frame_count':prepared.frame_count,'map':media.to_dict(),'gpu':'not_performed'},
+        cache_locator('control',key,suffix='json')['path'],context)
     return ControlArtifact(prepared.window_id,control.id,media,prepared.spatial.id,prepared.frame_count,media)

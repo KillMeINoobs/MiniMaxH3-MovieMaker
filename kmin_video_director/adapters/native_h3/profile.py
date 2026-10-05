@@ -4,9 +4,11 @@ These checks do not load weights, certify GPU fit, or attest inference.
 """
 import math
 import json
+from pathlib import Path
 
 from ...contracts import digest_bytes
 from ...errors import fail
+from .components import COMPONENTS, REVISION
 
 CORES = frozenset(('b87fe48b0491425f682f7ffdaed56d0387cb6c5d',
                   'daeb5e53681e2b10a3f0727d9ec5bc90784bee10'))
@@ -37,7 +39,7 @@ def port_type(port):
 
 
 def enum_options(port):
-    return port[0] if isinstance(port[0],list) else port[1].get('options',[])
+    return port[0] if isinstance(port[0],list) else port[1].get('options',[]) if len(port)>1 else []
 
 
 def schema_digest(schema):
@@ -59,7 +61,7 @@ def incompatible(message):
 def enum_value(schemas, cls, port, value):
     try:
         choices = enum_options(schemas[cls]['input']['required'][port])
-    except (KeyError, TypeError):
+    except (KeyError, TypeError, IndexError, AttributeError):
         incompatible(f'Missing native schema: {cls}.{port}.')
     if not isinstance(choices,list) or value not in choices:
         incompatible(f'Select an available, verified {cls}.{port}: {value}.')
@@ -89,6 +91,9 @@ def validate_native_profile(profile, schemas, core_revision, *, structural=True)
             incompatible(f'Unverified checkpoint metadata or revision: {role}.')
         if c['format'] != 'comfy-native' or c['digest'].get('algorithm') != 'sha256' or len(c['digest'].get('hex','')) != 64:
             incompatible(f'Checkpoint fingerprint/format is unsupported: {role}.')
+        if (Path(c['filename']).name!=COMPONENTS[role][0] or c['revision']!=REVISION or
+            c['digest']['hex']!=COMPONENTS[role][1]):
+            incompatible(f'Unknown checkpoint combination/revision: {role}.')
     for role,cls,port in (('model','UNETLoader','unet_name'),('clip','CLIPLoader','clip_name'),
                           ('video_vae','VAELoader','vae_name'),('audio_vae','VAELoader','vae_name')):
         enum_value(schemas,cls,port,components[role]['filename'])
@@ -116,6 +121,8 @@ def validate_native_profile(profile, schemas, core_revision, *, structural=True)
         enum_value(schemas,'ModelPatchLoader','name',components['patch']['filename'])
         patch,branch = components['patch']['metadata'],profile['control_branch']
         version = branch.get('version')
+        if version!='union-v1':
+            incompatible('The pinned initial control file is Union v1; v2 requires its own reviewed component/profile revision.')
         count,norm = {'union-v1':(5,'pre_norm'),'union-v2':(10,'post_norm')}.get(version,(0,None))
         layers = list(range(0,50,50//count)) if count else []
         expected_branch = {'version':version,'block_count':count,'injection_layers':layers,

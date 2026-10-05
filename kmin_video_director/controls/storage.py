@@ -74,6 +74,8 @@ def raw_frames(media, n, width, height, context):
 
 
 def write_raw(frames, relative_path, n, width, height, role, version, context):
+    from ..adapters.native_h3.media_bridge import reserve
+    reserve(context,n*width*height*3)
     path = resolve_locator(context.asset_root,relative_path)
     path.parent.mkdir(parents=True,exist_ok=True)
     temp = None

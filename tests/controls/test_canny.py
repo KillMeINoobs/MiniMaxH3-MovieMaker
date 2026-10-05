@@ -92,6 +92,10 @@ def test_pipeline_hashes_exact_geometry_and_ignores_strength(tmp_path,monkeypatc
     changed['backend']['parameters']['high_threshold'] = 0.6
     third = build_control(p,ControlSpec.from_dict(changed),context=context(tmp_path))
     assert third.media['locator'] != first.media['locator']
+    monkeypatch.setattr(canny,'native_backend',lambda:(None,None,{'fixture':'next-implementation'}))
+    fourth=build_control(p,spec(),context=context(tmp_path))
+    assert fourth.media['fingerprint']['digest']==first.media['fingerprint']['digest']
+    assert fourth.media['fingerprint']['probe_version']!=first.media['fingerprint']['probe_version']
 
 
 def test_off_is_explicit_and_creates_no_map(tmp_path):
@@ -129,3 +133,12 @@ def test_window_size_is_bounded_before_open(tmp_path,n):
     p = prepared(tmp_path,box(),n=n)
     with pytest.raises(ContractError, match='FRAME_COUNT_MISMATCH'):
         build_control(p,spec(),context=context(tmp_path))
+
+
+@pytest.mark.parametrize('budget',['invalid','0','-1','1'])
+def test_canny_resource_budget_fails_before_backend_or_map_write(tmp_path,budget):
+    p=prepared(tmp_path,box())
+    ctx=OperationContext(tmp_path,CancellationFlag(),{'working_set_bytes':budget})
+    with pytest.raises(ContractError,match='RESOURCE_LIMIT'):
+        build_control(p,spec(),context=ctx)
+    assert not list(tmp_path.rglob('*.json'))

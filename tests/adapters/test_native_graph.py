@@ -3,18 +3,20 @@ from copy import deepcopy
 import hashlib
 import importlib.util
 import json
+import os
 from pathlib import Path
 import sys
 import types
 
 import pytest
 
-from kmin_video_director.contracts import (ControlSpec, GenerationWindow, MediaRef, RenderProfile,
+from kmin_video_director.contracts import (ContractError, ControlSpec, GenerationWindow, MediaRef, RenderProfile,
                                          digest_bytes, digest_json, dumps)
 from kmin_video_director.contracts.worker import (CancellationFlag, CompiledPrompt, ControlArtifact,
                                                 NativeLink, NativeModelLinks, OperationContext)
 from kmin_video_director.adapters.native_h3.graph import expand_native_render, generation_key
 from kmin_video_director.adapters.native_h3.profile import validate_native_profile, schema_digest
+from kmin_video_director.adapters.native_h3.components import COMPONENTS
 from tests.contracts.example_data import control, media, profile, window
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -23,7 +25,9 @@ CORE = 'daeb5e53681e2b10a3f0727d9ec5bc90784bee10'
 
 @pytest.fixture
 def native_builder(monkeypatch):
-    source = ROOT/'.ao/primary/daeb5e5/comfy_execution__graph_utils.py'
+    source = Path(os.environ.get('KVD_GRAPH_BUILDER_SOURCE',ROOT/'.ao/primary/daeb5e5/comfy_execution__graph_utils.py'))
+    if not source.is_file():
+        pytest.skip('Pinned stdlib-only native GraphBuilder source is not supplied. No substitute builder is used.')
     assert hashlib.sha256(source.read_bytes()).hexdigest() == 'dabb3f75952a1398891ed87ad853d4ea9c929f322ce6997d4ea916adbc2f209d'
     package = types.ModuleType('comfy_execution')
     package.__path__ = []
@@ -36,7 +40,7 @@ def native_builder(monkeypatch):
 
 
 def setup(tmp_path, *, off=False):
-    capture = json.loads((ROOT/'.ao/primary/native-schemas.json').read_text(encoding='utf-8-sig'))
+    capture = json.loads((ROOT/'tests/adapters/native_schema_fixture.json').read_text(encoding='utf-8'))
     schemas = deepcopy(capture['schemas'])
     names = {'model':'minimax_h3_ref2va_pruned_int8_convrot.safetensors',
              'clip':'qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors',
@@ -44,11 +48,10 @@ def setup(tmp_path, *, off=False):
              'audio_vae':'minimax_h3_audio_vae_fp32.safetensors',
              'patch':'minimax_h3_fun_controlnet_union_pruned_int8_convrot.safetensors'}
     # Explicitly synthetic availability: the actual capture lacks the baseline base.
-    schemas['UNETLoader']['input']['required']['unet_name'][0].append(names['model'])
     p = profile()
     p.update(core_revision=CORE, memory_policy='one_window')
     p['components'] = {role:{'filename':name,'revision':'e5eb578a89295337b8ff433a035929ce0279e0b6',
-                            'digest':digest_bytes(('synthetic-'+role).encode()),'format':'comfy-native',
+                            'digest':{'algorithm':'sha256','hex':COMPONENTS[role][1]},'format':'comfy-native',
                             'metadata':{'adaln':'basis','time_embed_dim':8}} for role,name in names.items()}
     p['components']['model']['metadata'].update(family='ref2va',num_layers=50,video_channels=24)
     p['components']['patch']['metadata'].update(block_count=5,injection_layers=[0,10,20,30,40],
@@ -150,6 +153,50 @@ def test_cancel_is_checked_before_schema_or_model_access(tmp_path,native_builder
 
 def test_actual_capture_does_not_certify_missing_baseline(tmp_path):
     _,p,_,_,_,_,_,_ = setup(tmp_path)
-    actual = json.loads((ROOT/'.ao/primary/native-schemas.json').read_text(encoding='utf-8-sig'))
+    capture_path = Path(os.environ.get('KVD_NATIVE_SCHEMA_CAPTURE',ROOT/'.ao/primary/native-schemas.json'))
+    if not capture_path.is_file(): pytest.skip('No read-only native schema handoff supplied.')
+    actual = json.loads(capture_path.read_text(encoding='utf-8-sig'))
     with pytest.raises(Exception,match='MODEL_INCOMPATIBLE'):
         validate_native_profile(p,actual['schemas'],actual['runtime']['core_commit'])
+
+
+def test_review_h1_map_regeneration_and_relocation_preserve_content_identity(tmp_path):
+    w,p,_,c,prompt,ctx,_,_=setup(tmp_path)
+    spec=ControlSpec.from_dict(json.loads(ctx.versions['control_spec_json']))
+    before=generation_key(w,p,c,prompt,spec)
+    data=c.media.to_dict()
+    data['fingerprint']['mtime_ns']='2'
+    data['locator']['path']='relocated/map.rgb'
+    relocated=ControlArtifact(c.window_id,c.control_spec_id,MediaRef.from_dict(data),c.spatial_transform_id,c.frame_count)
+    assert generation_key(w,p,relocated,prompt,spec)==before
+    data['fingerprint']['digest']=digest_bytes(b'different map bytes')
+    changed=ControlArtifact(c.window_id,c.control_spec_id,MediaRef.from_dict(data),c.spatial_transform_id,c.frame_count)
+    assert generation_key(w,p,changed,prompt,spec)!=before
+
+
+@pytest.mark.parametrize('field,value',[('probe_version','native-recipe-next'),('decoder_version','rgb-next'),('video_stream',1)])
+def test_effective_map_versions_and_stream_selection_invalidate_generation_key(tmp_path,field,value):
+    w,p,_,c,prompt,ctx,_,_=setup(tmp_path)
+    spec=ControlSpec.from_dict(json.loads(ctx.versions['control_spec_json']))
+    data=c.media.to_dict()
+    data['fingerprint'][field]=value
+    if field=='video_stream': data['probe']['video']['stream_index']=value
+    changed=ControlArtifact(c.window_id,c.control_spec_id,MediaRef.from_dict(data),c.spatial_transform_id,c.frame_count)
+    assert generation_key(w,p,changed,prompt,spec)!=generation_key(w,p,c,prompt,spec)
+
+
+def test_review_h2_unapproved_native_dtype_fails_before_expansion(tmp_path,native_builder):
+    w,p,models,c,prompt,ctx,_,parent=setup(tmp_path)
+    parent['base']['inputs']['weight_dtype']='fp8_e4m3fn'
+    ctx=OperationContext(ctx.asset_root,ctx.cancellation,{**ctx.versions,'source_graph':json.dumps(parent)})
+    with pytest.raises(ContractError,match='MODEL_INCOMPATIBLE'):
+        expand_native_render(w,p,models,c,prompt,None,context=ctx)
+
+
+@pytest.mark.parametrize('capture',[{}, {'schemas':{},'runtime':{}}, [], None, {'schemas':[], 'runtime':{'core_commit':CORE}}, {'schemas':{},'runtime':None}])
+def test_review_h3_malformed_schema_envelope_fails_with_redacted_typed_error(tmp_path,capture):
+    w,p,models,c,prompt,ctx,_,_=setup(tmp_path)
+    Path(ctx.versions['native_schema_file']).write_text(json.dumps(capture),encoding='utf-8')
+    with pytest.raises(ContractError,match='MODEL_INCOMPATIBLE') as error:
+        expand_native_render(w,p,models,c,prompt,None,context=ctx)
+    assert str(tmp_path) not in str(error.value)
