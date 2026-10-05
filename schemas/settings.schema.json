@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kmin-video-director.invalid/schemas/2.0.0/settings.schema.json",
+  "type": "object",
+  "properties": {
+    "prompt": {
+      "type": "string"
+    },
+    "prompt_recipe_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "seed": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]{0,19})$"
+    },
+    "control_spec_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+    },
+    "audio_mode": {
+      "enum": [
+        "preserve",
+        "generate",
+        "mute"
+      ]
+    },
+    "reference_binding_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 96,
+        "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      },
+      "uniqueItems": true
+    },
+    "continuity_policy": {
+      "enum": [
+        "none",
+        "reset",
+        "carry"
+      ]
+    },
+    "spatial_policy": {
+      "enum": [
+        "preserve_display_pad",
+        "draft_fit"
+      ]
+    },
+    "render_profile_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+    }
+  },
+  "required": [
+    "prompt",
+    "prompt_recipe_id",
+    "seed",
+    "control_spec_id",
+    "audio_mode",
+    "reference_binding_ids",
+    "continuity_policy",
+    "spatial_policy",
+    "render_profile_id"
+  ],
+  "additionalProperties": false
+}

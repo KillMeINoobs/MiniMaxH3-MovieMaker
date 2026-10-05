@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kmin-video-director.invalid/schemas/2.0.0/control_spec.schema.json",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "const": "kmin.control_spec"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^2\\.[0-9]+\\.[0-9]+$"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+    },
+    "required_features": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 96,
+        "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      },
+      "uniqueItems": true
+    },
+    "extensions": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9_-]+)+$": {}
+      },
+      "additionalProperties": false
+    },
+    "type": {
+      "enum": [
+        "off",
+        "canny",
+        "depth",
+        "pose",
+        "gray",
+        "canny_depth",
+        "depth_pose"
+      ]
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "backend": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "model_digest": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "const": "sha256"
+                },
+                "hex": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "algorithm",
+                "hex"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "temporal_policy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "parameters",
+        "model_digest",
+        "temporal_policy"
+      ],
+      "additionalProperties": false
+    },
+    "strength": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "schedule": {
+      "type": "object",
+      "properties": {
+        "start_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "end_percent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "start_percent",
+        "end_percent"
+      ],
+      "additionalProperties": false
+    },
+    "conditioning_role": {
+      "const": "structural_control_video"
+    },
+    "compatibility": {
+      "type": "object",
+      "properties": {
+        "profile_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96,
+            "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          },
+          "uniqueItems": true
+        },
+        "evidence": {
+          "enum": [
+            "source_only",
+            "load_verified",
+            "gpu_verified"
+          ]
+        },
+        "checkpoint_family": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        },
+        "checkpoint_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        },
+        "branch_block_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "injection_layers": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "adaln": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        },
+        "grid": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "lattice": {
+          "type": "object"
+        },
+        "input_channels": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "normalization_mode": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        }
+      },
+      "required": [
+        "profile_ids",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "preprocess_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+    },
+    "map_fingerprint": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "algorithm": {
+              "const": "sha256"
+            },
+            "hex": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            }
+          },
+          "required": [
+            "algorithm",
+            "hex"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 96,
+        "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      },
+      "uniqueItems": true
+    },
+    "representation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+    }
+  },
+  "required": [
+    "kind",
+    "schema_version",
+    "id",
+    "type",
+    "enabled",
+    "backend",
+    "strength",
+    "schedule",
+    "conditioning_role",
+    "compatibility",
+    "preprocess_version"
+  ],
+  "additionalProperties": false
+}

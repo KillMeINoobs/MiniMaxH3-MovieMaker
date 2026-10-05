@@ -1,0 +1,3 @@
+__version__ = "0.1.0"
+SCHEMA_VERSION = "2.0.0"
+INTERFACE_VERSION = "KVD-WORKER/2.0.0"

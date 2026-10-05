@@ -1,0 +1,33 @@
+{
+  "kind": "kmin.control_spec",
+  "schema_version": "2.0.0",
+  "id": "ctrl-canny",
+  "extensions": {},
+  "required_features": [],
+  "type": "canny",
+  "enabled": true,
+  "backend": {
+    "id": "comfy-native-canny",
+    "version": "source-b87fe48",
+    "parameters": {
+      "low_threshold": 0.4,
+      "high_threshold": 0.8
+    },
+    "model_digest": null,
+    "temporal_policy": "fixed_parameters"
+  },
+  "strength": 1.0,
+  "schedule": {
+    "start_percent": 0.0,
+    "end_percent": 1.0
+  },
+  "conditioning_role": "structural_control_video",
+  "compatibility": {
+    "profile_ids": [
+      "profile-source-only"
+    ],
+    "evidence": "source_only"
+  },
+  "preprocess_version": "canny/1",
+  "map_fingerprint": null
+}

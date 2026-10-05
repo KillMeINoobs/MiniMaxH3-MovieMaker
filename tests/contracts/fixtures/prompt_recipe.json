@@ -1,0 +1,40 @@
+{
+  "kind": "kmin.prompt_recipe",
+  "schema_version": "2.0.0",
+  "id": "recipe-1",
+  "extensions": {},
+  "required_features": [],
+  "project_id": "proj-1",
+  "segment_id": "seg-1",
+  "revision": 1,
+  "segment_revision": 1,
+  "status": "draft",
+  "authored_intent": "Cinematic motion",
+  "dialogue_locks": [],
+  "visible_text_locks": [],
+  "analysis_ids": [],
+  "desired_style": "photorealistic",
+  "format_id": "h3.base/1",
+  "format_version": "1.0.0",
+  "guide": {
+    "id": "authored",
+    "version": "1"
+  },
+  "mode": "t2va",
+  "blocks": {
+    "integrated_multimodal_description": "A cinematic scene.",
+    "overall_soundscape": "None.",
+    "non_diegetic_music": "None."
+  },
+  "final_text": "A cinematic scene.",
+  "text_digest": {
+    "algorithm": "sha256",
+    "hex": "789667bd5b65e0bb07870d125eabbbfa7e158db63568c8673789c804dd5b77c6"
+  },
+  "event_ranges": [],
+  "reference_binding_ids": [],
+  "validation": {},
+  "accepted": null,
+  "enhancer": null,
+  "warnings": []
+}

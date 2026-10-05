@@ -1,0 +1,48 @@
+{
+  "id": "space-1",
+  "version": "spatial/1",
+  "coded_width": 640,
+  "coded_height": 360,
+  "source_sar": {
+    "num": 1,
+    "den": 1
+  },
+  "display_matrix": [],
+  "display_width": 640,
+  "display_height": 360,
+  "scale": {
+    "num": 1,
+    "den": 1
+  },
+  "fitted_width": 640,
+  "fitted_height": 360,
+  "canvas_width": 640,
+  "canvas_height": 384,
+  "content_rect": {
+    "x": 0,
+    "y": 12,
+    "width": 640,
+    "height": 360
+  },
+  "pad_fill": {
+    "rgb": [
+      0,
+      0,
+      0
+    ],
+    "control": [
+      0,
+      0,
+      0
+    ],
+    "mask": 0
+  },
+  "resampler": "none",
+  "color_conversion": "rgb24",
+  "output_width": 640,
+  "output_height": 360,
+  "output_sar": {
+    "num": 1,
+    "den": 1
+  }
+}

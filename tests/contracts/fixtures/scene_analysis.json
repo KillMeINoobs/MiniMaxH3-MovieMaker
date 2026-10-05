@@ -1,0 +1,37 @@
+{
+  "kind": "kmin.scene_analysis",
+  "schema_version": "2.0.0",
+  "id": "analysis-1",
+  "extensions": {},
+  "required_features": [],
+  "project_id": "proj-1",
+  "segment_id": "seg-1",
+  "segment_revision": 1,
+  "source_digest": {
+    "algorithm": "sha256",
+    "hex": "abababababababababababababababababababababababababababababababab"
+  },
+  "analyzer": {
+    "id": "not-run",
+    "version": "1",
+    "model_digest": null
+  },
+  "sampling_recipe": {},
+  "chunks": [],
+  "samples": [],
+  "unobserved_intervals": [
+    {
+      "start": 0,
+      "end": 360
+    }
+  ],
+  "max_sample_gap": 360,
+  "observations": [],
+  "no_inferred_transcript": true,
+  "transcript_id": null,
+  "draft_revision": 0,
+  "errors": [],
+  "warnings": [
+    "Not executed."
+  ]
+}

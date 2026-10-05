@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kmin-video-director.invalid/schemas/2.0.0/render_profile.schema.json",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+    },
+    "evidence": {
+      "enum": [
+        "source_only",
+        "load_verified",
+        "gpu_verified"
+      ]
+    },
+    "receipts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "fps": {
+      "type": "object",
+      "properties": {
+        "num": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "den": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "num",
+        "den"
+      ],
+      "additionalProperties": false
+    },
+    "lattice": {
+      "type": "object",
+      "properties": {
+        "offset": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "step": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "offset",
+        "step"
+      ],
+      "additionalProperties": false
+    },
+    "shape_min": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "policy_inference_min": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "policy_inference_max": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "policy_duration_max": {
+      "type": "object",
+      "properties": {
+        "num": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "den": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "num",
+        "den"
+      ],
+      "additionalProperties": false
+    },
+    "grid": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "base_family": {
+      "enum": [
+        "ref2va",
+        "fl2va"
+      ]
+    },
+    "components": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object"
+      }
+    },
+    "node_signatures": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "algorithm": {
+            "const": "sha256"
+          },
+          "hex": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "algorithm",
+          "hex"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "core_revision": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+    },
+    "runtime": {
+      "type": "object"
+    },
+    "sampling": {
+      "type": "object"
+    },
+    "control_branch": {
+      "type": "object"
+    },
+    "memory_policy": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "evidence",
+    "receipts",
+    "fps",
+    "lattice",
+    "shape_min",
+    "policy_inference_min",
+    "policy_inference_max",
+    "policy_duration_max",
+    "grid",
+    "base_family",
+    "components",
+    "node_signatures",
+    "core_revision",
+    "runtime",
+    "sampling",
+    "control_branch",
+    "memory_policy"
+  ],
+  "additionalProperties": false
+}

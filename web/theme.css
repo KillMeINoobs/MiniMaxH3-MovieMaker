@@ -1,0 +1,20 @@
+/* Original KVD styling, scoped to this pack's DOM widgets. */
+.kvd-panel {
+  --kvd-surface: #17262e;
+  --kvd-line: #345261;
+  --kvd-text: #e4edf1;
+  --kvd-muted: #a1b6c1;
+  --kvd-accent: #72c7c5;
+  box-sizing: border-box; width: 100%; min-width: 0; height: 100%;
+  padding: 12px 14px; border: 1px solid var(--kvd-line); border-radius: 8px;
+  background: var(--kvd-surface); color: var(--kvd-text);
+  font: 13px/1.4 system-ui, 'Segoe UI', sans-serif; overflow: auto;
+}
+.kvd-panel__header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.kvd-panel__header strong { font-size: 14px; font-weight: 600; }
+.kvd-language { color: var(--kvd-text); background: #223b46; border: 1px solid var(--kvd-line);
+  border-radius: 5px; padding: 4px 7px; font: inherit; min-width: 120px; cursor: pointer; }
+.kvd-language:focus-visible { outline: 2px solid var(--kvd-accent); outline-offset: 2px; }
+.kvd-panel__badge { font-size: 11px; color: var(--kvd-accent); margin-top: 5px; letter-spacing: .04em; }
+.kvd-panel__help { margin: 8px 0 0; color: var(--kvd-text); }
+.kvd-panel__status { margin: 7px 0 0; color: var(--kvd-muted); font-size: 11px; }

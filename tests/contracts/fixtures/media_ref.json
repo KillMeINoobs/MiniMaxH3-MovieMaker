@@ -1,0 +1,60 @@
+{
+  "id": "media-cfr",
+  "role": "prepared_video",
+  "locator": {
+    "scheme": "project_relative",
+    "path": "media/Сцена 1/clip.bin"
+  },
+  "fingerprint": {
+    "digest": {
+      "algorithm": "sha256",
+      "hex": "abababababababababababababababababababababababababababababababab"
+    },
+    "byte_size": 0,
+    "mtime_ns": "0",
+    "video_stream": 0,
+    "audio_stream": null,
+    "probe_version": "synthetic/1",
+    "decoder_version": "not-run"
+  },
+  "probe": {
+    "video": {
+      "codec": "synthetic",
+      "stream_index": 0,
+      "time_base": {
+        "num": 1,
+        "den": 24
+      },
+      "first_pts": 0,
+      "end_pts": 360,
+      "pts_digest": {
+        "algorithm": "sha256",
+        "hex": "abababababababababababababababababababababababababababababababab"
+      },
+      "rate": {
+        "num": 24,
+        "den": 1
+      },
+      "vfr": false,
+      "width": 640,
+      "height": 360,
+      "rotation": 0,
+      "sar": {
+        "num": 1,
+        "den": 1
+      },
+      "display_matrix": [],
+      "color": "bt709",
+      "pixel_format": "rgb24"
+    },
+    "audio": null
+  },
+  "availability": "missing",
+  "error": {
+    "code": "SOURCE_MISSING",
+    "message": "Synthetic fixture; no asset supplied.",
+    "stage": "validate",
+    "retryable": false,
+    "details": {}
+  }
+}
