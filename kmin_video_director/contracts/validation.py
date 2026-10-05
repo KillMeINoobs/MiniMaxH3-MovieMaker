@@ -176,10 +176,21 @@ def validate_window(w):
         if s["role"] == "padding" and not output["start"] <= s["repeat_frame"] < output["end"]:
             fail("INVALID_INTERVAL", "Padding must repeat a useful prepared frame.")
     c, p = w["context"], w["padding"]
-    if sum(_length(s["inference_range"]) for s in spans if s["role"] == "context") != c["before"] + c["after"]:
-        fail("FRAME_COUNT_MISMATCH", "Context spans and counts disagree.")
-    if sum(_length(s["inference_range"]) for s in spans if s["role"] == "padding") != p["before"] + p["after"]:
-        fail("FRAME_COUNT_MISMATCH", "Padding spans and counts disagree.")
+    for role, counts in (("context", c), ("padding", p)):
+        actual = {"before": 0, "after": 0}
+        for span in (s for s in spans if s["role"] == role):
+            interval = span["inference_range"]
+            if interval["end"] <= output["start"]:
+                actual["before"] += _length(interval)
+            elif interval["start"] >= output["end"]:
+                actual["after"] += _length(interval)
+            else:
+                fail("FRAME_COUNT_MISMATCH", "Context and padding must lie outside useful output.")
+            if role == "context" and (span["continuation_state_id"] != c["continuation_state_id"]
+                    or _length(span["source_range"]) != _length(interval)):
+                fail("CONTINUATION_INCOMPATIBLE", "Context must identify and map the declared predecessor state.")
+        if any(actual[side] != counts[side] for side in actual):
+            fail("FRAME_COUNT_MISMATCH", "Context/padding counts must match their declared head or tail.")
     if output["start"] != c["before"] + p["before"] or n - output["end"] != c["after"] + p["after"]:
         fail("FRAME_COUNT_MISMATCH", "Useful trim must account for every head/tail frame.")
     if c["mode"] == "none" and (c["before"] or c["after"] or c["dependency_result_ids"] or c["continuation_state_id"]):
@@ -325,8 +336,10 @@ def validate_project(p):
 
 
 def _check_settings_links(settings, project, segment, link):
-    link(settings["control_spec_id"], project["controls"])
+    control = link(settings["control_spec_id"], project["controls"])
     link(settings["render_profile_id"], project["render_profiles"])
+    if control["type"] != "off" and settings["render_profile_id"] not in control["compatibility"]["profile_ids"]:
+        fail("MODEL_INCOMPATIBLE", "The selected control does not declare compatibility with this render profile.")
     for id in settings["reference_binding_ids"]:
         binding = link(id, project["reference_bindings"])
         if not binding["approved"] or segment and segment["id"] not in binding["segment_ids"]:
@@ -358,6 +371,11 @@ def validate_semantics(name, data):
     elif name == "media_ref":
         if (data["availability"] == "available") != (data["error"] is None):
             fail("INVALID_RECORD", "Missing/changed assets need an explicit error.")
+        for stream in ("video", "audio"):
+            probe = data["probe"][stream]
+            selected = data["fingerprint"][stream + "_stream"]
+            if (probe is None) != (selected is None) or probe is not None and probe["stream_index"] != selected:
+                fail("AMBIGUOUS_MEDIA_TIMING", "Probed streams must match the selected fingerprint streams.")
     elif name == "spatial_transform":
         rect = data["content_rect"]
         if (data["canvas_width"] % 32 or data["canvas_height"] % 32
