@@ -7,6 +7,7 @@ import math
 from ..contracts import cache_key, cache_locator, digest_json
 from ..contracts.worker import ControlArtifact
 from ..errors import fail
+from ..media.backend import bounded_operation
 from .storage import checked_media_path, check_geometry, raw_frames, write_raw
 
 BACKEND_ID = 'comfy-native-canny'
@@ -57,6 +58,7 @@ def native_canny_rgb(frame,width,height,low,high,backend,*,context):
     return result.numpy().tobytes()
 
 
+@bounded_operation
 def build_control(prepared,control,*,context):
     context.cancellation.check()
     spatial = check_geometry(prepared.spatial,prepared.frame_count)

@@ -16,13 +16,16 @@ before normally merging the whole subsequently reviewed common commit
 does not establish live foundation acceptance. No shared contract, manifest,
 lockfile, discovery skeleton or media-owned file was edited by this adapter.
 
-Final media integration requires a separately supplied, independently reviewed
-common SHA. The frozen media dependency description
-`d9b3a574dbfdd2bb4ec1428b5d91186fff3e107c` is not adopted here. In particular,
-the adapter's local useful-output probe is provisional until media's global
-decoded-PTS policy is actually integrated and checked. The obsolete initial
-ac335 shared assertions were resolved by importing the whole reviewed c923
-commit, without editing or suppressing those tests.
+The coordinator subsequently released the whole reviewed media common
+`69ed44577550b8545a40cc3209a488d9fcd13fda`. Normal merge
+`74eb530c0fd9445a6bfb603a9c9182a982a5781b` preserves both the owned
+`9185151fa583b64dfce445d5c16779e0d207c171` checkpoint and CM69ed history.
+[Media source/CPU approval](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/3#pullrequestreview-5417990776)
+is a dependency receipt, not H3 approval. All five media handlers and eight
+media nodes are now present; owned I/O consumes their actual backend, decoded
+PTS, global sample-boundary and result-selection helpers. Shared/media paths
+remain identical to CM69ed. Initial obsolete ac335 assertions were resolved
+through whole c923 integration, without editing or suppressing shared tests.
 
 ## Callable boundary
 
@@ -37,7 +40,7 @@ explicit operation, never in package discovery or `INPUT_TYPES`.
 | BuildControl | [canny.py](../kmin_video_director/controls/canny.py) | Exact prepared geometry/count, native Canny or explicit structural off, content-hashed disk RGB maps and recipe receipt |
 | CompileWindowPrompt | [prompt.py](../kmin_video_director/adapters/native_h3/prompt.py) | Exact visible per-window text and UTF-8 digest; no hidden rewrite, bindings or context |
 | ExpandNativeRender | [graph.py](../kmin_video_director/adapters/native_h3/graph.py) | Deterministic actual GraphBuilder expansion with native conditioning/sampler/decoders, checked ports/settings/resources and serial gate |
-| FinalizeWindow | [finalize.py](../kmin_video_director/adapters/native_h3/finalize.py) | Exact decoded identity/count, useful trim, inverse spatial crop/resize, durable checked video/receipt/RenderResult and small finalized order token |
+| FinalizeWindow | [finalize.py](../kmin_video_director/adapters/native_h3/finalize.py) | Exact decoded identity/count, useful trim, inverse spatial crop/resize, durable video/useful PCM/receipt/RenderResult and small finalized order token |
 
 `REGISTRY.require_operation` dispatches these real implementations. The
 foundation-only `require_runtime_capabilities(operation=...)` guard remains
@@ -99,12 +102,31 @@ token with matching Project/plan/ordinal/useful endpoint is required. It contain
 no tensor. This candidate supports one selected window per manual workflow;
 native cache lifetime and long-run memory bounds remain unmeasured.
 
-Finalization uses actual bounded CPU FFmpeg I/O for useful video. Preserve/mute
-leave the Project-global PCM timeline and source offset untouched; generated
-native audio is not silently substituted for original sound. Generated PCM
-finalization currently returns `UNSUPPORTED_CAPABILITY` pending reviewed media
-global-sample integration. Local synthetic decoded pixels prove crop/trim/PTS
-and durable result behavior only. They do not prove H3 generation.
+Finalization uses the reviewed bounded backend and real decoded-PTS probe for
+useful video (`kvd-h3-rgb-io/2.0.0`, `kvd-useful-finalizer/1.1.0`). Preserve/mute
+leave the Project-global PCM and original source offset untouched; generated
+native audio is never silently substituted for the source soundtrack.
+
+The generated-audio bridge (`kvd-h3-generated-pcm/1.0.0`) accepts exact native
+32000 Hz stereo `[1,2,L]` AUDIO. Pinned H3 temporal shape uses 40 latent ticks
+per second and the audio VAE decodes 800 samples per tick:
+`L = round(N*40/24)*800`. This differs from exact video duration by a bounded
+rounding amount. The bridge trims the local useful interval, explicitly pads
+any declared native endpoint shortfall, resamples once to the Project's
+rate/channel layout and fits the measured endpoint to the **absolute**
+`Q(b)-Q(a)` count, where `Q(f)=floor((f*Fs+12)/24)` comes from reviewed media.
+Every correction is reported; no per-window phase offset or source-origin reset
+is invented. Native PCM bytes, versions, policy and attempt bind durable artifact
+identity. Settings must match the explicit global AudioTimeline sound decision.
+
+Finalize collects actual results through reviewed `select_results`, adds their
+artifacts to Project.media, retains prior attempt history and emits a current
+JSON **array** on the stable `result_json` STRING output. `KVD_SelectResults`
+consumes that array before Save/Assemble. Distinct attempts retain distinct
+logical artifact IDs even when their encoded bytes are identical. Missing
+windows remain partial and cannot export through source fallback. Constructed
+RGB/PCM tests prove this CPU path only; native tensor conversion, H3 audio
+decoding, generation and long-run GPU memory behavior remain unperformed.
 
 ## Public source and resource pins
 
@@ -115,6 +137,7 @@ research pin. No repository clone, weight download or native execution occurred.
 | Source | Exact inspected revision and purpose |
 | --- | --- |
 | [Native core](https://github.com/Comfy-Org/ComfyUI/tree/daeb5e53681e2b10a3f0727d9ec5bc90784bee10) | `daeb5e53681e2b10a3f0727d9ec5bc90784bee10`: selected Canny/H3/model-patch/GraphBuilder/sampler/audio/model-detection/model/controlnet/loader/expansion source; core GPL-3.0 |
+| [Native VAE configuration](https://github.com/Comfy-Org/ComfyUI/blob/daeb5e53681e2b10a3f0727d9ec5bc90784bee10/comfy/sd.py), [audio VAE](https://github.com/Comfy-Org/ComfyUI/blob/daeb5e53681e2b10a3f0727d9ec5bc90784bee10/comfy/ldm/minimax/audio_vae.py) | Same GPL-3.0 core pin: 32 kHz stereo output, 800-sample hop and waveform geometry inspected without import/execution |
 | [Research core](https://github.com/Comfy-Org/ComfyUI/tree/b87fe48b0491425f682f7ffdaed56d0387cb6c5d) | `b87fe48b0491425f682f7ffdaed56d0387cb6c5d`: existing authority; Canny/H3/model-patch/GraphBuilder/controlnet raw files matched the newer pin byte for byte |
 | [Native template](https://github.com/Comfy-Org/workflow_templates/blob/0e5c5efb32ba6f3365d6da07da64aaf668157042/templates/video_minimax_h3_fun_controlnet_union.json) | `0e5c5efb32ba6f3365d6da07da64aaf668157042`, MIT; source/profile selection, not our runtime receipt |
 | [Converted component metadata](https://huggingface.co/Comfy-Org/MiniMax-H3/tree/e5eb578a89295337b8ff433a035929ce0279e0b6) | `e5eb578a89295337b8ff433a035929ce0279e0b6`; card and exact-revision public LFS file SHA256/size metadata, no weight access |
@@ -137,12 +160,18 @@ the provenance receipt SHA256 is
 Private artifact paths and machine/session diagnostics stay in AO. A malformed
 handoff envelope/section/core/port returns redacted `MODEL_INCOMPATIBLE` before
 GraphBuilder or model access. Dropdown names alone are not weight compatibility.
+The separate immutable PreviewImage supplement has SHA256
+`0751c1d78c8ba97a23a8167de253f63766ce43b041e1e866820fa4463081916c`
+and receipt `b99b8762014943eb58dd38a75787422ebfbe799fc63a12664269eee3bb020f03`.
+Its actual IMAGE output slot is preserved in both artifacts. This is read-only
+schema evidence, not PreviewImage execution or installed adapter acceptance.
 
 ## Human short-workflow setup
 
-Do these steps only after separately reviewed media integration, installation
-and installed-node/schema preflight. **Do not queue the diagnostic artifacts in
-their current dependency state.** No worker has loaded them into a native client.
+Do these steps only after independent H3 source review and separately allocated
+installation/native-node preflight. Both artifacts have static checks against
+the actual merged classes and native handoffs; **neither has been loaded or
+queued**. Output nodes remain muted and paths remain blank for human setup.
 
 ### Phase A: video → CFR24 → window → native Canny preview
 
@@ -177,7 +206,8 @@ verify H3 resources, loading, GPU fit or generation quality.
 ### Phase B: separate H3 resource preflight and human generation
 
 Use [m1_short_v2v.json](../workflows/m1_short_v2v.json). It deliberately adds
-the separate H3Profile and native loader/expander/finalizer branch. Keep its
+the separate H3Profile and native loader/expander/finalizer branch: 23 nodes and
+43 typed links, including the existing media SelectResults node. Keep its
 output nodes muted until the following explicit setup/resource checks pass.
 
 1. Use an explicitly chosen short local source in an existing project folder.
@@ -194,6 +224,8 @@ output nodes muted until the following explicit setup/resource checks pass.
    `RESOURCE_LIMIT`, not a fit promise. Preserve source audio or choose mute.
    The initial graph uses global PCM 48000 Hz for preservation; native H3 audio
    decoder output is a separate role and is not the preserved source soundtrack.
+   Selecting audio stream `-1` excludes source audio, even in preserve mode;
+   explicitly choose its actual absolute stream index to retain it.
 3. Select the fresh read-only native schema handoff in `KVD_H3Profile` and
    `KVD_ExpandNativeRender`. Use these exact source-template checkpoint files
    in the helper and their corresponding native loaders:
@@ -226,8 +258,9 @@ output nodes muted until the following explicit setup/resource checks pass.
    Assemble only for the exactly-one-window complete plan. The normal native
    queue performs the expanded sampler and
    decoding. Inspect progress/cancel behavior and actual useful result counts,
-   crop, image quality and audio. Assemble consumes Finalize's current Project
-   and global AudioTimeline, never the prepared source as a fallback result.
+   crop, image quality and audio. Finalize's Project and current result array
+   feed SelectResults; its selected Project feeds Save/Assemble. The linked
+   Normalize AudioTimeline is the original global preserve/mute policy.
    An export with missing coverage must fail; keep it muted for a first-window
    check of a longer source. Choose a new Project filename
    for a new save; replacing an existing Project is an explicit human choice.
@@ -239,6 +272,15 @@ output nodes muted until the following explicit setup/resource checks pass.
    the Canny preview output. Off removes structural patching, without making
    source RGB an appearance reference.
 
+The supplied graph uses source preservation (or explicit mute), not a generated
+sound selector. Generated useful PCM is implemented and tested through the
+unchanged callable contract using constructed native-shaped PCM. Using that
+policy requires an explicitly configured portable Project with matching
+Settings/global AudioTimeline decision, replanning/rebinding and the matching
+Project timeline at Assemble; do not leave the original preserve-timeline link
+while changing only a window mode. A mismatched decision fails
+`AUDIO_SYNC_MISMATCH`. This does not imply a human generated-sound test occurred.
+
 The shared persisted `KVD.Language` selector defaults to English. Russian
 translates the 13 owned node titles, fields, help, statuses and typed errors.
 Stable IDs/socket keys/types/enum values/prompt/seed/links/custom titles remain
@@ -247,8 +289,9 @@ helpers are tested with the real shared module. Browser layout and native
 save/reload still require the separate live gate.
 
 Verification details and unperformed checks are recorded in
-[M1_ADAPTER.md](validation/M1_ADAPTER.md). Separate source/CPU review and an
-explicit checked PR base/ref are required before the one draft publication.
+[M1_ADAPTER.md](validation/M1_ADAPTER.md). Publication is released as one draft
+stacked on the exact CM69ed media branch; independent full H3 source/CPU review
+and the separate human/native/GPU gates remain pending.
 
 ## Original released implementation plan (historical)
 

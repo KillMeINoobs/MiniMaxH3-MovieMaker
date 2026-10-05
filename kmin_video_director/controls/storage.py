@@ -6,10 +6,10 @@ External media decoding belongs to the explicit native H3 media bridge.
 import hashlib
 import os
 import stat
-import tempfile
 
 from ..contracts import MediaRef, digest_json, resolve_locator, stable_id
 from ..errors import ContractError, fail
+from ..media.backend import Budget, target
 
 RAW_CODEC = 'kvd-rgb24'
 RAW_VERSION = 'kvd-rgb24/1.0.0'
@@ -56,7 +56,7 @@ def checked_media_path(media, context):
 def raw_frames(media, n, width, height, context):
     path = checked_media_path(media,context)
     if media['probe']['video']['codec'] != RAW_CODEC:
-        # The bridge has its own reviewed-integration gate and lazy backend.
+        # The bridge consumes the reviewed media backend and exact CFR receipt.
         from ..adapters.native_h3.media_bridge import decode_rgb
         yield from decode_rgb(media,n,width,height,context=context)
         return
@@ -74,15 +74,12 @@ def raw_frames(media, n, width, height, context):
 
 
 def write_raw(frames, relative_path, n, width, height, role, version, context):
-    from ..adapters.native_h3.media_bridge import reserve
-    reserve(context,n*width*height*3)
+    budget = Budget(context)
+    budget.reserve(n*width*height*3)
     path = resolve_locator(context.asset_root,relative_path)
-    path.parent.mkdir(parents=True,exist_ok=True)
-    temp = None
     count,size,hash = 0,0,hashlib.sha256()
-    try:
-        with tempfile.NamedTemporaryFile(dir=path.parent,suffix='.partial',delete=False) as out:
-            temp = out.name
+    with target({'scheme':'project_relative','path':relative_path},context,budget) as temporary:
+        with temporary.open('wb') as out:
             for frame in frames:
                 context.cancellation.check()
                 if len(frame) != width*height*3 or count >= n:
@@ -91,21 +88,11 @@ def write_raw(frames, relative_path, n, width, height, role, version, context):
                 hash.update(frame)
                 size += len(frame)
                 count += 1
+                budget.check()
             if count != n:
                 fail('FRAME_COUNT_MISMATCH','The RGB writer received fewer than the exact required frames.')
             out.flush()
             os.fsync(out.fileno())
-        context.cancellation.check()
-        os.replace(temp,path)
-        temp = None
-    except OSError:
-        raise ContractError('PROJECT_IO_ERROR','The owned RGB artifact could not be published.',stage='control') from None
-    finally:
-        if temp is not None:
-            try:
-                os.unlink(temp)
-            except OSError:
-                pass
     fingerprint = {'algorithm':'sha256','hex':hash.hexdigest()}
     pts = digest_json({'representation':RAW_VERSION,'frame_count':n,'fps':{'num':24,'den':1}})
     return MediaRef.from_dict({'id':stable_id('media',role,fingerprint), 'role':role,

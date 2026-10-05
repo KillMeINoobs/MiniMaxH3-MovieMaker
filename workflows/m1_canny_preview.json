@@ -522,7 +522,14 @@
           "link": 15
         }
       ],
-      "outputs": [],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null,
+          "slot_index": 0
+        }
+      ],
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
@@ -678,18 +685,19 @@
       "queue_accepted": false,
       "gpu": "not_performed",
       "human_result": "not_performed",
-      "checked_common": "c923d9e4292ea40e4a3f37f2feace8fa252eecb4",
-      "media_dependency_description": "d9b3a574dbfdd2bb4ec1428b5d91186fff3e107c",
-      "media_integrated": false,
+      "checked_common": "69ed44577550b8545a40cc3209a488d9fcd13fda",
+      "phase": "preparation_only",
+      "media_integrated": true,
       "native_core_pin": "daeb5e53681e2b10a3f0727d9ec5bc90784bee10",
+      "native_schema_sha256": "b5d9ffab1130ebaf98cf1cfecda529e7c8a3b0c19cd57894e982ed12142ed34d",
+      "preview_schema_sha256": "0751c1d78c8ba97a23a8167de253f63766ce43b041e1e866820fa4463081916c",
       "manual_guide": "docs/H3_HANDOFF.md",
       "limitations": [
-        "PreviewImage output muted until reviewed media installation/native-Canny preflight and explicit human setup.",
+        "PreviewImage output muted until separately allocated installation/native-Canny preflight and explicit human setup.",
         "No H3 profile, checkpoint loader, native expander or sampler is present in this preparation graph.",
         "The human configures their existing folder/test-1.mp4; this worker never opened/copied/decoded it.",
-        "Media integration and native Canny/live preview acceptance remain pending; no GPU/H3 generation receipt."
+        "Reviewed media CM69ed is integrated in source; native Canny/live preview and GPU/H3 acceptance remain pending."
       ],
-      "phase": "preparation_only",
       "generation_dependencies": [],
       "preparation_profile": "media builtin source-only 24 FPS/grid32/5+17k shape policy, no model components"
     }

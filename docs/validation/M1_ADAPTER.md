@@ -1,95 +1,117 @@
 # M1-03 adapter CPU validation
 
-Evidence boundary: **source/schema, pure CPU and constructed decoded pixels**.
-No original/private video, generated output, model load, queue, live UI, weights,
-inference or GPU operation occurred. Final media integration and independent
-adapter review remain pending; the workflow is diagnostic.
+Evidence boundary: **source/schema, CPU media and constructed decoded RGB/PCM**.
+No private source video, generated output, native executor/queue, model load,
+live UI, weights, inference or GPU operation occurred. Independent full H3
+source review and installed/human acceptance remain pending. Both workflows
+are diagnostic, with muted outputs.
 
-The owned changes retain exact reviewed whole common
-`c923d9e4292ea40e4a3f37f2feace8fa252eecb4` and unchanged KVD-WORKER/2.0.0 /
-data/schema 2.0.0 interfaces. The CPU environment uses the existing unchanged
-`requirements-verify.lock`; no Torch/Kornia/runtime package was installed.
-Existing external FFmpeg/ffprobe 8.0.1-full_build (GPLv3-or-later) were selected
-explicitly for bounded constructed-pixel I/O. Their paths stay private in AO.
+The whole independently reviewed media common
+`69ed44577550b8545a40cc3209a488d9fcd13fda` is integrated by normal merge
+`74eb530c0fd9445a6bfb603a9c9182a982a5781b`, preserving owned 9185151 and
+CM69ed parents. Shared/media paths and KVD-WORKER/2.0.0 / data/schema 2.0.0
+remain unchanged. [Media review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/3#pullrequestreview-5417990776)
+approves that dependency only.
+
+The isolated environment retains the unchanged verification lock. No
+Torch/Kornia/runtime package was installed. Existing FFmpeg/ffprobe
+8.0.1-full_build (GPLv3-or-later) are explicitly selected for bounded synthetic
+media I/O; private executable/capture paths and detailed receipts stay in AO.
 
 ## Current receipts
 
 | Check | Actual outcome / limit |
 | --- | --- |
-| Full Python CPU suite | 215 passed, 2 skipped; unchanged shared tests and owned implementation checks |
-| Owned controls/adapters | 98 passed, 1 native-Canny skip, included in the full suite |
-| Native Canny synthetic contour | **NOT PERFORMED**; isolated environment has no native Comfy/Torch/Kornia. The skipped opt-in case is not a fallback/mock algorithm receipt |
-| GraphBuilder source | Actual pinned stdlib-only module SHA256 `dabb3f75952a1398891ed87ad853d4ea9c929f322ce6997d4ea916adbc2f209d` imported from isolated source cache; no native executor/sampler/model imported or called |
-| Native graph | Actual GraphBuilder links, seed including u64 max, exact prompt, class/port/slot/enum/schema checks, control-off branch, stale/profile/AdaLN/dtype/malformed-envelope rejection |
-| Safetensors | Constructed headers only: observed shape/key/AdaLN/v1/v2 markers, truncated/unknown layout and cancellation errors; no checkpoint/weight test |
-| Finalizer | Real CPU FFV1 encode/probe/decode of 192 constructed 32×32 frames, exact 180 useful 24×16 frames, first/last cropped pixels and durable hashes/receipts; stale/count/cancel/quota errors |
-| EN/RU/frontend | 42 passed, including six owned module/host-simulation tests, actual shared persisted-language helper readback and owned callbacks; no live browser/layout/serialization acceptance |
-| Resource metadata | Actual read-only 32-class schema handoff; initial baseline UNET filename absent, so strict profile preflight fails honestly before any checkpoint access |
-| Workflows | 10-node / 15-link preparation-only variant with no H3 generation dependencies, and 22-node / 41-link generation variant; outputs muted, neither loaded/queued. Media interfaces remain pinned dependency descriptions, not code in this checkout |
-| Global audio/assembly integration | Pending the explicit reviewed common SHA containing media; local useful-output probe is provisional, generated PCM mode fails explicitly |
-| Full foundation, native custom-node installation, real H3/GPU/quality/cancel/memory acceptance | **NOT PERFORMED / BLOCKED** pending separately allocated human/runtime gates |
+| Final integrated Python CPU suite | 340 passed, two failed, two skipped in89.08s. Both failures are unchanged media tests requiring exactly five handlers/twelve nodes; integrated H3 adds four handlers/thirteen nodes. No assertions were edited or suppressed |
+| Media/H3 integration regressions | 16 passes: real normalization/preparation, explicit off, exact authored prompt, actual GraphBuilder links, constructed decoded AV, finalization, result selection and export |
+| Aggregate control disk budget | One pass: constructed raw RGB plus recipe receipt share the actual reviewed operation quota; these are not Canny contour bytes |
+| Both workflow schema preflights | Nine passes: actual integrated classes plus immutable 32-class native capture and separate PreviewImage schema; 10/15 preparation and 23/43 generation nodes/links |
+| Native Canny synthetic contour | **NOT PERFORMED**; isolated environment lacks native Comfy/Torch/Kornia. Opt-in skip is not a fallback/mock contour receipt |
+| Native GraphBuilder | Hash-checked actual stdlib-only source `dabb3f75952a1398891ed87ad853d4ea9c929f322ce6997d4ea916adbc2f209d`; no native executor/sampler/model import or call |
+| Graph/profile/header checks | Actual links/ports/required parameters, exact prompt/u64 seed, structural off, stale/profile/AdaLN/v1-v2/dtype/malformed-envelope rejection; checkpoint headers and model availability are explicitly synthetic |
+| Useful video | Real bounded FFV1 CPU encode/probe/decode; inverse crop and exact useful 24 FPS frames; probe/PTS/fingerprints agree with reviewed media helpers |
+| Source/global audio | Original global PCM and nonzero source offset retained byte-for-byte in synthetic export; no audio-guide conditioning |
+| Generated audio bridge | Constructed stereo32k PCM on the actual 40Hz/800-sample native grid; useful trim, reported endpoint pad, one resample to Project rate/layout, absolute Q counts and two-window impulse boundary; native Torch AUDIO conversion unperformed |
+| Collection/history | Actual reviewed selection, complete Project.media closure, current JSON array, distinct attempt artifact IDs, changed PCM digest, and partial coverage rejection without source fallback |
+| EN/RU/frontend | 44 passed, including actual shared language helpers and owned host/module callbacks; no live UI/layout/save-reload acceptance |
+| Resource metadata | Original 32-class capture and separate PreviewImage supplement hashes checked. Baseline UNET filename absent: honest `MODEL_INCOMPATIBLE` before checkpoint access |
+| Installed custom nodes, real workflow/contours/H3/GPU/quality/cancel/VRAM and human result | **NOT PERFORMED / BLOCKED** at separately allocated runtime and human gates |
 
-The constructed-pixel finalizer case proves its actual CPU persistence/geometry
-behavior. Its RenderResult keeps `validation.evidence_kind=cpu_media` and
-`gpu=not_performed`; an active successful CPU finalization is not H3 acceptance.
-Geometry plumbing tests stub the missing native Canny call and are labeled as
-such. No contour accuracy PASS is inferred from them.
+All checks are owner evidence, not independent adapter approval. Synthetic
+decoded finalization records `validation.evidence_kind=cpu_media` and
+`gpu=not_performed`; it does not attest H3 sampling. Geometry plumbing may
+stub the absent native Canny call and labels that limitation. No contour
+accuracy PASS is inferred.
 
-The preparation-only settings case exercises the actual owned module using a
-valid shape-only RenderProfile with empty components/sampling. It passes without
-opening an H3 checkpoint. Generation's strict profile/resource checks remain
-unchanged. `test-1.mp4` is only a relative human configuration value in the
-diagnostic artifact; no worker access/copy/decode/upload occurred.
+The initial full collection found identical media/adapter test module names;
+an owned adapter test-package marker resolves that collision. The completed run
+above reports the remaining two media-owned exact-registry assertions honestly.
+The coordinator routed an extension-aware test-only amendment to the media
+owner. Final publication waits for its exact independently reviewed SHA and a
+normal whole-merge instruction. No shared test source was changed, disabled or
+excluded. Historical pre-CM215-pass/two-skip and42-frontend-pass evidence is
+retained separately from this integrated run.
 
-The actual owned expander wrapper was also called as a pure source compiler
-with hash-checked stdlib GraphBuilder and explicitly synthetic declared model
-availability. It returned actual native links/expansion plus an honest
-`GRAPH_COMPILED` status. No native executor, loader, sampler, tensor or checkpoint
-was invoked. Finalizer cache identity excludes graph transport hints while
-retaining the actual graph receipt as provenance; its regeneration regression
-uses real constructed-pixel CPU I/O.
+## Integration observations
+
+The 346-frame constructed project plans two 173-useful-frame windows, each
+with native length175. Their generated useful mono32k WAVs contain230667 and
+230666 samples respectively, matching absolute global boundaries; the second
+window records an endpoint fit of-1. Assembly applies no extra phase correction,
+retains the impulse at global Q(173), and performs one final encode. A separate
+32k-to-48k case retains its expected impulse position. Native length158 produces
+210400 native samples and explicitly pads267 useful endpoint samples; this
+source-derived quantization is reported rather than hidden.
+
+The retry regression retains both attempts even when video bytes match, while
+the current result array selects only the new attempt. The budget regression
+rejects a map-plus-receipt quota overflow before the recipe becomes active.
+Invalid audio geometry/rate, mismatched global sound decisions, cancellation,
+stale keys and incomplete first-window coverage fail with typed errors.
+
+Preparation uses the actual source-only media shape profile with empty model
+components/sampling. It has zero H3Profile/checkpoint/expander/sampler ancestry.
+The generation artifact preserves the actual missing-baseline resource gate.
+Neither JSON has been loaded, queued or accepted by a native frontend;
+`test-1.mp4` is only a human-relative configuration value.
 
 ## Preliminary review corrections
 
-Reviewer preparation inspected exact saved
-`0d80cb7b0fe60fa290ec54f22971771b0b6fb345`, with static/unexecuted findings,
-not a final candidate verdict. Owned actual-module regressions now verify:
+Static/unexecuted preparation at saved
+`0d80cb7b0fe60fa290ec54f22971771b0b6fb345` was not a final verdict.
+Actual-module regressions preserve all three corrections:
 
-- **H1:** mtime change and ordinary locator relocation with identical map content
-  preserve generation identity. Changed bytes or effective selected stream,
-  probe/decoder versions change the key. Actual native implementation-version
-  identity is retained in the map fingerprint/recipe receipt.
-- **H2:** native UNET `default` dtype passes the valid GraphBuilder case;
-  an unapproved `fp8_e4m3fn` override fails typed `MODEL_INCOMPATIBLE` before
-  native expansion. No loader or dtype conversion was executed.
-- **H3:** `{}`, missing runtime core, list/null envelope, wrong schema section
-  and null runtime return a useful redacted `MODEL_INCOMPATIBLE` before
-  GraphBuilder/model access. The same guard protects profile preparation.
+- H1: identical map content survives mtime changes and locator relocation in
+  generation identity; bytes, stream, geometry and implementation revisions
+  still invalidate it.
+- H2: approved UNET dtype `default` compiles; unapproved `fp8_e4m3fn` is typed
+  `MODEL_INCOMPATIBLE` before expansion. No native loader/dtype execution.
+- H3: malformed envelope/sections/core revision yield useful redacted
+  `MODEL_INCOMPATIBLE` before GraphBuilder/model-provider access.
 
 ## Reproduction
 
-Use an already approved isolated verification environment and unchanged lock.
-Set `KVD_FFMPEG` and `KVD_FFPROBE` to explicitly authorized existing binaries.
-Set `KVD_GRAPH_BUILDER_SOURCE` to the inspected pinned raw
-`comfy_execution/graph_utils.py` file; its SHA256 is checked before import.
-Set `KVD_NATIVE_SCHEMA_CAPTURE` to the actual read-only schema handoff. The
-portable graph fixture intentionally declares synthetic baseline availability;
-it must never be read as an installed checkpoint receipt. Missing source/capture
-inputs cause explicit skips, without a fake GraphBuilder or model fallback.
+Use an existing approved isolated verification environment and unchanged lock.
+Set `KVD_FFMPEG`/`KVD_FFPROBE` and `KVD_TEST_FFMPEG`/`KVD_TEST_FFPROBE` to
+the same authorized existing binaries. Set `KVD_GRAPH_BUILDER_SOURCE` to the
+inspected pinned raw GraphBuilder file. Supply `KVD_NATIVE_SCHEMA_CAPTURE`,
+`KVD_PREVIEWIMAGE_SCHEMA_CAPTURE` and `KVD_PREVIEWIMAGE_SCHEMA_RECEIPT` from
+the runtime owner's immutable read-only handoffs; the hashes are checked.
+Missing artifacts cause explicit skips, without fake installed schemas.
 
 ```text
-python -m pytest tests/controls tests/adapters -q
-python -m pytest -q
+python -m pytest tests/imports tests/contracts tests/media tests/planning tests/assembly tests/controls tests/adapters -q -rs
 node --experimental-vm-modules --test tests/ui/*.test.mjs
 git diff --check
 ```
 
-`KVD_RUN_NATIVE_CANNY_CPU=1` is a separate **unexecuted opt-in** for a runtime
-owner's authorized native CPU contour check. Do not enable it in this worker's
-environment or install its packages to make the receipt green. The default
-explicit skip remains visible. A shared POSIX-only storage case may skip on
-Windows independently; it is not a native Canny result.
+The portable graph fixture declares **synthetic** model availability and must
+never be read as installed checkpoint proof. `KVD_RUN_NATIVE_CANNY_CPU=1` is a
+separate unexecuted opt-in for an authorized runtime-owner contour check. It is
+disabled here; do not install optional packages to make the receipt green.
+The Windows-skipped POSIX case is a separate unperformed storage-platform check.
 
-No private machine/session/model/auth diagnostics are public. The preserved
-brief and research/license ledger remain untouched. Exact final commit/test
-receipts and subsequent reviewed media integration will update this document.
+[H3_HANDOFF.md](../H3_HANDOFF.md) describes the two human phases, exact required
+model names, original-audio default, partial-window/save/export wiring and
+pending resource/runtime gates. The preserved brief and research/license ledger
+are untouched. Final source/test/provider receipts are reported privately in AO.

@@ -1,15 +1,34 @@
 """Validate and persist exact useful decoded output; never attest sampling/GPU acceptance."""
-from fractions import Fraction
-
-from ...contracts import RenderResult, cache_key, cache_locator, digest_bytes, digest_json, stable_id
+import json
+from ...contracts import MediaRef, RenderResult, cache_key, cache_locator, digest_bytes, digest_json, stable_id
 from ...contracts.worker import FinalizedWindow
 from ...controls.storage import check_geometry
 from ...errors import fail
 from ...version import SCHEMA_VERSION
+from ...media.backend import backend, bounded_operation, Budget
+from ...media.timing import sample_boundary
+from ...assembly.selection import select_results
+from .audio import prepare_native_pcm, finalize_pcm
 from .media_bridge import encode_rgb, write_json
 from .order import DecodeReceipt, FinalizedToken
 
-VERSION = 'kvd-useful-finalizer/1.0.0'
+VERSION = 'kvd-useful-finalizer/1.1.0'
+
+
+def collect_result(project, result):
+    """Use the reviewed explicit-selection contract, retaining current prior windows.
+
+    The JSON array directly feeds the existing KVD_SelectResults STRING input.
+    It contains only actual validated results, never placeholders or source media.
+    """
+    prior = [RenderResult.from_dict(project['results'][identifier])
+             for window_id, identifier in project['active_result_by_window'].items()
+             if window_id != result['window_id']]
+    collected = select_results(project, (*prior, result))
+    ordered = sorted(collected['active_result_by_window'],
+                     key=lambda window_id: collected['windows'][window_id]['useful_range']['start'])
+    records = [collected['results'][collected['active_result_by_window'][window_id]] for window_id in ordered]
+    return collected, json.dumps(records, ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False)
 
 
 def validate_images(decoded,*,synthetic=False):
@@ -44,6 +63,7 @@ def useful_frames(decoded,window,spatial,context,*,synthetic=False):
                        for y in range(rect['height']))
 
 
+@bounded_operation
 def finalize_window(decoded,window,snapshot,spatial,attempt,request_id,order_token,*,context):
     context.cancellation.check()
     s=check_geometry(spatial,window['inference_frame_count'])
@@ -76,38 +96,59 @@ def finalize_window(decoded,window,snapshot,spatial,attempt,request_id,order_tok
     if window['resolved_settings']['spatial_policy']=='preserve_display_pad' and (rect['width'],rect['height'])!=(s['output_width'],s['output_height']):
         fail('UNSUPPORTED_EXPORT_DIMENSIONS','Preserve-display padding cannot silently resize content.')
     mode=window['resolved_settings']['audio_mode']
-    if mode=='generate':
-        fail('UNSUPPORTED_CAPABILITY','Generated PCM finalization awaits reviewed media global-sample integration; choose preserve or mute.')
-    # Original PCM binding/origin remains Project-global and is consumed by media assembly.
-    audio={'mode':mode,'source_offset':project['audio_timeline']['source_offset'],
-           'policy':'project_global_pcm' if mode=='preserve' else 'mute','native_audio_retained':False}
+    timeline=project['audio_timeline']
+    decisions={d['segment_id']:d['mode'] for d in timeline['decisions']}
+    if (len(decisions)!=len(timeline['decisions']) or
+        mode!=decisions.get(window['segment_id'],timeline['mode']) or
+        timeline['sample_count']!=sample_boundary(project['frame_count'],timeline['sample_rate'])):
+        fail('AUDIO_SYNC_MISMATCH','Window sound mode must match the explicit global AudioTimeline and endpoint.')
+    native_pcm=prepare_native_pcm(decoded.audio,decoded.frame_count,synthetic=synthetic,context=context) if mode=='generate' else None
+    global_range=window['useful_range']
+    expected_samples=sample_boundary(global_range['end'],timeline['sample_rate'])-sample_boundary(global_range['start'],timeline['sample_rate'])
+    # Preserve/mute retain the original global PCM selection/origin unchanged.
+    audio={'mode':mode,'source_offset':timeline['source_offset'],
+           'sample_rate':timeline['sample_rate'],'expected_samples':expected_samples,
+           'global_useful_sample_range':{'start':sample_boundary(global_range['start'],timeline['sample_rate']),
+                                        'end':sample_boundary(global_range['end'],timeline['sample_rate'])},
+           'policy':'project_global_pcm' if mode=='preserve' else mode,'native_audio_retained':False}
+    if native_pcm: audio['native_pcm_digest']=native_pcm.digest
+    ffmpeg,_,versions=backend(context)
     count=window['useful_range']['end']-window['useful_range']['start']
     # The actual graph receipt contains transport fields (map locator, selected
     # folder and native node IDs). Retain it as provenance, not cache identity.
     key=cache_key('generation',{'generation_key':window['generation_key'],'request_id':request_id,'attempt':attempt,
-                          'spatial':s,'audio_policy':audio},algorithm_version=VERSION)
+                          'spatial':s,'audio_policy':audio,'backend':versions},algorithm_version=VERSION)
     locator=cache_locator('generation',key,suffix='nut')
     video=encode_rgb(useful_frames(decoded,window,s,context,synthetic=synthetic),locator['path'],count,
         rect['width'],rect['height'],context=context,output_width=s['output_width'],output_height=s['output_height'])
-    # Local CPU probe is provisional until the separately reviewed media policy is integrated.
+    vd=video.to_dict()
+    vd['id']=stable_id('media','window_video',key,vd['fingerprint']['digest'])
+    video=MediaRef.from_dict(vd)
+    artifacts=[video.to_dict()]
+    if native_pcm:
+        pcm,audio=finalize_pcm(native_pcm,window,timeline,cache_locator('generation',key,suffix='wav')['path'],
+                              ffmpeg=ffmpeg,versions=versions,context=context)
+        pd=pcm.to_dict()
+        pd['id']=stable_id('media','window_pcm',key,pd['fingerprint']['digest'])
+        artifacts.append(MediaRef.from_dict(pd).to_dict())
     coverage={'useful_range':window['useful_range'],'output_useful_range':window['output_useful_range'],
         'requested_frames':decoded.frame_count,'decoded_frames':decoded.frame_count,'useful_frames':count,
         'width':s['output_width'],'height':s['output_height'],'fps':{'num':24,'den':1},
         'padding_removed':True,'context_removed':True,'pts_digest':video['probe']['video']['pts_digest']}
     receipt={'version':VERSION,'evidence':'synthetic_decoded' if synthetic else 'native_decoded_cpu_finalization',
         'gpu':'not_performed','generation_key':window['generation_key'],'decoded_receipt':token,
-        'spatial':s,'coverage':coverage,'audio':audio,'artifacts':[video.to_dict()]}
+        'spatial':s,'coverage':coverage,'audio':audio,'artifacts':artifacts,'backend':versions,
+        'operation_disk_peak_bytes':Budget(context).peak_bytes}
     receipt_locator=cache_locator('generation',key,suffix='json')
     write_json(receipt,receipt_locator['path'],context)
     result=RenderResult.from_dict({'kind':'kmin.render_result','schema_version':SCHEMA_VERSION,
         'id':stable_id('result',request_id,attempt,key),'required_features':[],'extensions':{},
         'request_id':request_id,'attempt':attempt,'project_id':project.id,'segment_id':window['segment_id'],
         'window_id':window.id,'generation_key':window['generation_key'],'status':'succeeded','stage':'trim',
-        'progress':{'done':count,'total':count,'unit':'useful_frame'},'artifacts':[video.to_dict()],
+        'progress':{'done':count,'total':count,'unit':'useful_frame'},'artifacts':artifacts,
         'coverage':coverage,'audio':audio,'provenance':{'version':VERSION,'receipt_digest':digest_json(receipt)},
         'validation':{'evidence_kind':'cpu_media','gpu':'not_performed','receipts':[receipt_locator['path']]},
-        'error':None,'warnings':['Decoded-output CPU finalization does not attest H3/GPU or human-result acceptance.',
-                                'Media global timing/assembly integration remains gated on its reviewed common SHA.']})
+        'error':None,'warnings':['Decoded-output CPU finalization does not attest H3/GPU or human-result acceptance.']})
     context.cancellation.check()
     return FinalizedWindow(result,FinalizedToken(project.id,window['plan_revision'],window['ordinal'],
                                                 window['useful_range']['end'],result.id,window['generation_key']))

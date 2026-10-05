@@ -11,7 +11,7 @@ from ...controls.canny import build_control, thresholds, VERSION as CANNY_VERSIO
 from ...controls.storage import raw_frames
 from ...adapters.native_h3.prompt import compile_window_prompt
 from ...adapters.native_h3.graph import expand_native_render, generation_key
-from ...adapters.native_h3.finalize import finalize_window, validate_images
+from ...adapters.native_h3.finalize import finalize_window, validate_images, collect_result
 from ...adapters.native_h3.configure import configure_profile, DEFAULT_FILES
 from ...adapters.native_h3.profile import CORES
 from ...adapters.native_h3.order import DecodeReceipt, check_predecessor
@@ -204,7 +204,7 @@ class FinalizeWindow:
     RETURN_TYPES=('KVD_RENDER_RESULT','KVD_ORDER','KVD_PROJECT','STRING')
     RETURN_NAMES=('render_result','order_token','project','result_json')
     OUTPUT_NODE=True
-    DESCRIPTION='Trim/crop the exact decoded window and persist verified useful media and its receipt. Original PCM remains global; this does not attest GPU acceptance.'
+    DESCRIPTION='Persist exact useful video/PCM and collect current validated results as a JSON array for Select Results. Original sound keeps its global timeline; GPU acceptance is separate.'
     @classmethod
     def INPUT_TYPES(cls):
         return {'required':{**io_fields(),'images':('IMAGE',),'project':('KVD_PROJECT',),'window':('KVD_WINDOW',),
@@ -217,11 +217,8 @@ class FinalizeWindow:
         if len(shape)!=4: fail('FRAME_COUNT_MISMATCH','Native decoded IMAGE must be N/H/W/3.')
         decoded=DecodedAV(images,audio,shape[0],shape[2],shape[1])
         finalized=dispatch('FinalizeWindow',decoded,window,resolve_project(project),spatial,attempt,request_id,order_token,context=context_for(**io))
-        p=project.to_dict()
-        p['results'][finalized.result.id]=finalized.result.to_dict()
-        p['active_result_by_window'][window.id]=finalized.result.id
-        p['revision']+=1
-        return output((finalized.result,finalized.order_token,Project.from_dict(p),dumps(finalized.result)),
+        collected,results_json=collect_result(project,finalized.result)
+        return output((finalized.result,finalized.order_token,collected,results_json),
                       'USEFUL_FINALIZED',**finalized.result['coverage'])
 
 

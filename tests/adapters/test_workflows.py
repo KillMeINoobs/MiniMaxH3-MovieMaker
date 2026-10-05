@@ -1,102 +1,174 @@
-"""Portable artifact/actual owned-schema checks; never load or queue a workflow.
-
-Media socket declarations below are dependency descriptions at the pinned
-pending candidate, not installed classes or implementations in this checkout.
-"""
+"""Merged node metadata and immutable native handoffs; never load/queue."""
+from copy import deepcopy
+import hashlib
 import json
+import os
 from pathlib import Path
 
 import pytest
-
 from kmin_video_director.registration import build_registry
 
-ROOT=Path(__file__).resolve().parents[2]
-MEDIA={
-    'KVD_ProbeMedia':({},('KVD_PROBE','KVD_MEDIA','STRING')),
-    'KVD_NormalizeMedia':({'source_media':'KVD_MEDIA'},('KVD_NORMALIZED','KVD_MEDIA','KVD_AUDIO_TIMELINE','STRING')),
-    'KVD_MediaProject':({'probe':'KVD_PROBE','normalized':'KVD_NORMALIZED','render_profile':'KVD_RENDER_PROFILE'},('KVD_PROJECT','KVD_RENDER_PROFILE','STRING')),
-    'KVD_PlanWindows':({'project':'KVD_PROJECT','render_profile':'KVD_RENDER_PROFILE'},('KVD_PROJECT','KVD_WINDOW_PLAN','STRING')),
-    'KVD_SelectWindow':({'project':'KVD_PROJECT'},('KVD_WINDOW','KVD_MEDIA','KVD_SPATIAL','STRING')),
-    'KVD_PrepareWindow':({'window':'KVD_WINDOW','canonical_media':'KVD_MEDIA','spatial':'KVD_SPATIAL'},('KVD_PREPARED','KVD_MEDIA','STRING')),
-    'KVD_AssembleExport':({'project':'KVD_PROJECT','audio_timeline':'KVD_AUDIO_TIMELINE'},('KVD_RENDER_RESULT','KVD_MEDIA','STRING')),
-}
+ROOT = Path(__file__).resolve().parents[2]
+CM = '69ed44577550b8545a40cc3209a488d9fcd13fda'
+CORE = 'daeb5e53681e2b10a3f0727d9ec5bc90784bee10'
+BASE = 'minimax_h3_ref2va_pruned_int8_convrot.safetensors'
 
 
 def read(name):
-    return json.loads((ROOT/'workflows'/name).read_text(encoding='utf-8'))
+    return json.loads((ROOT / 'workflows' / name).read_text(encoding='utf-8'))
 
 
-@pytest.mark.parametrize('name,count,link_count',[('m1_short_v2v.json',22,41),('m1_canny_preview.json',10,15)])
-def test_diagnostic_workflow_closes_links_and_matches_actual_owned_native_metadata(name,count,link_count):
-    workflow=read(name)
-    registry=build_registry()
-    native=json.loads((ROOT/'tests/adapters/native_schema_fixture.json').read_text())['schemas']
-    nodes={n['id']:n for n in workflow['nodes']}
-    assert len(nodes)==count and len(workflow['links'])==link_count
-    assert workflow['extra']['kvd']['status']=='diagnostic_only'
-    assert workflow['extra']['kvd']['media_integrated'] is False
-    assert workflow['extra']['kvd']['queue_accepted'] is False
-    for n in nodes.values():
-        cls=n['type']
-        if cls in registry.nodes:
-            actual=registry.nodes[cls]
-            fields=actual.INPUT_TYPES()
-            outputs=actual.RETURN_TYPES
-            if getattr(actual,'OUTPUT_NODE',False): assert n['mode']==2
-        elif cls in native: fields=native[cls]['input'];outputs=native[cls]['output']
-        elif cls=='PreviewImage':
-            # Source-declared in pinned daeb nodes.py:1740, not in the 32-class capture.
-            fields={'required':{'images':('IMAGE',)}};outputs=()
-            assert n['mode']==2
+@pytest.fixture(scope='module')
+def actual_native_schemas():
+    specifications = (
+        ('KVD_NATIVE_SCHEMA_CAPTURE', 'b5d9ffab1130ebaf98cf1cfecda529e7c8a3b0c19cd57894e982ed12142ed34d'),
+        ('KVD_PREVIEWIMAGE_SCHEMA_CAPTURE', '0751c1d78c8ba97a23a8167de253f63766ce43b041e1e866820fa4463081916c'),
+        ('KVD_PREVIEWIMAGE_SCHEMA_RECEIPT', 'b99b8762014943eb58dd38a75787422ebfbe799fc63a12664269eee3bb020f03'),
+    )
+    captures = []
+    for variable, digest in specifications:
+        path = Path(os.environ.get(variable, ''))
+        if not path.is_file():
+            pytest.skip('Actual read-only native handoff not supplied: ' + variable)
+        data = path.read_bytes()
+        assert hashlib.sha256(data).hexdigest() == digest
+        captures.append(json.loads(data))
+    native, preview, receipt = captures
+    assert native['runtime']['core_commit'] == receipt['core_revision'] == CORE
+    assert receipt['http_status'] == 200 and receipt['queue_running'] == receipt['queue_pending'] == 0
+    assert len(native['schemas']) == 32 and set(preview) == {'PreviewImage'}
+    return {**native['schemas'], **preview}
+
+
+def validate_workflow(workflow, native):
+    registry = build_registry()
+    nodes = {node['id']: node for node in workflow['nodes']}
+    assert len(nodes) == len(workflow['nodes'])
+    resource_gates = []
+    for node in nodes.values():
+        class_id = node['type']
+        if class_id in registry.nodes:
+            actual = registry.nodes[class_id]
+            fields, outputs = actual.INPUT_TYPES(), actual.RETURN_TYPES
+            names = getattr(actual, 'RETURN_NAMES', outputs)
+            output_node = getattr(actual, 'OUTPUT_NODE', False)
         else:
-            inputs,outputs=MEDIA[cls]
-            assert cls not in registry.nodes  # Dependency is intentionally not adopted.
-            assert {p['name']:p['type'] for p in n['inputs']}==inputs
-            assert tuple(p['type'] for p in n['outputs'])==outputs
-            continue
-        assert tuple(p['type'] for p in n['outputs'])==tuple(outputs)
-        ports={};widgets=[]
-        for group in ('required','optional'):
-            for key,port in fields.get(group,{}).items():
-                kind=port[0]
-                if isinstance(kind,list) or kind in ('STRING','INT','FLOAT','BOOLEAN','COMBO'):
-                    widgets.append((key,port))
-                else: ports[key]=kind
-        assert {p['name']:p['type'] for p in n['inputs']}==ports
-        assert len(n['widgets_values'])==len(widgets)
-        for (key,_),value in zip(widgets,n['widgets_values']):
-            if key in ('project_root','ffmpeg_path','ffprobe_path','native_schema_file'):
-                assert value==''
-    seen=set()
-    for id,source,slot,target,input_slot,kind in workflow['links']:
-        assert id not in seen;seen.add(id)
-        a=nodes[source]['outputs'][slot];b=nodes[target]['inputs'][input_slot]
-        assert a['type']==b['type']==kind and b['link']==id and id in a['links']
-    assert workflow['last_node_id']==max(nodes) and workflow['last_link_id']==max(seen)
+            actual = native[class_id]
+            fields, outputs, names = actual['input'], actual['output'], actual['output_name']
+            output_node = actual['output_node']
+        if output_node:
+            assert node['mode'] == 2
+        assert tuple(p['type'] for p in node['outputs']) == tuple(outputs)
+        assert tuple(p['name'] for p in node['outputs']) == tuple(names)
+        assert [p['slot_index'] for p in node['outputs']] == list(range(len(outputs)))
+        ports, widgets, required = {}, [], set()
+        converted = {p['name'] for p in node['inputs'] if 'widget' in p}
+        for group in ('required', 'optional'):
+            for key, specification in fields.get(group, {}).items():
+                kind = specification[0]
+                if isinstance(kind, list) or kind in ('STRING', 'INT', 'FLOAT', 'BOOLEAN', 'COMBO'):
+                    widgets.append((key, specification))
+                    if key not in converted:
+                        continue
+                    ports[key] = kind if isinstance(kind, str) else 'COMBO'
+                    assert next(p for p in node['inputs'] if p['name'] == key)['widget'] == {'name': key}
+                else:
+                    ports[key] = kind
+                if group == 'required':
+                    required.add(key)
+        assert {p['name']: p['type'] for p in node['inputs']} == ports
+        assert len(node['widgets_values']) == len(widgets)
+        for (key, specification), value in zip(widgets, node['widgets_values']):
+            kind = specification[0]
+            options = specification[1] if len(specification) > 1 else {}
+            choices = kind if isinstance(kind, list) else options.get('options') if kind == 'COMBO' else None
+            if choices is not None and value not in choices:
+                # Preserve the real absent-resource gate, without changing enums.
+                assert (class_id, key, value) == ('UNETLoader', 'unet_name', BASE)
+                resource_gates.append((class_id, key, value))
+            elif kind in ('STRING', 'COMBO'):
+                assert isinstance(value, str)
+            elif kind in ('INT', 'FLOAT'):
+                assert (type(value) is int) if kind == 'INT' else (type(value) in (int, float))
+                assert value >= options.get('min', value) and value <= options.get('max', value)
+            elif kind == 'BOOLEAN':
+                assert type(value) is bool
+            if key in ('project_root', 'ffmpeg_path', 'ffprobe_path', 'native_schema_file'):
+                assert value == ''
+        assert all(p['link'] is not None for p in node['inputs'] if p['name'] in required)
+    links = {link[0]: link for link in workflow['links']}
+    assert len(links) == len(workflow['links'])
+    for id, source, slot, target, input_slot, kind in links.values():
+        output, input = nodes[source]['outputs'][slot], nodes[target]['inputs'][input_slot]
+        assert output['type'] == input['type'] == kind
+        assert input['link'] == id and id in output['links']
+    for node in nodes.values():
+        for i, port in enumerate(node['inputs']):
+            if port['link'] is not None:
+                assert links[port['link']][3:5] == [node['id'], i]
+        for i, port in enumerate(node['outputs']):
+            expected = {id for id, s, slot, *_ in links.values() if (s, slot) == (node['id'], i)}
+            assert set(port['links'] or ()) == expected
+    assert workflow['last_node_id'] == max(nodes) and workflow['last_link_id'] == max(links)
+    return resource_gates
+
+
+@pytest.mark.parametrize('name,count,links', [('m1_short_v2v.json', 23, 43), ('m1_canny_preview.json', 10, 15)])
+def test_diagnostics_match_actual_merged_and_native_metadata(name, count, links, actual_native_schemas):
+    workflow = read(name)
+    assert len(workflow['nodes']) == count and len(workflow['links']) == links
+    metadata = workflow['extra']['kvd']
+    assert metadata['status'] == 'diagnostic_only' and metadata['checked_common'] == CM
+    assert metadata['media_integrated'] is True and metadata['queue_accepted'] is False
+    assert metadata['gpu'] == metadata['human_result'] == 'not_performed'
+    gates = validate_workflow(workflow, actual_native_schemas)
+    assert gates == ([('UNETLoader', 'unet_name', BASE)] if count == 23 else [])
+
+
+@pytest.mark.parametrize('fault', ['required_link', 'output_slot', 'unknown_class', 'bad_enum', 'bad_literal'])
+def test_schema_preflight_rejects_broken_artifact(fault, actual_native_schemas):
+    workflow = deepcopy(read('m1_canny_preview.json'))
+    if fault == 'required_link': workflow['nodes'][-1]['inputs'][0]['link'] = None
+    elif fault == 'output_slot': workflow['links'][-1][2] = 1
+    elif fault == 'unknown_class': workflow['nodes'][-1]['type'] = 'FictionalPreview'
+    elif fault == 'bad_enum': workflow['nodes'][3]['widgets_values'][0] = 'pose'
+    elif fault == 'bad_literal': workflow['nodes'][3]['widgets_values'][1] = 5
+    with pytest.raises((AssertionError, KeyError, IndexError)):
+        validate_workflow(workflow, actual_native_schemas)
 
 
 def test_preparation_preview_has_no_generation_weights_profile_or_sampler_ancestor():
-    w=read('m1_canny_preview.json')
-    classes={n['type'] for n in w['nodes']}
-    assert classes=={'KVD_ProbeMedia','KVD_NormalizeMedia','KVD_MediaProject','KVD_ControlSettings',
-        'KVD_PlanWindows','KVD_SelectWindow','KVD_PrepareWindow','KVD_BuildControl','KVD_ControlPreview','PreviewImage'}
-    assert w['extra']['kvd']['generation_dependencies']==[]
-    project=next(n for n in w['nodes'] if n['type']=='KVD_MediaProject')
-    assert next(p for p in project['inputs'] if p['name']=='render_profile')['link'] is None
-    # The shape profile comes from existing media Project output, never H3Profile.
-    for _,source,slot,target,input_slot,kind in w['links']:
-        if kind=='KVD_RENDER_PROFILE': assert source==project['id'] and slot==1
+    workflow = read('m1_canny_preview.json')
+    classes = {node['type'] for node in workflow['nodes']}
+    assert classes == {'KVD_ProbeMedia', 'KVD_NormalizeMedia', 'KVD_MediaProject', 'KVD_ControlSettings',
+        'KVD_PlanWindows', 'KVD_SelectWindow', 'KVD_PrepareWindow', 'KVD_BuildControl', 'KVD_ControlPreview', 'PreviewImage'}
+    assert workflow['extra']['kvd']['generation_dependencies'] == []
+    project = next(n for n in workflow['nodes'] if n['type'] == 'KVD_MediaProject')
+    assert next(p for p in project['inputs'] if p['name'] == 'render_profile')['link'] is None
+    for _, source, slot, _, _, kind in workflow['links']:
+        if kind == 'KVD_RENDER_PROFILE': assert source == project['id'] and slot == 1
 
 
-def test_generation_variant_separates_control_and_models_and_keeps_authored_prompt_visible():
-    w=read('m1_short_v2v.json')
-    registry=build_registry()
-    nodes={n['id']:n for n in w['nodes']}
-    expand=next(n for n in nodes.values() if n['type']=='KVD_ExpandNativeRender')
-    incoming={nodes[source]['type']:kind for _,source,slot,target,input_slot,kind in w['links'] if target==expand['id']}
-    assert incoming['KVD_BuildControl']=='KVD_CONTROL'
-    assert incoming['UNETLoader']=='MODEL' and incoming['CLIPLoader']=='CLIP' and incoming['ModelPatchLoader']=='MODEL_PATCH'
-    assert not set(p['name'] for p in expand['inputs']) & {'source_video','ref_images','ref_videos','audio_guide','mask'}
-    prompt=next(n for n in nodes.values() if n['type']=='KVD_CompileWindowPrompt')
+def test_generation_path_uses_current_results_array_and_preserves_authored_prompt():
+    workflow = read('m1_short_v2v.json')
+    registry = build_registry()
+    nodes = {n['id']: n for n in workflow['nodes']}
+    by_class = {n['type']: n for n in nodes.values()}
+    expand = by_class['KVD_ExpandNativeRender']
+    incoming = {nodes[source]['type']: kind for _, source, _, target, _, kind in workflow['links'] if target == expand['id']}
+    assert incoming['KVD_BuildControl'] == 'KVD_CONTROL'
+    assert incoming['UNETLoader'] == 'MODEL' and incoming['CLIPLoader'] == 'CLIP' and incoming['ModelPatchLoader'] == 'MODEL_PATCH'
+    assert not {p['name'] for p in expand['inputs']} & {'source_video', 'ref_images', 'ref_videos', 'audio_guide', 'mask'}
+    prompt = by_class['KVD_CompileWindowPrompt']
     assert registry.nodes[prompt['type']].INPUT_TYPES()['required']['prompt'][1]['multiline'] is True
-    assert prompt['widgets_values']==['']  # Human authors the exact text before generation.
+    assert prompt['widgets_values'] == ['']
+    selection = by_class['KVD_SelectResults']
+    assert selection['widgets_values'] == ['[]']
+    finalizer = by_class['KVD_FinalizeWindow']
+    input = next(p for p in selection['inputs'] if p['name'] == 'results_json')
+    link = next(link for link in workflow['links'] if link[0] == input['link'])
+    assert link[1:3] == [finalizer['id'], 3] and link[-1] == 'STRING'
+    for name in ('KVD_AssembleExport', 'KVD_SaveProject'):
+        input = next(p for p in by_class[name]['inputs'] if p['name'] == 'project')
+        link = next(link for link in workflow['links'] if link[0] == input['link'])
+        assert link[1:3] == [selection['id'], 0]

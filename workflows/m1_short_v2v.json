@@ -1,6 +1,6 @@
 {
-  "last_node_id": 22,
-  "last_link_id": 41,
+  "last_node_id": 23,
+  "last_link_id": 43,
   "nodes": [
     {
       "id": 1,
@@ -96,7 +96,7 @@
           "name": "audio_timeline",
           "type": "KVD_AUDIO_TIMELINE",
           "links": [
-            38
+            40
           ],
           "slot_index": 2
         },
@@ -492,7 +492,7 @@
           "links": [
             19,
             24,
-            40
+            42
           ],
           "slot_index": 0
         },
@@ -972,15 +972,16 @@
           "name": "project",
           "type": "KVD_PROJECT",
           "links": [
-            37,
-            39
+            37
           ],
           "slot_index": 2
         },
         {
           "name": "result_json",
           "type": "STRING",
-          "links": null,
+          "links": [
+            38
+          ],
           "slot_index": 3
         }
       ],
@@ -1002,7 +1003,7 @@
       "id": 19,
       "type": "KVD_AssembleExport",
       "pos": [
-        4660,
+        5080,
         0
       ],
       "size": [
@@ -1016,12 +1017,12 @@
         {
           "name": "project",
           "type": "KVD_PROJECT",
-          "link": 37
+          "link": 39
         },
         {
           "name": "audio_timeline",
           "type": "KVD_AUDIO_TIMELINE",
-          "link": 38
+          "link": 40
         }
       ],
       "outputs": [
@@ -1062,7 +1063,7 @@
       "id": 20,
       "type": "KVD_SaveProject",
       "pos": [
-        4660,
+        5080,
         660
       ],
       "size": [
@@ -1076,7 +1077,7 @@
         {
           "name": "project",
           "type": "KVD_PROJECT",
-          "link": 39
+          "link": 41
         }
       ],
       "outputs": [
@@ -1126,7 +1127,7 @@
         {
           "name": "control",
           "type": "KVD_CONTROL",
-          "link": 40
+          "link": 42
         }
       ],
       "outputs": [
@@ -1134,7 +1135,7 @@
           "name": "preview",
           "type": "IMAGE",
           "links": [
-            41
+            43
           ],
           "slot_index": 0
         }
@@ -1165,14 +1166,74 @@
         {
           "name": "images",
           "type": "IMAGE",
-          "link": 41
+          "link": 43
         }
       ],
-      "outputs": [],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": null,
+          "slot_index": 0
+        }
+      ],
       "properties": {
         "Node name for S&R": "PreviewImage"
       },
       "widgets_values": []
+    },
+    {
+      "id": 23,
+      "type": "KVD_SelectResults",
+      "pos": [
+        4660,
+        0
+      ],
+      "size": [
+        360,
+        180
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "project",
+          "type": "KVD_PROJECT",
+          "link": 37
+        },
+        {
+          "name": "results_json",
+          "type": "STRING",
+          "link": 38,
+          "widget": {
+            "name": "results_json"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "project",
+          "type": "KVD_PROJECT",
+          "links": [
+            39,
+            41
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "media_report",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KVD_SelectResults"
+      },
+      "widgets_values": [
+        "[]"
+      ]
     }
   ],
   "links": [
@@ -1468,12 +1529,28 @@
       37,
       18,
       2,
-      19,
+      23,
       0,
       "KVD_PROJECT"
     ],
     [
       38,
+      18,
+      3,
+      23,
+      1,
+      "STRING"
+    ],
+    [
+      39,
+      23,
+      0,
+      19,
+      0,
+      "KVD_PROJECT"
+    ],
+    [
+      40,
       2,
       2,
       19,
@@ -1481,15 +1558,15 @@
       "KVD_AUDIO_TIMELINE"
     ],
     [
-      39,
-      18,
-      2,
+      41,
+      23,
+      0,
       20,
       0,
       "KVD_PROJECT"
     ],
     [
-      40,
+      42,
       9,
       0,
       21,
@@ -1497,7 +1574,7 @@
       "KVD_CONTROL"
     ],
     [
-      41,
+      43,
       21,
       0,
       22,
@@ -1511,7 +1588,7 @@
       "bounding": [
         -40,
         -80,
-        5060,
+        5480,
         1520
       ],
       "color": "#555"
@@ -1532,14 +1609,16 @@
       "queue_accepted": false,
       "gpu": "not_performed",
       "human_result": "not_performed",
-      "checked_common": "c923d9e4292ea40e4a3f37f2feace8fa252eecb4",
-      "media_dependency_description": "d9b3a574dbfdd2bb4ec1428b5d91186fff3e107c",
-      "media_integrated": false,
+      "checked_common": "69ed44577550b8545a40cc3209a488d9fcd13fda",
+      "phase": "generation",
+      "media_integrated": true,
       "native_core_pin": "daeb5e53681e2b10a3f0727d9ec5bc90784bee10",
+      "native_schema_sha256": "b5d9ffab1130ebaf98cf1cfecda529e7c8a3b0c19cd57894e982ed12142ed34d",
+      "preview_schema_sha256": "0751c1d78c8ba97a23a8167de253f63766ce43b041e1e866820fa4463081916c",
       "manual_guide": "docs/H3_HANDOFF.md",
       "limitations": [
-        "Outputs deliberately muted until reviewed integration, installed-node preflight and explicit human setup.",
-        "Source must produce exactly one planned technical window; do not process a long film with this graph.",
+        "Outputs deliberately muted until independent H3 review, installed-node preflight and explicit human setup.",
+        "First-window generation only: full export requires one planned window. Keep Assemble muted for longer partial plans.",
         "Native Canny CPU contour, installed H3 model compatibility, GPU fit and rendered quality are NOT PERFORMED.",
         "Initial baseline diffusion checkpoint is absent from the supplied resource schema; never substitute another model."
       ]
