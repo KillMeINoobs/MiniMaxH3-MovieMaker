@@ -4,8 +4,9 @@ This file documents actual imports, types and signatures. The foundation owns
 shared files; consumers use the exact pushed, separately checked interface base
 assigned through AO. Full CF is unaccepted. After read-only preflight, the
 coordinator released M1-02 CPU-only implementation from source-reviewed ac335,
-with no shared-runtime/browser allocation.
-That exception does not accept UI/CF or integrate downstream code. Media/adapter code
+and subsequently released M1-03 CPU-only source work. Each owner uses its
+assigned exact checked common base, with no shared-runtime/browser allocation.
+Those exceptions do not accept UI/CF or integrate downstream code. Media/adapter code
 does not exist in this foundation. No callable handler for the nine downstream
 operations is registered yet.
 
@@ -238,6 +239,75 @@ correction has 36 frontend checks and 29 focused shared import/conformance
 checks passing. These results require a new pinned review before deployment and
 actual browser acceptance. The installed ac335 checker remains unchanged.
 See the [validation receipt](validation/M1_FOUNDATION.md).
+
+The subsequent c923 source/synthetic review approved those bounded checker and
+shared-test corrections. Its exact archive was deployed without backend changes.
+The one authorized live roundtrip rejected a stable serialization mismatch;
+ordered native completion and a fulfilled `undefined` did not override that
+rejection. The captured Project JSON value stayed unchanged across EN/RU/EN,
+but the failed stable projection was absent. Neither a differing field nor its
+cause is established. Registration and ordinary selector readback/restoration
+are separate from unaccepted graph/layout/save-reload/CF evidence.
+
+The local follow-up retains the same exact stable JSON comparison. A differing
+comparison now records `semantic_failure` in the opt-in console receipt before
+throwing: stage/load ID, complete expected/actual stable projections, and the
+deterministic first bracket-form JSON path with values, JSON types and presence.
+Missing object fields and array indices are distinct from explicit null; array
+and object-key order remain significant. Cosmetic data stays outside the
+existing projection, and custom titles keep their separate checks.
+
+Diagnostics are limited to 262,144 JavaScript string code units including their
+JSON envelope. Budget/capture failure reports `status: "unavailable"` and a
+capture error, with no claimed partial projection or first difference. Error
+formatting is guarded; its text is limited to 1,024 code units with explicit
+truncation status. The complete unavailable envelope is also budget-checked;
+unavailable metadata falls back to a small fixed receipt. Neither formatting
+failure nor an overlong diagnostic error can replace the original mismatch. The
+original complete-string equality and error still decide rejection; deadlines,
+late-settlement invalidation, verified language recovery and matching-ID cleanup
+are unchanged. Native/serialization errors before a completed comparison retain
+their original error without claiming captured fields. That preparation was
+subsequently approved at exact c08 and deployed for one bounded diagnostic
+attempt, described below. Its synthetic tests remain separate from live evidence.
+
+### Explicit native fixture inputs
+
+The c08 attempt captured complete failed stable projections. Exactly six
+additional unlinked widget inputs account for the difference; existing IDs,
+classes, modes, widget values, ports, outputs and both links were unchanged.
+The first difference was `nodes[0].inputs[0]`: absent in the authored fixture,
+present as `project_json / STRING / null` in native serialization. The specific
+runtime writer remains unknown; no owned adapter data corruption is established.
+
+Frontend 1.53.6
+[construction/configuration](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/services/litegraphService.ts)
+creates definition-owned widget sockets and retains them when saved inputs omit
+them. Its [serializer](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/lib/litegraph/src/node/slotUtils.ts)
+writes the widget name and null for an unconnected input. The two identical
+foundation fixtures now declare those six sockets explicitly:
+
+| Node | Added unlinked widget inputs, in order |
+|---|---|
+| Project JSON | `project_json: STRING` |
+| Save Project | `project_root: STRING`, `project_file: STRING`, `overwrite: BOOLEAN`, following the linked `project` slot |
+| Load Project | `project_root: STRING`, `project_file: STRING` |
+
+Each addition includes `widget: {name: <input name>}`. Project JSON bytes,
+existing endpoint indices and the two connections remain unchanged. A focused
+synthetic host uses the independently recorded class definitions to materialize
+these inputs before the actual checker compares them. The original omitted-port
+fixture still fails the same exact comparator; explicit inputs survive first
+and second materialization. This models the pinned source contract and does not
+execute native code. Checker/settings/title/deadline/marker acceptance is unchanged.
+
+This local fixture correction needs its own exact review before publication or
+deployment. Installed c08 remains fixed. Its ordinary selector saved RU and
+restored the original explicit EN with server readback; other preferences stayed
+unchanged. Four selectors/group captions were observed, but only three help/status
+blocks; the fourth is unobserved. One screenshot attempt failed with error 10060
+and produced no image. Complete native roundtrip/reload/layout/CF remains BLOCKED.
+No corrected browser attempt or node/workflow/GPU execution occurred.
 
 The owned [language settings helper](../web/common/language-settings.js) is
 shared by the real selector and checker. `SETTING_ID` remains `KVD.Language`.
