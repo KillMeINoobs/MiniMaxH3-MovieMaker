@@ -81,5 +81,11 @@ one owned correction for both the checker and ordinary KVD language selector,
 including directly required shared helpers/tests/docs. Persistence/restoration
 needs supported awaited APIs and verified own-setting readback; final graph
 presentation must survive reload. This is source/CPU work and feature
-publication only. Installed 205 stays untouched until independent approval;
-no live retry, restart, queue or generation is released by this correction.
+publication only. Installed205 stayed untouched during that review. Exact
+ac335 was independently approved and then refreshed from its own archive;
+the backend remained identical. Registration and served-source proof passed,
+and ordinary selector text/save readback/restoration has partial browser
+evidence. Complete graph/layout acceptance remains blocked. Its new checker
+compatibility/diagnostic correction needs pinned review before deployment;
+installed ac335 stays fixed. No lifecycle action, queue or generation is released
+by this correction. Foundation still owns the shared runtime.

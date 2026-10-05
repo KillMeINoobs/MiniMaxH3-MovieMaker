@@ -1,7 +1,7 @@
 # M1-01 — Portable project and shared foundation
 
 - **Goal:** Load/save and validate portable Projects; downstream owners share one checked interface.
-- **Owner/status:** Assigned foundation owner; source/CPU approved at205, live four-class registration PASS. Own UI correction needs pinned review and new browser evidence; CF unaccepted.
+- **Owner/status:** Assigned foundation owner; reviewed ac335 deployed, four-class registration/served source PASS. Ordinary selector partial browser evidence; complete native graph/layout BLOCKED. Coherent F15/F16/shared-test correction needs pinned review; CF unaccepted.
 - **Base:** Accepted C0 `7960568eff779c8c35c3d28a985a243368b91c26`, including M0 final `9dac703183e3e56929432054f5ebc6d63c26d8e2`. The preserved brief and source ledger are unchanged.
 - **Scope:** Validated/versioned 2.0.0 records, schemas, canonical JSON, settings inheritance, ordinary local Project I/O with relative-path checks and cooperative publication/revision leases, explicit migration/errors/cache conventions, import-safe extension discovery and four Project nodes. Persisted English/Russian presentation with stable semantics. The [local storage decision](../decisions/M1_LOCAL_STORAGE_SCOPE.md) supersedes earlier OS isolation claims.
 - **Shared ownership:** schemas/, kmin_video_director/contracts/, common errors/version/registration/helpers, root package/dependencies/lockfile, frontend settings/translations/tokens, notices, README and central PLAN/INDEX. Owned downstream modules/tests extend through documented discovery without changing shared files.
@@ -14,7 +14,7 @@
 - **Environment:** Isolated verification venv only; Python stdlib runtime, no required WSL. Windows normal-use I/O verified; POSIX runtime/FIFO checks NOT PERFORMED. Prior adversarial checks are historical, not current storage acceptance.
 - **Resource ownership:** Sole shared-ComfyUI registration/UI owner until explicit release. Own namespaced snapshot only; no core/other-pack/settings changes or lifecycle workaround. Generation reservation NONE; GPU NOT PERFORMED.
 - **Publication/review:** Own feature branch/SSH push and one draft [PR2](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2) are authorized. Exact corrected SHA/clean tree/receipts go through AO for separate review. No main merge or self-review claim.
-- **Dependent gate:** No media/adapter starts until coordinator accepts the exact reviewed/checked CF with actual API and live receipts. No integration of later SHAs without assignment.
+- **Dependent gate:** Full CF/UI remains unaccepted. The coordinator released M1-02 CPU-only work after preflight from exact source-reviewed ac335; no runtime/browser/GPU grant. Other launches and integration require exact checked assigned SHAs.
 
 ## Journal
 
@@ -46,7 +46,7 @@ classes with matching schemas; the registration fixture validated without
 errors. No ComfyUI node/workflow was executed.
 
 The dedicated browser fixture showed a null-canvas loading error while its old
-checker reported PASS. This is rejected evidence. The source follow-up starts
+checker reported PASS. This is rejected evidence. That earlier source follow-up started
 only after the native graph-load hook, requires each load's successful boolean
 result, checks original fixture semantics and restores the initial KVD language
 on failed roundtrips. Ten actual-module tests against a synthetic host reproduce
@@ -65,5 +65,34 @@ ordinary-selector defect. Both paths now use the shared awaited setter and
 status-checked per-key readback, with honest current/stored/recovery evidence
 and localized save errors. Graph/canvas/panels and semantic data are checked
 after required loads and before final checker acceptance. Source/CPU checks
-pass; the new exact candidate requires pinned review. Installed 205 remains
-untouched and corrected browser acceptance/CF remain blocked.
+passed and independent review approved ac335. Its exact 100-file archive was
+deployed with identical backend; six served own assets and the four-class live
+catalog were verified. Actual ordinary selection saved RU and restored
+effective EN with server readback; other preferences stayed unchanged. Complete
+layout/native load/save/reload remain blocked. A fresh checker-disabled client
+restored synthetic metadata/panels but workflow controls were covered by a
+loading overlay; screenshot capture and complete native serialization were
+unavailable.
+
+Actual served native code returns a boolean; a served wrapper awaits and drops
+that return. This is source evidence; the awaited runtime value remains
+unrecorded. The scoped checker follow-up records actual return/type/stack and
+readiness, correlates all four native hooks per requested load, and requires
+exact fixture data/panels/canvas after every load. Void without that proof,
+hidden aborts and missing/duplicate/reordered hooks reject. The 29 frontend
+checks passed at daf57, retaining F12/F13, but its independent
+[review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2#pullrequestreview-5414488723)
+found indefinite pending-load/recovery and current/stale marker leaks (F15/F16).
+The owner reproduced them before correcting bounded failure-only deadlines,
+all-outcome matching-ID cleanup and marker-free cloned input/output/cache.
+Late fulfillment/rejection cannot revive PASS, retry or erase a newer marker.
+Verified recovery remains required. Extension-aware shared tests now retain
+foundation IDs as a subset and evaluate every owned metadata class under missing
+optional packages; nine signature examples do not assume an empty default
+registry or invoke handlers. Explicitly empty and extension-present registry
+cases preserve unsupported/discovery/duplicate/broken-import coverage.
+Fresh 36 frontend and 29 focused shared tests pass as owner evidence. This
+coherent candidate requires independent pinned review before deployment;
+installed ac335 stays unchanged.
+Shared-runtime allocation is retained and CF remains unaccepted. No node,
+workflow, model, media or GPU execution occurred.

@@ -11,7 +11,52 @@ function semanticWorkflow(graph) {
     outputs:(n.outputs || []).map(({name,type,links}) => ({name,type,links:links || []}))})), links:graph.links});
 }
 function check(value, message) { if (!value) throw new Error(message); }
+const FAILURE_DEADLINE_MS = 15000;
+async function beforeFailureDeadline(promise, message, onExpire) {
+  let timer;
+  try {
+    return await Promise.race([promise,new Promise((_,reject)=>{
+      timer = setTimeout(()=>{
+        onExpire?.();
+        reject(new Error(message));
+      },FAILURE_DEADLINE_MS);
+    })]);
+  } finally { clearTimeout(timer); }
+}
+function withoutVerificationMarker(graph) {
+  const copy = structuredClone(graph);
+  if (copy.extra?.kvd) delete copy.extra.kvd.verification_load_id;
+  return copy;
+}
 let pendingCheck;
+let activeLoad;
+const loadHooks = ['beforeLoadGraph','beforeConfigureGraph','afterConfigureGraph','afterLoadGraph'];
+function readiness() {
+  const observed = {graph:false,canvas:false};
+  try {
+    observed.graph = app.isGraphReady === true;
+    // Do not access the native canvas getter before graph initialization.
+    observed.canvas = observed.graph && !!app.canvas?.ds;
+  } catch {} // Unavailable readiness is recorded as unavailable, never successful.
+  return observed;
+}
+function observeLoadHook(name, data) {
+  if (!activeLoad || activeLoad.expired) return;
+  activeLoad.trace.hooks.push(name);
+  if (name === 'beforeConfigureGraph') {
+    try {
+      activeLoad.trace.requested_graph_matched =
+        data.extra?.kvd?.verification_load_id === activeLoad.trace.load_id &&
+        semanticWorkflow(data) === activeLoad.expected;
+    }
+    catch { activeLoad.trace.requested_graph_matched = false; }
+  } else if (name === 'afterConfigureGraph' || name === 'afterLoadGraph') {
+    const key = name === 'afterConfigureGraph' ? 'configured_graph_matched' : 'completed_graph_matched';
+    try { activeLoad.trace[key] = app.isGraphReady === true &&
+      app.graph.extra?.kvd?.verification_load_id === activeLoad.trace.load_id; }
+    catch { activeLoad.trace[key] = false; }
+  }
+}
 app.registerExtension({
   name:'KVD.FoundationVerification',
   setup() {
@@ -24,11 +69,17 @@ app.registerExtension({
     document.body.append(banner);
     banner.textContent = 'KVD foundation: waiting for the native workflow to finish loading';
     // Capture the query before native workflow navigation repairs the URL.
-    pendingCheck = {banner, phase:query.get('phase') || 'roundtrip'};
+    pendingCheck = {banner, phase:query.get('phase') || 'roundtrip',
+      startup:[{event:'setup',...readiness()}]};
   },
+  beforeLoadGraph() { observeLoadHook('beforeLoadGraph'); },
+  beforeConfigureGraph(data) { observeLoadHook('beforeConfigureGraph',data); },
+  afterConfigureGraph() { observeLoadHook('afterConfigureGraph'); },
   afterLoadGraph() {
+    observeLoadHook('afterLoadGraph');
     if (!pendingCheck) return;
     const requested = pendingCheck;
+    requested.startup.push({event:'initial_afterLoadGraph',...readiness()});
     pendingCheck = undefined;
     // This native lifecycle hook provides readiness. Dispatch after it returns
     // to avoid recursively awaiting loadGraphData inside its own load hook.
@@ -36,12 +87,13 @@ app.registerExtension({
   },
 });
 
-async function verify({banner, phase}) {
+async function verify({banner, phase, startup}) {
     const receipt = {scope:'actual ComfyUI frontend; registration/serialization only',gpu:'not_performed',
-      queued:false,phase};
+      queued:false,phase,startup,native_loads:[]};
     let initialLanguage;
     let languageTouched = false;
     try {
+      startup.push({event:'verification_dispatch',...readiness()});
       check(['roundtrip','persist','display'].includes(phase),'Unknown verification phase');
       check(app.isGraphReady === true,'Native graph initialization has not completed');
       check(app.canvas?.ds,'Native canvas is unavailable');
@@ -54,7 +106,9 @@ async function verify({banner, phase}) {
       check(response.ok,'Fixture unavailable');
       const fixture = await response.json();
       const saved = sessionStorage.getItem('KVD.FoundationVerification.saved');
-      const selected = phase === 'persist' && saved ? JSON.parse(saved) : fixture;
+      const selected = withoutVerificationMarker(phase === 'persist' && saved ? JSON.parse(saved) : fixture);
+      check(semanticWorkflow(selected) === semanticWorkflow(fixture),
+        'Saved verification fixture has different Project types, ports, values or links');
       const expectedTitles = new Map(selected.nodes.filter(n=>n.title).map(n=>[n.id,n.title]));
       const checkTitles = () => {
         for (const [id,title] of expectedTitles)
@@ -68,9 +122,90 @@ async function verify({banner, phase}) {
         check(Object.keys(app.graph.links).length === 2,'Expected two native graph links');
       };
       const load = async data => {
-        const completed = await app.loadGraphData(data,true,true,null,{skipAssetScans:true});
-        check(completed === true,'Native workflow load did not complete');
-        checkLoadedGraph();
+        check(!activeLoad,'Another native workflow load is being observed');
+        const expected = semanticWorkflow(data);
+        const trace = {load_id:crypto.randomUUID(),hooks:[],ready_before:readiness(),deadline_ms:FAILURE_DEADLINE_MS};
+        // Native loading clones its argument, so an object identity cannot bind
+        // its callbacks. Mark only this synthetic fixture's owned metadata with
+        // a fresh request ID; remove it before saving verified graph evidence.
+        const requested = withoutVerificationMarker(data);
+        requested.extra = {...requested.extra,kvd:{...requested.extra?.kvd,verification_load_id:trace.load_id}};
+        receipt.native_loads.push(trace);
+        const observation = {trace,expected,expired:false};
+        activeLoad = observation;
+        const cleanupOwnMarker = () => {
+          if (requested.extra.kvd.verification_load_id === trace.load_id)
+            delete requested.extra.kvd.verification_load_id;
+          try {
+            if (app.isGraphReady !== true) return 'unavailable';
+            const kvd = app.graph.extra?.kvd;
+            if (!kvd || !Object.hasOwn(kvd,'verification_load_id')) return 'absent';
+            if (kvd.verification_load_id !== trace.load_id) return 'different_request_preserved';
+            delete kvd.verification_load_id;
+            return Object.hasOwn(kvd,'verification_load_id') ? 'unavailable' : 'removed';
+          } catch { return 'unavailable'; }
+        };
+        const describeReturn = value => ({return_type:typeof value,return_value:value === undefined ? 'undefined' :
+          typeof value === 'number' && !Number.isFinite(value) ? String(value) :
+          value === null || ['boolean','number','string'].includes(typeof value) ? value : '[nonprimitive]'});
+        const recordLateSettlement = settlement => {
+          const late = {load_id:trace.load_id,accepted:false,...settlement,
+            marker_cleanup:cleanupOwnMarker(),ready_after:readiness()};
+          trace.late_settlement = late;
+          console.info('[KVD verification late load]',JSON.stringify(late));
+        };
+        try {
+          let completed;
+          try {
+            const native = Promise.resolve(app.loadGraphData(requested,true,true,null,{skipAssetScans:true}));
+            const observed = native.then(value=>{
+              if (observation.expired) recordLateSettlement({state:'fulfilled',...describeReturn(value)});
+              return value;
+            },error=>{
+              if (!observation.expired) throw error;
+              recordLateSettlement({state:'rejected',error:String(error?.message ?? error),
+                error_stack:typeof error?.stack === 'string' ? error.stack : null});
+              // The failed run already settled; handle a late rejection without reviving it.
+            });
+            completed = await beforeFailureDeadline(observed,'Native workflow load exceeded its failure deadline',()=>{
+              observation.expired = true;
+              trace.timed_out = true;
+              trace.return_state = 'pending';
+            });
+            trace.return_state = 'fulfilled';
+            Object.assign(trace,describeReturn(completed));
+          } catch (error) {
+            if (!trace.timed_out) { trace.rejected = true; trace.return_state = 'rejected'; }
+            trace.error = String(error?.message ?? error);
+            trace.error_stack = typeof error?.stack === 'string' ? error.stack : null;
+            throw error;
+          }
+          // A fulfilled void result alone is insufficient: this particular call
+          // must complete the source-supported lifecycle and full graph assertions.
+          check(completed === true || completed === undefined,'Native workflow load did not complete');
+          check(JSON.stringify(trace.hooks) === JSON.stringify(loadHooks),
+            'Native workflow load completion hooks are missing, duplicated or out of order');
+          check(trace.requested_graph_matched === true,'Native workflow load configured different fixture data');
+          check(trace.configured_graph_matched === true && trace.completed_graph_matched === true &&
+            app.graph.extra?.kvd?.verification_load_id === trace.load_id,
+            'Native workflow load completion belongs to a different request');
+          checkLoadedGraph();
+          check(semanticWorkflow(app.graph.serialize()) === expected,'Fixture data changed during native loading');
+          trace.completion = completed === true ? 'native_return_and_lifecycle' : 'native_lifecycle_and_graph';
+        } catch (error) {
+          observation.expired = true;
+          trace.acceptance_invalidated = true;
+          throw error;
+        } finally {
+          trace.ready_after = readiness();
+          if (activeLoad === observation) activeLoad = undefined;
+          trace.marker_cleanup = cleanupOwnMarker();
+          if (trace.completion && !['removed','absent'].includes(trace.marker_cleanup)) {
+            observation.expired = true;
+            trace.acceptance_invalidated = true;
+            throw new Error('Native workflow load marker cleanup could not be verified');
+          }
+        }
       };
       await load(selected);
       checkTitles();
@@ -104,7 +239,7 @@ async function verify({banner, phase}) {
         'Final displayed and persisted KVD languages do not agree');
       checkLoadedGraph();
       checkTitles();
-      const actual = app.graph.serialize();
+      const actual = withoutVerificationMarker(app.graph.serialize());
       check(semanticWorkflow(actual) === before,'Final graph keys, values or connections changed');
       const input = app.graph.getNodeById(1).widgets.find(w=>w.name === 'project_json').value;
       check(input.includes('Сцена') && input.includes('18446744073709551615'),'Unicode or seed value lost');
@@ -121,16 +256,21 @@ async function verify({banner, phase}) {
       app.canvas.ds.scale = 0.75;
       app.canvas.ds.offset = [30,60];
       app.canvas.setDirty(true,true);
-      if (phase === 'roundtrip')
+      if (phase === 'roundtrip' || phase === 'persist')
         sessionStorage.setItem('KVD.FoundationVerification.saved',JSON.stringify(actual));
+      // Only this opted-in, successfully checked synthetic fixture is exposed.
+      // AO console capture can retain its actual native serialization privately.
+      receipt.serialized_workflow = actual;
       receipt.status = 'PASS';
       banner.textContent = 'KVD foundation: PASS · ' + receipt.phase + ' · ' + receipt.current_language.toUpperCase() + ' · 4 nodes / 2 links · no queue';
       console.info('[KVD verification]',JSON.stringify(receipt));
     } catch (error) {
-      receipt.status = 'FAIL'; receipt.reason = String(error.message);
+      receipt.status = 'FAIL'; receipt.reason = String(error?.message ?? error);
+      receipt.error_stack = typeof error?.stack === 'string' ? error.stack : null;
       if (languageTouched) {
         try {
-          const restored = await persistLanguage(app.ui.settings,api,initialLanguage);
+          const restored = await beforeFailureDeadline(persistLanguage(app.ui.settings,api,initialLanguage),
+            'Original KVD preference restoration exceeded its failure deadline');
           setLanguage(initialLanguage);
           receipt.original_language_restored = true;
           receipt.restored_displayed_language = getLanguage();
@@ -141,9 +281,10 @@ async function verify({banner, phase}) {
         }
       }
       receipt.displayed_language = getLanguage();
-      try { receipt.persisted_language = await readPersistedLanguage(api); }
+      try { receipt.persisted_language = await beforeFailureDeadline(readPersistedLanguage(api),
+        'Final KVD preference readback exceeded its failure deadline'); }
       catch { receipt.persisted_language = 'unverified'; }
-      banner.textContent = 'KVD foundation: FAIL · ' + error.message;
+      banner.textContent = 'KVD foundation: FAIL · ' + receipt.reason;
       console.error('[KVD verification]',JSON.stringify(receipt));
     }
 }
