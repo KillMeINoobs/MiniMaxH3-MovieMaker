@@ -339,9 +339,51 @@ links, identity, absent fields/indices, deterministic first-path order, cosmetic
 invariance, post-RU recovery, unavailable/budgeted capture and original-error
 preservation. The 43 frontend tests pass locally; eight focused
 registration/import checks from the initial local preparation are retained.
-Unchanged backend/I/O suites were not rerun. A separate exact
-source review is pending. No new browser/MCP/runtime call, deployment,
-publication or corrected live PASS occurred for this preparation.
+Unchanged backend/I/O suites were not rerun. That exact local c08 candidate later
+received independent source/synthetic approval and a separate deployment/live
+diagnostic release. The resulting failed projections are recorded below; approval
+of diagnostics did not supply corrected live acceptance.
+
+## Six native widget inputs: captured failure and local correction
+
+The one c08 browser attempt captured complete expected/actual stable projections
+before the same strict comparison rejected them. Input counts were `[0,1,1,0]`
+in the authored fixture and `[1,1,4,2]` in the configured graph. The entire stable
+diff consists of six additional unlinked primitive widget sockets: Project JSON's
+`project_json`, Save's `project_root`, `project_file`, `overwrite` after its linked
+`project` slot, and Load's `project_root`, `project_file`. Types are STRING except
+BOOLEAN `overwrite`. Every other stable value/type/ID/output/link and key order
+was unchanged; the authored Project JSON remains 8,246 characters with SHA256
+`31cf8081df848c552ca70bd6130246697548ddc498b068500143c4fc1d82ea09`.
+The exact runtime field writer remains unknown. No data corruption is inferred.
+
+The registered class metadata and pinned frontend 1.53.6
+[input construction/configuration](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/services/litegraphService.ts)
+and [input serialization](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/lib/litegraph/src/node/slotUtils.ts)
+support explicit name/type/null-link/widget-name records. Both committed fixture
+copies now contain only those six additions. The checker and its full stable
+projection/equality, setting readback/recovery, panels, titles, failure deadlines
+and marker cleanup are unchanged.
+
+The focused actual-module regression first reproduced the omitted-port FAIL in
+a synthetic host driven by independently recorded class input definitions. It
+checks explicit `[1,1,4,2]` ports, ordering, widget associations, idempotent first
+and second materialization and matching fixture copies. Omitted/changed/missing/
+extra ports, type/link/widget-value/ProjectJSON/ID mutations still reject without
+a saved acceptance fixture. This source-supported model is not an executed native
+regression. All 46 owned frontend tests pass, including the three focused native
+widget-input groups; the initial red run had one expected fixture failure and two
+passing rejection groups. JavaScript syntax passes. These are owner synthetic
+receipts; an independent exact review remains pending.
+Backend/Python/media checks retain their previous receipts and are not rerun here.
+
+Actual c08 registration and ordinary EN/RU/EN selector readback/restoration remain
+separate evidence. Four selectors/group captions and three help/status blocks
+were observed; the fourth help/status is NOT OBSERVED. Screenshot error 10060
+produced no image. No successful graph roundtrip, fresh-page RU persistence,
+complete layout or CF acceptance exists. Installed c08 and published c923 refs
+remain fixed during this local correction. No new live attempt/deployment,
+generation, model load, native contour, real-video or GPU execution occurred.
 
 ## Integrity and public artifacts
 

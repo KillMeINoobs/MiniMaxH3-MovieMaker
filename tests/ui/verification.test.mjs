@@ -3,11 +3,45 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 import { pathToFileURL } from 'node:url';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 
 const fixture = JSON.parse(await readFile('workflows/foundation_project.json', 'utf8'));
 const checkerSource = await readFile('web/zz_verification.js', 'utf8');
 const presentationSource = await readFile('web/common/presentation.js', 'utf8');
+
+// Independent required-input/input_order snapshot from the registered four
+// Project classes (core daeb5e5), not from the workflow being tested.
+const definitionInputs = {
+  KVD_ProjectJSON:[['project_json','STRING']],
+  KVD_ValidateProject:[['project','KVD_PROJECT']],
+  KVD_SaveProject:[['project','KVD_PROJECT'],['project_root','STRING'],['project_file','STRING'],['overwrite','BOOLEAN']],
+  KVD_LoadProject:[['project_root','STRING'],['project_file','STRING']],
+};
+function materializeNativeInputs(graph) {
+  // Narrow source-supported host model, not execution of native code:
+  // frontend v1.53.6 litegraphService.ts:285-363,565-592 constructs widgets,
+  // preserves definition-owned slots, merges saved slots by name and retains extras.
+  // slotUtils.ts:61-77 serializes widget.name and graph-derived link/null.
+  const copy = structuredClone(graph);
+  for (const node of copy.nodes) {
+    const ordered = definitionInputs[node.type];
+    assert.ok(ordered,'host metadata must independently define the node class');
+    const widget = ([,type])=>['STRING','BOOLEAN'].includes(type);
+    const constructorOrder = [...ordered.filter(input=>!widget(input)),...ordered.filter(widget)];
+    const storedByName = new Map((node.inputs || []).map(input=>[input.name,input]));
+    const declaredNames = new Set(ordered.map(([name])=>name));
+    node.inputs = constructorOrder.map(([name,type])=>{
+      const input = {...storedByName.get(name),name,type};
+      if (widget([name,type])) input.widget = {name};
+      else delete input.widget;
+      return input;
+    }).concat((node.inputs || []).filter(input=>!declaredNames.has(input.name)));
+    node.inputs.forEach((input,index)=>{
+      input.link = copy.links.find(link=>link[3] === node.id && link[4] === index)?.[0] ?? null;
+    });
+  }
+  return copy;
+}
 
 async function harness({query='?kvd-check=foundation&phase=display', outcomes=[], changeInitialGraph, changeLoadedGraph,
   readyAtSetup=false, unavailableCanvas=false, settingLanguage='en', storedLanguage=settingLanguage,
@@ -16,7 +50,7 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
   dropLoadReturn=false, loadHookSequences=[], returnedOutcomes=[], rejections=[],
   staleConfigureData=false, staleCompletionGraph=false, deferLoads=false, deferLoadNumber,
   pauseBeforeConfigureNumber, rejectionAfterPause, deferReadNumber, diagnosticParseError, serializeError,
-  fixtureForTest=fixture}={}) {
+  fixtureForTest=fixture, nativeInputMaterialization=false}={}) {
   const scheduled = [], loads = [], messages = [], elements = [], stored = new Map();
   const writes = [], writeWaiters = [], reads = [], warnings = [];
   const loadResumers = [], loadWaiters = [];
@@ -72,7 +106,7 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
         await extension[hook]?.(hookData);
       }
       if ((loads.length - 1) in rejections) throw rejections[loads.length - 1];
-      current = structuredClone(data);
+      current = nativeInputMaterialization ? materializeNativeInputs(data) : structuredClone(data);
       if (loads.length === 1) changeInitialGraph?.(current);
       changeLoadedGraph?.(current, loads.length);
       if (loseCanvasOnReload && loads.length === 2) app.canvas = null;
@@ -198,6 +232,74 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
     },
   };
 }
+
+test('native widget-input fixture survives definition-owned input materialization and both loads', async()=>{
+  const host = await harness({query:'?kvd-check=foundation&phase=roundtrip',
+    nativeInputMaterialization:true,dropLoadReturn:true});
+  host.setGraphReady(); await host.extension.afterLoadGraph(); await host.flush();
+  assert.equal(host.receipt().status,'PASS','authored fixture must survive native-defined socket materialization');
+  const saved = host.receipt().serialized_workflow;
+  assert.deepEqual(saved.nodes.map(node=>node.inputs.length),[1,1,4,2]);
+  assert.deepEqual(saved.nodes.map(node=>node.inputs.map(({name,type,link,widget})=>[name,type,link,widget?.name ?? null])),[
+    [['project_json','STRING',null,'project_json']],
+    [['project','KVD_PROJECT',1,null]],
+    [['project','KVD_PROJECT',2,null],['project_root','STRING',null,'project_root'],
+      ['project_file','STRING',null,'project_file'],['overwrite','BOOLEAN',null,'overwrite']],
+    [['project_root','STRING',null,'project_root'],['project_file','STRING',null,'project_file']],
+  ]);
+  assert.deepEqual(materializeNativeInputs(fixture),fixture,'first materialization must not repair authored ports');
+  assert.deepEqual(materializeNativeInputs(materializeNativeInputs(fixture)),fixture,'second materialization is idempotent');
+  assert.deepEqual(saved.links,[[1,1,0,2,0,'KVD_PROJECT'],[2,2,0,3,0,'KVD_PROJECT']]);
+  assert.equal(createHash('sha256').update(saved.nodes[0].widgets_values[0]).digest('hex'),
+    '31cf8081df848c552ca70bd6130246697548ddc498b068500143c4fc1d82ea09');
+  assert.equal(saved.nodes[0].widgets_values[0].length,8246);
+  assert.equal(host.loads.length,2); assert.equal(host.receipt().custom_titles,'passed');
+  assert.equal(saved.nodes[1].title,'KVD check · custom / Сцена');
+  assert.equal(host.receipt().language_roundtrip,'passed'); assert.equal(host.persistedLanguage(),'ru');
+  assert.equal(host.marker(),undefined); assert.equal(host.outstandingTimers(),0);
+  assert.ok(host.saved());
+  assert.equal(await readFile('workflows/foundation_project.json','utf8'),
+    await readFile('web/examples/foundation_project.json','utf8'),'both fixture copies are identical');
+});
+
+test('native widget-input materialization still rejects the original omitted six ports', async()=>{
+  const omitted = structuredClone(fixture);
+  omitted.nodes[0].inputs=[]; omitted.nodes[2].inputs=omitted.nodes[2].inputs.slice(0,1); omitted.nodes[3].inputs=[];
+  const host = await harness({fixtureForTest:omitted,nativeInputMaterialization:true});
+  host.setGraphReady(); await host.extension.afterLoadGraph(); await host.flush();
+  const receipt = host.receipt();
+  assert.equal(receipt.status,'FAIL'); assert.equal(receipt.reason,'Fixture data changed during native loading');
+  assert.equal(receipt.semantic_failure.first_difference.path,'$["nodes"][0]["inputs"][0]');
+  assert.equal(receipt.semantic_failure.first_difference.kind,'missing_index');
+  assert.deepEqual(receipt.semantic_failure.expected_projection.nodes.map(node=>node.inputs.length),[0,1,1,0]);
+  assert.deepEqual(receipt.semantic_failure.actual_projection.nodes.map(node=>node.inputs.length),[1,1,4,2]);
+  assert.equal(host.loads.length,1); assert.equal(host.saved(),undefined);
+  assert.equal(host.marker(),undefined); assert.equal(host.persistedLanguage(),'en');
+  assert.equal(host.outstandingTimers(),0);
+});
+
+test('native widget-input fixture retains strict wrong missing extra port and value rejection', async()=>{
+  const changes = [
+    graph=>{graph.nodes[0].inputs[0].name='wrong';},
+    graph=>{graph.nodes[0].inputs=[];},
+    graph=>{graph.nodes[3].inputs.push({name:'extra',type:'STRING',link:null});},
+    graph=>{graph.nodes[0].inputs[0].type='BOOLEAN';},
+    graph=>{graph.nodes[0].inputs[0].link=99;},
+    graph=>{graph.nodes[0].widgets_values[0]='{}';},
+    graph=>{graph.nodes[2].widgets_values[2]=true;},
+    graph=>{graph.nodes[3].id=99;},
+  ];
+  for (const changeLoadedGraph of changes) {
+    const host = await harness({nativeInputMaterialization:true,changeLoadedGraph});
+    host.setGraphReady(); await host.extension.afterLoadGraph(); await host.flush();
+    const receipt = host.receipt();
+    assert.equal(receipt.status,'FAIL'); assert.equal(receipt.reason,'Fixture data changed during native loading');
+    assert.equal(receipt.semantic_failure.status,'captured'); assert.equal(host.loads.length,1);
+    assert.equal(host.saved(),undefined); assert.equal(receipt.serialized_workflow,undefined);
+    assert.equal(host.marker(),undefined); assert.equal(host.persistedLanguage(),'en');
+    assert.equal(host.outstandingTimers(),0);
+  }
+});
 
 test('ordinary pages never load a graph or alter a preference', async()=>{
   const host = await harness({query:''});

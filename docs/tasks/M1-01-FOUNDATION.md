@@ -110,7 +110,17 @@ JSON-path difference on semantic failure, or explicitly unavailable capture.
 The source-preparation fallback finding PREP-DIAG1 was reproduced and corrected:
 unavailable diagnostics have guarded, bounded error formatting and a complete
 envelope budget check, retaining original rejection/cleanup/verified recovery.
-Owner checks pass; separate pinned source review is pending. Published PR2 and
-deployment remain exact c923. No publication/deployment/live retry is released.
+Owner checks passed; that local c08 candidate subsequently received independent
+source/synthetic approval and was separately deployed for one diagnostic attempt.
+Published PR2 remains exact c923. Its strict failure captured six added unlinked
+native widget sockets; all other stable fields and two links were unchanged.
+Native source explains the input contract, while the exclusive runtime writer
+remains unknown. The two owned fixtures now explicitly declare those six inputs,
+with a focused source-supported synthetic normalization regression. No comparator,
+backend/interface or ordinary-selector change belongs to this correction. Its
+new local candidate requires separate exact review; no publication/deployment or
+corrected browser retry is released. Installed c08 remains fixed. Four selectors/
+captions were observed, only three help/status blocks; the fourth is unobserved.
+Screenshot 10060 produced no image. Full graph/reload/layout/CF remains blocked.
 M1-02/M1-03 CPU-only work has separate exact-common-base releases; shared runtime,
 CF and native H3/GPU acceptance remain ungranted.
