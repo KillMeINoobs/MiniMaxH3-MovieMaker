@@ -44,7 +44,21 @@ def enum_options(port):
 
 def schema_digest(schema):
     """Digest execution-relevant schema, excluding display/provider descriptions."""
-    return native_digest({k:schema.get(k) for k in ('input','input_order','output','output_is_list')})
+    relevant = {k:schema.get(k) for k in ('input','input_order','output','output_is_list')}
+    validate_schema_numbers(relevant)
+    return native_digest(relevant)
+
+
+def validate_schema_numbers(value):
+    """Reject nonfinite JSON numbers before consuming native schema options."""
+    if isinstance(value, float) and not math.isfinite(value):
+        incompatible('Native schema options must use finite JSON numbers.')
+    if isinstance(value, dict):
+        for item in value.values():
+            validate_schema_numbers(item)
+    elif isinstance(value, list):
+        for item in value:
+            validate_schema_numbers(item)
 
 
 def native_digest(value):

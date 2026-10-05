@@ -55,7 +55,8 @@ def read_header(path,*,context):
         shape=value.get('shape')
         dtype=value.get('dtype')
         offsets=value.get('data_offsets')
-        if (not isinstance(shape,list) or any(type(d) is not int or d<0 for d in shape) or dtype not in DTYPE_BYTES
+        if (not isinstance(shape,list) or any(type(d) is not int or d<0 for d in shape)
+            or not isinstance(dtype,str) or dtype not in DTYPE_BYTES
             or not isinstance(offsets,list) or len(offsets)!=2 or any(type(d) is not int for d in offsets)):
             incompatible('Unknown safetensors dtype, shape or offsets.')
         begin,end=offsets

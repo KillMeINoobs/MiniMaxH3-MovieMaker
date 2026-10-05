@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 
-from .profile import incompatible
+from .profile import incompatible, validate_schema_numbers
 
 
 def read_handoff(context):
@@ -40,5 +40,6 @@ def read_handoff(context):
                         raise ValueError
     except (KeyError, ValueError, OSError, TypeError, UnicodeError):
         incompatible('Select a valid native schema handoff with schemas, typed ports and runtime.core_commit.')
+    validate_schema_numbers(schemas)
     context.cancellation.check()
     return schemas, core
