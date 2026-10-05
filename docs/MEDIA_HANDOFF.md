@@ -7,8 +7,12 @@ The M1-02-INTEGRATE-C923 release now integrates the entire exact common commit
 that published media history. Its separate
 [source/synthetic review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2#pullrequestreview-5415254811)
 approved the common correction, including extension-aware shared tests.
-All media implementation/tests, five signatures, eight node IDs, recipes and
-export formats are unchanged by this integration. The preserved brief and
+Integration commit `d0625152a370a6e20e799eb7d6dbaf224c1e252d` retained the original
+media code. The subsequent M1-02-STREAM-SELECTION-FIX correction preserves that
+merge history and addresses four owner-reproduced synthetic CPU cases:
+selected-stream export/cache identity, source-selection binding, malformed owned
+envelopes and explicitly unavailable non-final tail repeats. Five signatures,
+eight node IDs and recipe/export-policy formats remain unchanged. The preserved brief and
 shared data/schema/worker interfaces remain unchanged. PR2 is draft/unmerged;
 live foundation UI is BLOCKED and full CF remains unaccepted.
 
@@ -86,7 +90,17 @@ explicitly unsupported timing/geometry cases.
 
 Algorithm versions: `kvd-decoded-pts/1.0.0`, `kvd-displayed-hold/1.0.0`,
 `kvd-display-pad/1.0.0`, `kvd-balanced-windows/1.0.0`,
-`kvd-disk-window/1.0.0`, `kvd-global-pcm/1.0.0`, `kvd-assembly/1.0.0`.
+`kvd-disk-window/1.0.1`, `kvd-global-pcm/1.0.0`, `kvd-assembly/1.0.1`.
+`normalization.report.source_binding` uses `kvd-media-binding/1.0.0`: immutable
+MediaRef ID, content digest, absolute video/audio selections and probe digest.
+Normalization cache identity and new Project IDs include this binding;
+`create_project` rejects cross-selected or binding-less NormalizedOutput with
+`STALE_DEPENDENCY`. Constructing a new Project from a pre-fix normalization
+requires explicit normalization again. Existing saved Projects and old disk
+artifacts are retained; no automatic migration or asset operation is performed.
+Assembly identity includes the same selected-artifact binding, and decode uses
+the exact absolute video stream that was verified. Switching tracks cannot
+overwrite the other selection's durable export.
 The built-in source policy is `kvd-native-source/1.0.0`; it records the pinned
 core source revision and **source_only** evidence, never an installed or tested
 H3 profile. Shared validation restricts this M1 profile to lattice `5+17*k`,
@@ -124,6 +138,14 @@ written media bytes without a successful manifest are inactive.
 Preparation currently decodes/discards canonical frames from the start for an
 exact index trim. It makes no approximate seek and no per-window FPS resample;
 long-film speed optimization remains future work.
+Its implemented M1 padding policy is `repeat_boundary` at the last useful frame.
+A shared-contract-valid span declaring another repeat frame is explicitly
+`UNSUPPORTED_CAPABILITY` before decoding or cache reuse; its declared meaning
+is never replaced silently. Planner-created last-frame tail padding remains
+supported. Required normalization/preparation/timing envelope fields, versions
+and record types are checked before use. Malformed envelopes return typed,
+redacted errors without publishing a new success; cancellation and resource
+limit codes retain their meanings.
 
 ## Audio and export
 
@@ -199,8 +221,11 @@ store, automatic execution, foreign-node customization or language-triggered I/O
 was introduced. Visual appearance and native serialization still need the later
 allocated human live gate.
 
-The integrated [CPU receipt](validation/M1_MEDIA.md) records161 passed,
-one POSIX-only skip on Windows and no failures. The six historical ac335 shared
+The corrected [CPU receipt](validation/M1_MEDIA.md) records183 passed,
+one POSIX-only skip on Windows and no failures, including66 owned cases.
+All four preliminary source findings were reproduced by the owner with synthetic
+inputs before correction; independent final media review remains pending.
+The six historical ac335 shared
 assertion failures are resolved by the reviewed common tests imported from
 exact c923. Shared files match that commit; no media-owned shared amendment was
 made. The [existing draft stacked PR3](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/3)

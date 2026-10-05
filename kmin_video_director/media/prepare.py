@@ -5,11 +5,11 @@ from ..contracts import MediaRef, GenerationWindow, SpatialTransform, cache_key,
 from ..contracts.confined_io import selected_path
 from ..contracts.worker import OperationContext, PreparedArtifact, ProjectLocator, StreamSelection
 from ..errors import fail
-from .backend import backend, Budget, check_media, limit, process, target, write_json, read_json, with_role, bounded_operation
+from .backend import backend, Budget, check_media, limit, process, target, write_json, read_json, with_role, bounded_operation, manifest_object
 from .probe import probe_media, verify_cfr
 from .timing import fraction
 
-PREPARE_VERSION = 'kvd-disk-window/1.0.0'
+PREPARE_VERSION = 'kvd-disk-window/1.0.1'
 
 
 @bounded_operation
@@ -17,6 +17,10 @@ def prepare_window(window: GenerationWindow, canonical_media: MediaRef, spatial:
                    *, context: OperationContext) -> PreparedArtifact:
     context.cancellation.check()
     require_runtime_capabilities(window=window, settings=window['resolved_settings'])
+    if window['padding']['after'] and (window['padding']['method'] != 'repeat_boundary'
+        or any(span['repeat_frame'] != window['output_useful_range']['end'] - 1
+               for span in window['input_spans'] if span['role'] == 'padding')):
+        fail('UNSUPPORTED_CAPABILITY', 'M1 preparation supports tail padding that repeats the last useful frame only.')
     source = check_media(canonical_media, context)
     v = canonical_media['probe']['video']
     spans = [s for s in window['input_spans'] if s['role'] == 'useful']
@@ -46,7 +50,16 @@ def prepare_window(window: GenerationWindow, canonical_media: MediaRef, spatial:
     budget = Budget(context)
     budget.reserve(n * (cw * ch * 3 + 256))
     if selected_path(context.asset_root, meta['path']).is_file():
-        prepared = MediaRef.from_dict(read_json(meta, context)['media'])
+        hit = manifest_object(read_json(meta, context),
+            {'version': str, 'media': dict, 'frame_count': int, 'spatial_transform': dict, 'process': dict, 'gpu': str},
+            envelope='prepared window', version=PREPARE_VERSION)
+        cached_spatial = SpatialTransform.from_dict(hit['spatial_transform'])
+        if hit['frame_count'] != n or cached_spatial != spatial or hit['gpu'] != 'not_performed':
+            fail('STALE_DEPENDENCY', 'The prepared manifest differs from its declared frame/spatial plan.')
+        prepared = MediaRef.from_dict(hit['media'])
+        pv = prepared['probe']['video']
+        if prepared['role'] != 'prepared_video' or pv is None or (pv['width'], pv['height']) != (cw, ch):
+            fail('STALE_DEPENDENCY', 'The prepared manifest differs from the exact declared canvas.')
         check_media(prepared, context)
         verify_cfr(prepared, n, context)
         return PreparedArtifact(window.id, prepared, spatial, n)

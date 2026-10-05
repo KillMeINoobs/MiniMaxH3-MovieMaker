@@ -8,18 +8,25 @@ M1-02-INTEGRATE-C923 release integrates the entire checked common
 `7460dfd9b64abeb016029d0d2e6bc191a4acd91d`) with a normal merge of the two
 exact heads. The common correction has a separate
 [source/synthetic approval](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2#pullrequestreview-5415254811).
+The normal integration commit is `d0625152a370a6e20e799eb7d6dbaf224c1e252d`
+(tree `63e8613d65739ea94226f729157ffc13ba6b447f`). The explicit
+M1-02-STREAM-SELECTION-FIX release uses it as the base for one ordinary appended
+owned correction, preserving both merge parents and the entire exact c923.
 This approval covers the common source, not independent media acceptance,
 CI, live CF or H3. PR2 remains draft/unmerged; the foundation live graph/UI gate
 remains BLOCKED. The existing
 [draft stacked PR3](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/3)
 and private AO report identify the frozen output SHA/tree.
 
-Scope: [five unchanged operations and eight real node definitions](../MEDIA_HANDOFF.md).
+Scope: [five unchanged callable signatures and eight real node definitions](../MEDIA_HANDOFF.md).
 Runtime is standard-library Python plus explicit existing external executables.
 The merge imports foundation-owned changes exactly from c923. No media-owned
 changes were made to shared contracts, schemas, package/lockfiles, registry,
 common presentation, README/PLAN/INDEX or other task journal. Shared protected
-paths match c923; media implementation, tests and presentation match cd1b90.
+paths match c923. The follow-up changes five owned source files, bounded ordinary
+tests and this receipt/handoff/card; owned node definitions and presentation are
+unchanged from cd1b90. Preparation/assembly algorithm versions are1.0.1 and the
+new media binding is1.0.0; no shared record/schema change was required.
 KVD-WORKER/2.0.0, data/schema2.0.0, five callable signatures, eight owned IDs and
 owner recipe/export versions remain stable. The preserved brief still has
 Git blob `77e34e02374483fc19be006dc5d5b78e40f15042` and canonical SHA256
@@ -58,9 +65,9 @@ pure planning/import/signature/geometry checks still run. CPU tests call operati
 handlers directly. Node definitions are imported/inspected without running a
 ComfyUI workflow or queue.
 
-Fresh integrated run on the merged source tree: **161 passed, 1 skipped,
-no failures in32.31s**, both backends explicitly selected. This includes all44
-owned media/planning/assembly cases, the actual4:3 geometry case, shared
+Final corrected source run: **183 passed, 1 skipped, no failures in50.24s**,
+both backends explicitly selected. This includes all66 owned
+media/planning/assembly cases, the actual4:3 geometry case, shared
 contracts/imports/conformance and the existing bounded-memory assertion.
 The skipped case is `test_review_regressions.py`'s POSIX FIFO runtime case on
 Windows; that platform behavior remains NOT PERFORMED.
@@ -72,10 +79,32 @@ flag was supplied for all module-host tests. Six shared/owned JavaScript source
 files passed syntax checks. These are portable/synthetic-host checks; no live
 ComfyUI page, graph, serialization or node execution was performed.
 
-The original ac335 owned run recorded44 passed in31.27s, followed by the expanded
+The normal d062 integration run recorded161 passed/one POSIX skip/no failures
+in32.31s at unchanged media code. The original ac335 owned run recorded44 passed
+in31.27s, followed by the expanded
 actual4:3 geometry check. Its initially omitted Node VM flag was corrected
-without a production fix. Those historical receipts remain valid at unchanged
-media source; the combined run above is the fresh integration result.
+without a production fix. Those results remain historical evidence for their
+exact sources; the combined run above provides fresh owner correction evidence.
+
+## Reproduced preliminary findings and corrections
+
+Reviewer6's original-cd1b90 preparation was source-only, with no executed defect
+receipt or approval. The owner ran the following bounded actual synthetic
+regressions against unchanged relevant code before each correction:
+
+| Finding | Executed pre-fix observation | Corrected behavior |
+| --- | --- | --- |
+| PREP-D1 | Two same-CFR/geometry video tracks encode different frame numbers. Selected second-track export decoded first-track pixels, including a leading audio track (absolute video indices1/2). Correcting the map then exposed identical export cache paths across selections. | Verified absolute stream is decoded; selected-artifact binding enters assembly identity. Both tracks match independent decoded pixels, use different durable paths and preserve the first export. |
+| PREP-D2 | Same-file/equal-PTS video selections were accepted cross-bound in both directions. Correctly bound selections also produced the same Project ID despite different canonical pixels. | Versioned content/MediaRef/absolute-stream/probe binding is recorded and checked in normalization cache and Project construction. Mismatches raise `STALE_DEPENDENCY`; matching selections have distinct Project IDs. |
+| PREP-D3 | Fifteen cases across normalization cache, preparation cache and decoded timing: `{}`, list, scalar, malformed nested field or unsupported owner version leaked raw key/type/attribute errors or were accepted. | Required object/field/type/version and existing schema checks occur before consumption. All cases raise redacted `INVALID_RECORD`, preserve every existing fixture byte and create no new artifact/active success. Existing cancellation and manifest size-limit cases retain `CANCELLED`/`RESOURCE_LIMIT`. |
+| PREP-D4 | A valid six-useful/native124 window declared tail `repeat_frame=0`, but inverse-cropped output contained118copies of frame5. | M1's documented last-useful-frame boundary policy explicitly rejects the unavailable non-final repeat with `UNSUPPORTED_CAPABILITY` before preparation/cache reuse. No output is created; ordinary last-frame padding still passes. |
+
+Initial stream regression:5 failed in8.06s; map-only follow-up:2 cache-identity
+failures in5.25s. Corrected binding/stream focused set:6 passed in8.43s. Initial
+envelope/padding set:16 failed/one error-code preservation case passed in11.87s;
+corrected envelope set:16 passed in9.23s. Combined affected-file regression:
+**33 passed in35.32s**. Final full results are above. These are owner synthetic
+CPU receipts; separate review must assess the final exact candidate.
 
 Historical ac335 `tests/imports tests/contracts` run: **97 passed, 1 skipped,
 6 failed**. The six failures were the acknowledged shared-test extension dependency:
@@ -127,20 +156,21 @@ end of a complete contiguous run; technical windows never reset sample rounding.
 
 ## Measured bounded-memory receipt
 
-The numbers below retain the original ac335 measurement of constructed37×19
-RGB frame-number sources. Media/backend/test source is unchanged from cd1b90;
-the integrated suite reran the existing assertion once, with no additional
-manual memory experiment. Tracemalloc
+The numbers below come from the ordinary bounded-memory test in the final
+combined suite, using constructed37×19 RGB frame-number sources. No separate
+manual experiment was run. The original ac335 numbers remain in the
+[pinned d062 receipt](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/blob/d0625152a370a6e20e799eb7d6dbaf224c1e252d/docs/validation/M1_MEDIA.md).
+Tracemalloc
 starts after fixture generation; measurements include probe/normalize Python
 allocations. The watchdog measures only the operation-owned decoder/encoder
 children. These small-geometry figures do not predict1080p/H3 memory.
 
 | Frames | Python traced peak bytes | Declared active RGB bytes | Decoder/encoder peak working-set bytes | Known operation disk peak bytes |
 | --- | --- | --- | --- | --- |
-| 24 | 1148921 | 6327 | 27480064 / 16179200 | 7782 |
-| 1000 | 1223633 | 6327 | 28680192 / 22364160 | 352316 |
+| 24 | 1125984 | 6327 | 28418048 / 17940480 | 7782 |
+| 1000 | 1200030 | 6327 | 28700672 / 22360064 | 352316 |
 
-Python allocation growth was74712 bytes for an additional976 frames; the active
+Python allocation growth was74046 bytes for an additional976 frames; the active
 pixel bound stayed6327 bytes. The test checks Python peak<8MiB, larger-source
 growth≤1MiB, and observed child peaks<256MiB. PTS and selection size grows on disk.
 The production RGB budget does not claim to impose an OS memory cap on external

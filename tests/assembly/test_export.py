@@ -4,7 +4,7 @@ import pytest
 
 from kmin_video_director.contracts import AudioTimeline, Project, RenderResult
 from tests.assembly.support import prepared_project, cpu_results
-from tests.media.support import raw_video, numbered_frame, command
+from tests.media.support import raw_video, numbered_frame, command, multistream_video
 
 
 @pytest.mark.parametrize('frames', [1, 24, 360])
@@ -19,6 +19,42 @@ def test_full_export_is_exact_and_uses_selected_cpu_outputs(tmp_path, frames):
     assert out.report['video']['decoded_frames'] == frames
     assert out.report['audio']['stream'] is False
     assert out.result['validation']['gpu'] == 'not_performed'
+
+
+@pytest.mark.parametrize('leading_audio', [False, True])
+def test_export_uses_selected_absolute_video_stream_and_distinct_artifact_identity(tmp_path, leading_audio):
+    from kmin_video_director.assembly.export import assemble_export, DEFAULT_POLICY
+    from kmin_video_director.media.probe import probe_media
+    from kmin_video_director.media.backend import with_role
+    from kmin_video_director.contracts.worker import ProjectLocator, StreamSelection
+    frames = 6
+    project, ctx = prepared_project(tmp_path, frames)
+    project, results = cpu_results(project, ctx)
+    artifact = multistream_video(tmp_path, count=frames, leading_audio=leading_audio)
+    output_paths = []
+    for slot in (0, 1):
+        stream = slot + int(leading_audio)
+        expected = b''.join(numbered_frame((slot + 1) * 1000 + i) for i in range(frames))
+        assert raw_video(artifact, stream=stream) == expected
+        chosen = probe_media(ProjectLocator(artifact.name), StreamSelection(video=stream), context=ctx).media
+        assert chosen['fingerprint']['video_stream'] == stream
+        assert chosen['probe']['audio'] is None
+        result = results[0].to_dict()
+        result['artifacts'] = [with_role(chosen, 'render_video').to_dict()]
+        result['coverage']['pts_digest'] = chosen['probe']['video']['pts_digest']
+        data = project.to_dict()
+        data['results'][result['id']] = result
+        selected_project = Project.from_dict(data)
+        out = assemble_export(selected_project, (RenderResult.from_dict(result),),
+            AudioTimeline.from_dict(project['audio_timeline']), DEFAULT_POLICY, context=ctx)
+        path = tmp_path / out.result['artifacts'][0]['locator']['path']
+        assert raw_video(path) == expected
+        assert out.report['video']['decoded_frames'] == frames
+        assert out.report['audio']['stream'] is False
+        output_paths.append(path)
+    assert output_paths[0] != output_paths[1]
+    # A second selection must not overwrite the first selection's durable output.
+    assert raw_video(output_paths[0]) == b''.join(numbered_frame(1000 + i) for i in range(frames))
 
 
 def test_32000_global_boundary_impulses_and_one_final_pcm_encode(tmp_path):

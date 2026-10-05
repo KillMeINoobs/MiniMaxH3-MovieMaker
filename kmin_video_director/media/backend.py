@@ -154,6 +154,16 @@ def read_json(locator, context):
         raise ContractError('INVALID_RECORD', 'The media manifest cannot be read.') from None
 
 
+def manifest_object(value, fields, *, envelope, version=None):
+    """Validate an owned JSON envelope before consuming its required fields."""
+    if type(value) is not dict or any(key not in value or type(value[key]) not in
+        (expected if type(expected) is tuple else (expected,)) for key, expected in fields.items()):
+        fail('INVALID_RECORD', f'The {envelope} manifest has an invalid envelope.', stage='media')
+    if version is not None and value.get('version') != version:
+        fail('INVALID_RECORD', f'The {envelope} manifest has an unsupported version.', stage='media')
+    return value
+
+
 def peak_rss(process):
     # Ordinary process-memory measurement. No machine inventory or foreign process access.
     if os.name != 'nt':
@@ -261,6 +271,15 @@ def backend(context):
         versions[name] = first[:96]
         versions[name + '_build_digest'] = {'algorithm': 'sha256', 'hex': hashlib.sha256(text.encode()).hexdigest()}
     return ffmpeg, ffprobe, versions
+
+
+def media_binding(media):
+    """Content and selected-stream identity without locator or mtime cache inputs."""
+    from ..contracts import digest_json
+    fingerprint = media['fingerprint']
+    return {'version': 'kvd-media-binding/1.0.0', 'media_id': media['id'],
+        'content_digest': fingerprint['digest'], 'video_stream': fingerprint['video_stream'],
+        'audio_stream': fingerprint['audio_stream'], 'probe_digest': digest_json(media['probe'])}
 
 
 def media_ref(locator, role, probe, versions, context):

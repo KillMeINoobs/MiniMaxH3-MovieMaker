@@ -6,10 +6,12 @@ import wave
 from ..contracts import MediaRef, AudioTimeline, cache_key, cache_locator, canonical_bytes
 from ..contracts.confined_io import selected_path
 from ..contracts.worker import JsonObject, OperationContext, NormalizedOutput, ProjectLocator, StreamSelection
+from ..contracts.specs import NORMALIZATION, RATIONAL, LOCATOR, DIGEST
+from ..contracts.validation import validate_schema
 from ..errors import fail
-from .backend import backend, Budget, check_media, limit, process, target, write_json, read_json, media_ref, with_role, bounded_operation
+from .backend import backend, Budget, check_media, limit, process, target, write_json, read_json, media_ref, with_role, bounded_operation, media_binding, manifest_object
 from .geometry import display_size, display_filter
-from .probe import probe_media, frame_rows, verify_cfr, probe_receipt_locator
+from .probe import probe_media, frame_rows, verify_cfr, probe_receipt_locator, PROBE_VERSION
 from .timing import TIMING_VERSION, fraction, rational, quantize, sample_boundary
 
 DEFAULT_RECIPE = {'version': 'kvd-normalize/1.0.0', 'resampler': 'displayed_hold',
@@ -81,22 +83,47 @@ def normalize_media(media: MediaRef, recipe: JsonObject, *, context: OperationCo
         fail('UNSUPPORTED_CAPABILITY', 'Normalize the selected original source once, not an already prepared window.')
     ffmpeg, ffprobe, versions = backend(context)
     v, a = media['probe']['video'], media['probe']['audio']
-    source_timing = read_json(probe_receipt_locator(media), context)
+    binding = media_binding(media)
+    source_timing = manifest_object(read_json(probe_receipt_locator(media), context),
+        {'version': str, 'backend': dict, 'decoded_frames': int, 't0': dict, 'duration': dict,
+         'endpoint_policy': str, 'final_frame_duration': dict, 'pts_manifest': dict, 'timestamp_gaps': int},
+        envelope='decoded timing', version=PROBE_VERSION)
+    for name in ('t0', 'duration', 'final_frame_duration'):
+        validate_schema(source_timing[name], RATIONAL)
+    validate_schema(source_timing['pts_manifest'], LOCATOR)
+    if (source_timing['decoded_frames'] <= 0 or source_timing['timestamp_gaps'] < 0
+        or source_timing['endpoint_policy'] not in ('decoded_last_frame_duration', 'explicit_final_frame_duration')
+        or fraction(source_timing['duration']) <= 0 or fraction(source_timing['final_frame_duration']) <= 0):
+        fail('INVALID_RECORD', 'The decoded timing manifest has invalid counts or endpoint policy.', stage='media')
     tb = fraction(v['time_base'])
     norm = quantize((v['end_pts'] - v['first_pts']) * tb)
     norm.update(version=DEFAULT_RECIPE['version'], t0=rational(v['first_pts'] * tb))
+    if source_timing['t0'] != norm['t0'] or source_timing['duration'] != norm['duration']:
+        fail('STALE_DEPENDENCY', 'The decoded timing manifest differs from its selected source probe.', stage='media')
     width, height = display_size(media)
     pixels = width * height * 3
     if pixels * 3 > limit(context, 'working_set_bytes', 256 * 1024**2):
         fail('RESOURCE_LIMIT', 'The active frame buffers exceed the declared working-set budget.')
-    key = cache_key('temporal', {'source': media['fingerprint']['digest'], 'streams': [v['stream_index'], a['stream_index'] if a else None],
+    key = cache_key('temporal', {'source': binding, 'streams': [v['stream_index'], a['stream_index'] if a else None],
         'pts': v['pts_digest'], 'end_pts': v['end_pts'], 'backend': versions, 'recipe': dict(recipe),
         'display': [width, height, v['rotation'], v['sar']]}, algorithm_version=TIMING_VERSION)
     meta = cache_locator('temporal', key)
     if selected_path(context.asset_root, meta['path']).is_file():
-        hit = read_json(meta, context)
-        if hit['normalization']['report'].get('source_digest') != media['fingerprint']['digest']:
-            fail('STALE_DEPENDENCY', 'The normalization receipt belongs to different source content.')
+        hit = manifest_object(read_json(meta, context),
+            {'media': dict, 'normalization': dict, 'audio_timeline': dict}, envelope='normalization cache')
+        validate_schema(hit['normalization'], NORMALIZATION)
+        manifest_object(hit['normalization'], {}, envelope='normalization cache', version=DEFAULT_RECIPE['version'])
+        report = manifest_object(hit['normalization']['report'],
+            {'recipe': dict, 'backend': dict, 'source_digest': dict, 'source_binding': dict,
+             'selection_manifest': dict, 'selection_digest': dict, 'pcm_media': (dict, type(None))},
+            envelope='normalization cache report')
+        validate_schema(report['source_digest'], DIGEST)
+        validate_schema(report['selection_manifest'], LOCATOR)
+        validate_schema(report['selection_digest'], DIGEST)
+        if (report['source_digest'] != media['fingerprint']['digest'] or report['source_binding'] != binding
+            or report['recipe'] != dict(recipe) or report['backend'] != versions
+            or any(hit['normalization'][name] != expected for name, expected in norm.items())):
+            fail('STALE_DEPENDENCY', 'The normalization receipt belongs to a different selected source.')
         canonical = MediaRef.from_dict(hit['media'])
         check_media(canonical, context)
         # All dependent disk manifests must close, even on a cache hit.
@@ -174,6 +201,7 @@ def normalize_media(media: MediaRef, recipe: JsonObject, *, context: OperationCo
         'presentation': {'version': 'kvd-global-pcm/1.0.0', 'origin': norm['t0'], 'decoder_applies_skip_samples': True}})
     norm['pts_digest'] = verified['pts_digest']
     norm['report'] = {'recipe': dict(recipe), 'backend': versions, 'source_digest': media['fingerprint']['digest'],
+        'source_binding': binding,
         'source_pts_digest': v['pts_digest'],
         'endpoint_policy': source_timing['endpoint_policy'], 'final_frame_duration': source_timing['final_frame_duration'],
         'source_decoded_frames': source_count, 'source_origin': norm['t0'], 'source_end_pts': v['end_pts'],

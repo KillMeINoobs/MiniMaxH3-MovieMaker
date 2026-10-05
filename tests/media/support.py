@@ -69,9 +69,30 @@ def video(root, *, count=6, rate='24', width=37, height=19, pts=None, name='Сц
     return target
 
 
-def raw_video(path):
-    return command([backend_path('ffmpeg'), '-v', 'error', '-nostdin', '-i', str(path), '-map', '0:v:0',
+def raw_video(path, *, stream=None):
+    return command([backend_path('ffmpeg'), '-v', 'error', '-nostdin', '-i', str(path),
+                    '-map', '0:v:0' if stream is None else f'0:{stream}',
                     '-an', '-pix_fmt', 'rgb24', '-fps_mode', 'passthrough', '-f', 'rawvideo', 'pipe:1'])
+
+
+def multistream_video(root, *, count=6, width=37, height=19, leading_audio=False):
+    """Two tiny equal-timing video tracks with different independently known pixels."""
+    tracks = []
+    for slot, base in enumerate((1000, 2000)):
+        path = root / f'track-{slot}.nut'
+        command([backend_path('ffmpeg'), '-v', 'error', '-nostdin', '-f', 'rawvideo',
+            '-pix_fmt', 'rgb24', '-s', f'{width}x{height}', '-framerate', '24', '-i', 'pipe:0',
+            '-an', '-c:v', 'ffv1', '-pix_fmt', 'bgr0', '-threads', '1', '-enc_time_base', '1:24',
+            '-f', 'nut', str(path)], b''.join(numbered_frame(base + i, width, height) for i in range(count)))
+        tracks.append(path)
+    if leading_audio:
+        tracks[0] = with_audio(root, tracks[0], samples=count * 2000)
+    output = root / 'two video tracks.nut'
+    args = [backend_path('ffmpeg'), '-v', 'error', '-nostdin', '-i', str(tracks[0]), '-i', str(tracks[1])]
+    if leading_audio:
+        args += ['-map', '0:a:0']
+    command(args + ['-map', '0:v:0', '-map', '1:v:0', '-c', 'copy', '-f', 'nut', str(output)])
+    return output
 
 
 def with_audio(root, clip, *, samples=24000, rate=48000, impulses=(0, 4000, 8000), offset='0'):

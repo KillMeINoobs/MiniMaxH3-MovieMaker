@@ -7,12 +7,12 @@ from ..contracts import Project, RenderResult, AudioTimeline, MediaRef, cache_ke
 from ..contracts.worker import JsonObject, OperationContext, ExportOutput, ProjectLocator, StreamSelection
 from ..contracts.confined_io import selected_path
 from ..errors import fail
-from ..media.backend import backend, check_media, Budget, process, target, write_json, with_role, limit, bounded_operation, regular
+from ..media.backend import backend, check_media, Budget, process, target, write_json, with_role, limit, bounded_operation, regular, media_binding
 from ..media.normalize import encoder_args, read_frame
 from ..media.probe import probe_media, verify_cfr
 from ..media.timing import sample_boundary
 
-EXPORT_VERSION = 'kvd-assembly/1.0.0'
+EXPORT_VERSION = 'kvd-assembly/1.0.1'
 DEFAULT_POLICY = {'version': 'kvd-export/1.0.0', 'codec': 'ffv1-nut',
                   'selection': 'full', 'odd_dimensions': 'reject'}
 
@@ -255,7 +255,7 @@ def assemble_export(project: Project, results: Sequence[RenderResult], audio: Au
     ffmpeg, ffprobe, versions = backend(context)
     total = sum(b['useful_range']['end'] - b['useful_range']['start'] for b in windows)
     key = cache_key('assembly', {'chosen': [{'id': r.id, 'generation_key': r['generation_key'],
-        'coverage': r['coverage'], 'artifacts': [a['fingerprint']['digest'] for a in r['artifacts']]} for _, r, _ in selected],
+        'coverage': r['coverage'], 'artifacts': [media_binding(a) for a in r['artifacts']]} for _, r, _ in selected],
         'audio': audio.to_dict(), 'source_pcm_digest': project['normalization']['report'].get('pcm_media', {})['fingerprint']['digest']
             if project['normalization']['report'].get('pcm_media') else None,
         'policy': dict(export_policy), 'backend': versions}, algorithm_version=EXPORT_VERSION)
@@ -272,7 +272,8 @@ def assemble_export(project: Project, results: Sequence[RenderResult], audio: Au
             for window, result, media in selected:
                 path = check_media(media, context)
                 u = window['useful_range']['end'] - window['useful_range']['start']
-                args = [ffmpeg, '-v', 'error', '-nostdin', '-i', str(path), '-map', '0:v:0', '-an',
+                args = [ffmpeg, '-v', 'error', '-nostdin', '-i', str(path),
+                    '-map', f'0:{media["fingerprint"]["video_stream"]}', '-an',
                     '-pix_fmt', 'rgb24', '-threads', '1', '-fps_mode', 'passthrough', '-f', 'rawvideo', 'pipe:1']
                 with process(args, context, budget) as decode:
                     for j in range(u):

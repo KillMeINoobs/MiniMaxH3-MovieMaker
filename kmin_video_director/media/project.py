@@ -1,6 +1,7 @@
 """Construct a real portable media project and install an explicitly requested plan."""
 from ..contracts import Project, Settings, RenderProfile, ControlSpec, stable_id, digest_json
 from ..errors import fail
+from .backend import media_binding
 
 
 def source_profile():
@@ -15,9 +16,11 @@ def source_profile():
 
 
 def create_project(source, normalized, profile, *, prompt='', seed='0'):
-    if source['fingerprint']['digest'] != normalized.normalization['report'].get('source_digest'):
-        fail('STALE_DEPENDENCY', 'Normalized media must originate from the selected source content.')
-    identifier = stable_id('project', source['fingerprint']['digest'], normalized.normalization['report']['recipe'])
+    binding = media_binding(source)
+    if (source['fingerprint']['digest'] != normalized.normalization['report'].get('source_digest')
+        or binding != normalized.normalization['report'].get('source_binding')):
+        fail('STALE_DEPENDENCY', 'Normalized media must originate from the same selected source streams and probe.')
+    identifier = stable_id('project', binding, normalized.normalization['report']['recipe'])
     scene_id = stable_id('scene', identifier)
     settings = Settings.from_dict({'prompt': prompt, 'prompt_recipe_id': None, 'seed': seed,
         'control_spec_id': 'control-off', 'audio_mode': normalized.audio_timeline['mode'],
