@@ -16,6 +16,14 @@ eight node IDs and recipe/export-policy formats remain unchanged. The preserved 
 shared data/schema/worker interfaces remain unchanged. PR2 is draft/unmerged;
 live foundation UI is BLOCKED and full CF remains unaccepted.
 
+The independent [d9b3 review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/3#pullrequestreview-5416806760)
+resolved D1–D4 but requested three further CPU corrections. M1-02-FIX-R1-R3
+starts from exact `d9b3a574dbfdd2bb4ec1428b5d91186fff3e107c`, preserving the
+entire c923 ancestry. The owner reproduced invalid-limit/setup child leaks,
+malformed/boolean-FPS recipes and audio-less mixed modes, then corrected them.
+The new candidate needs its own pinned independent reassessment; the prior
+review and local green tests do not approve it.
+
 The approved design uses standard-library Python with an explicitly selected
 external FFmpeg/ffprobe backend. Source frames and timestamps stream through
 bounded buffers; canonical video, PCM and manifests live on disk. No inference,
@@ -80,6 +88,10 @@ in `OperationContext.versions`, or the corresponding node widgets.
 ```
 
 Only `sample_rate` (8000–192000) and `audio_mode` (`preserve`/`mute`) vary.
+The owned recipe schema uses the existing strict JSON-aware validator. The input
+must be an object with exactly the documented fields; FPS24/1 requires integer
+values, excluding booleans and floating values. Invalid JSON or recipe structure
+returns typed, redacted `INVALID_JSON`/`INVALID_RECORD` without media work.
 EOF comes from the last decoded frame's positive duration. Missing duration is
 `AMBIGUOUS_MEDIA_TIMING` until the caller supplies an exact positive final-frame
 duration in seconds, e.g. `versions['endpoint_duration']='1/24'`. This override
@@ -90,7 +102,7 @@ explicitly unsupported timing/geometry cases.
 
 Algorithm versions: `kvd-decoded-pts/1.0.0`, `kvd-displayed-hold/1.0.0`,
 `kvd-display-pad/1.0.0`, `kvd-balanced-windows/1.0.0`,
-`kvd-disk-window/1.0.1`, `kvd-global-pcm/1.0.0`, `kvd-assembly/1.0.1`.
+`kvd-disk-window/1.0.1`, `kvd-global-pcm/1.0.0`, `kvd-assembly/1.0.2`.
 `normalization.report.source_binding` uses `kvd-media-binding/1.0.0`: immutable
 MediaRef ID, content digest, absolute video/audio selections and probe digest.
 Normalization cache identity and new Project IDs include this binding;
@@ -134,6 +146,12 @@ watchdog can interrupt a blocked owned pipe. Native Comfy interruption is consul
 only during a human-requested node execution. No queue API or model-loading path
 is present. Temporary files are removed on ordinary cancellation/error; already
 written media bytes without a successful manifest are inactive.
+Timeout and current budget/cancellation are checked before backend spawn.
+Every post-spawn setup step, including monitor startup, is inside owned
+termination/wait/pipe cleanup. An unavailable monitor returns `RESOURCE_LIMIT`;
+invalid limits and monitor-start errors suppress the underlying exception context.
+Only the handle created by that operation is terminated. Valid completion,
+timeout, cancellation and quota cleanup have actual synthetic checks.
 
 Preparation currently decodes/discards canonical frames from the start for an
 exact index trim. It makes no approximate seek and no per-window FPS resample;
@@ -153,8 +171,11 @@ All sample boundaries use `Q(f)=floor((f*Fs+12)/24)`. Source audio timestamps ar
 relative to the first displayed video frame: positive offset becomes silence,
 negative offset is trimmed. Normalization creates one global s16 mono/stereo WAV
 with exactly `Q(F)` samples, applying decoder-signaled priming. Unsupported source
-channel layouts fail explicitly. No selected audio stream means a video-only
-export; mute produces no soundtrack. Preserve with known source audio but missing
+channel layouts fail explicitly. Without a selected source audio stream,
+preserve/mute scene combinations produce video-only export. If an explicit
+generate scene supplies useful PCM, audio-less preserve scenes contribute exact
+silence at the output sample boundaries. Mute produces no soundtrack when it is
+the only effective mode. Preserve with known source audio but missing
 PCM fails rather than silently dropping sound. Scene decisions can override the
 global mode. Generate accepts only already supplied, useful-trimmed matching PCM
 artifacts; it performs no audio generation.
@@ -221,10 +242,11 @@ store, automatic execution, foreign-node customization or language-triggered I/O
 was introduced. Visual appearance and native serialization still need the later
 allocated human live gate.
 
-The corrected [CPU receipt](validation/M1_MEDIA.md) records183 passed,
-one POSIX-only skip on Windows and no failures, including66 owned cases.
-All four preliminary source findings were reproduced by the owner with synthetic
-inputs before correction; independent final media review remains pending.
+The corrected [CPU receipt](validation/M1_MEDIA.md) records217 passed,
+one POSIX-only skip on Windows and no failures, including100 owned cases.
+D1–D4 were independently resolved at d9b3. R1–R3 were independently reproduced
+there, then reproduced and corrected by the owner; independent reassessment of
+the new candidate remains pending.
 The six historical ac335 shared
 assertion failures are resolved by the reviewed common tests imported from
 exact c923. Shared files match that commit; no media-owned shared amendment was

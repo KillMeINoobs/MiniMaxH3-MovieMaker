@@ -24,7 +24,7 @@ def limit(context, key, default):
             raise ValueError
         return value
     except (ValueError, TypeError):
-        fail('RESOURCE_LIMIT', 'Resource limits must be positive integers.', details={'limit': key})
+        raise ContractError('RESOURCE_LIMIT', 'Resource limits must be positive integers.', details={'limit': key}) from None
 
 
 def regular(path):
@@ -185,34 +185,41 @@ def peak_rss(process):
 @contextmanager
 def process(argv, context, budget, *, stdin=None, stdout=subprocess.PIPE):
     context.cancellation.check()
+    timeout = limit(context, 'timeout_seconds', 1200)
+    budget.check()
     failure = []
     stop = threading.Event()
+    report = {'peak_working_set_bytes': None, 'elapsed_seconds': 0.0}
+    watcher = None
+    started = time.monotonic()
     with tempfile.TemporaryFile(dir=context.asset_root) as diagnostics:
         try:
             p = subprocess.Popen(argv, stdin=stdin, stdout=stdout, stderr=diagnostics,
                 shell=False, creationflags=0x08000000 if os.name == 'nt' else 0)
         except (OSError, ValueError):
             raise ContractError('UNSUPPORTED_CAPABILITY', 'The selected media backend could not start.', stage='media') from None
-        p.kvd_report = {'peak_working_set_bytes': None, 'elapsed_seconds': 0.0}
-        started = time.monotonic()
-        timeout = limit(context, 'timeout_seconds', 1200)
-        def watch():
-            while not stop.wait(0.02):
-                observed = peak_rss(p)
-                if observed is not None:
-                    p.kvd_report['peak_working_set_bytes'] = max(observed, p.kvd_report['peak_working_set_bytes'] or 0)
-                try:
-                    budget.check()
-                    if diagnostics.tell() > 1024**2 or time.monotonic() - started > timeout:
-                        fail('RESOURCE_LIMIT', 'The media operation exceeded its time or diagnostic budget.', stage='media')
-                except BaseException as error:
-                    failure.append(error)
-                    if p.poll() is None:
-                        p.kill()  # Only this operation-owned subprocess.
-                    return
-        watcher = threading.Thread(target=watch, daemon=True)
-        watcher.start()
         try:
+            # Every step after a successful spawn belongs to this cleanup scope.
+            p.kvd_report = report
+            def watch():
+                while not stop.wait(0.02):
+                    try:
+                        observed = peak_rss(p)
+                        if observed is not None:
+                            report['peak_working_set_bytes'] = max(observed, report['peak_working_set_bytes'] or 0)
+                        budget.check()
+                        if diagnostics.tell() > 1024**2 or time.monotonic() - started > timeout:
+                            fail('RESOURCE_LIMIT', 'The media operation exceeded its time or diagnostic budget.', stage='media')
+                    except BaseException as error:
+                        failure.append(error)
+                        if p.poll() is None:
+                            p.kill()  # Only this operation-owned subprocess.
+                        return
+            watcher = threading.Thread(target=watch, daemon=True)
+            try:
+                watcher.start()
+            except (RuntimeError, OSError):
+                raise ContractError('RESOURCE_LIMIT', 'The media operation monitor could not start.', stage='media') from None
             yield p
             if p.stdin is not None and not p.stdin.closed:
                 p.stdin.close()
@@ -233,17 +240,26 @@ def process(argv, context, budget, *, stdin=None, stdout=subprocess.PIPE):
             raise
         finally:
             stop.set()
-            if p.poll() is None:
-                p.kill()
-            p.wait()
-            watcher.join()
-            for pipe in (p.stdin, p.stdout):
-                if pipe is not None:
-                    try:
-                        pipe.close()
-                    except OSError:
-                        pass
-            p.kvd_report['elapsed_seconds'] = round(time.monotonic() - started, 6)
+            try:
+                try:
+                    if p.poll() is None:
+                        p.kill()
+                except ProcessLookupError:
+                    pass
+                finally:
+                    p.wait()
+            finally:
+                try:
+                    if watcher is not None and watcher.ident is not None:
+                        watcher.join()
+                finally:
+                    for pipe in (p.stdin, p.stdout):
+                        if pipe is not None:
+                            try:
+                                pipe.close()
+                            except OSError:
+                                pass
+                    report['elapsed_seconds'] = round(time.monotonic() - started, 6)
 
 
 def capture(argv, context, *, maximum=1024**2):

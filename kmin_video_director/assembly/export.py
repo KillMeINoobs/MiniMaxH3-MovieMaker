@@ -12,7 +12,7 @@ from ..media.normalize import encoder_args, read_frame
 from ..media.probe import probe_media, verify_cfr
 from ..media.timing import sample_boundary
 
-EXPORT_VERSION = 'kvd-assembly/1.0.1'
+EXPORT_VERSION = 'kvd-assembly/1.0.2'
 DEFAULT_POLICY = {'version': 'kvd-export/1.0.0', 'codec': 'ffv1-nut',
                   'selection': 'full', 'odd_dimensions': 'reject'}
 
@@ -117,11 +117,12 @@ def splice_audio(project, selected, audio, locator, ffmpeg, versions, context, b
     modes = [decisions.get(w['segment_id'], audio['mode']) for w, _, _ in selected]
     global_ref = project['normalization']['report'].get('pcm_media')
     source_has_audio = project['media'][project['source_media_id']]['probe']['audio'] is not None
-    if all(m == 'mute' for m in modes) or all(m == 'preserve' for m in modes) and global_ref is None and not source_has_audio:
+    preserve_silence = global_ref is None and not source_has_audio
+    if all(m == 'mute' for m in modes) or preserve_silence and all(m in ('preserve', 'mute') for m in modes):
         return None, {'stream': False, 'global_pcm_samples': 0, 'decoded_samples': 0,
                       'final_encode_count': 0, 'note': 'muted' if all(m == 'mute' for m in modes) else 'no_source_audio'}
-    if any(m == 'preserve' for m in modes) and global_ref is None:
-        fail('AUDIO_SYNC_MISMATCH', 'A mixed preserve soundtrack requires its global PCM artifact.')
+    if any(m == 'preserve' for m in modes) and global_ref is None and source_has_audio:
+        fail('AUDIO_SYNC_MISMATCH', 'Preserve mode with selected source audio requires its global PCM artifact.')
     global_path = check_media(MediaRef.from_dict(global_ref), context) if global_ref else None
     if global_path:
         if audio['source_media_id'] != project['source_media_id'] or audio['source_offset'] != project['audio_timeline']['source_offset']:
@@ -161,7 +162,7 @@ def splice_audio(project, selected, audio, locator, ffmpeg, versions, context, b
                 # Full contiguous export is exactly global Q. Selected-only output
                 # has its own origin; account for its at-most-one-sample phase fit.
                 needed = sample_boundary(cumulative_frames + u, fs) - sample_boundary(cumulative_frames, fs)
-                if mode == 'mute':
+                if mode == 'mute' or mode == 'preserve' and preserve_silence:
                     left = needed
                     while left:
                         context.cancellation.check()

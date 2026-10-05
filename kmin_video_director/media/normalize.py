@@ -7,7 +7,7 @@ from ..contracts import MediaRef, AudioTimeline, cache_key, cache_locator, canon
 from ..contracts.confined_io import selected_path
 from ..contracts.worker import JsonObject, OperationContext, NormalizedOutput, ProjectLocator, StreamSelection
 from ..contracts.specs import NORMALIZATION, RATIONAL, LOCATOR, DIGEST
-from ..contracts.validation import validate_schema
+from ..contracts.validation import validate_json, validate_schema
 from ..errors import fail
 from .backend import backend, Budget, check_media, limit, process, target, write_json, read_json, media_ref, with_role, bounded_operation, media_binding, manifest_object
 from .geometry import display_size, display_filter
@@ -18,13 +18,20 @@ DEFAULT_RECIPE = {'version': 'kvd-normalize/1.0.0', 'resampler': 'displayed_hold
     'fps': {'num': 24, 'den': 1}, 'geometry': 'preserve_display', 'sample_rate': 48000,
     'audio_mode': 'preserve', 'gap_policy': 'hold', 'video_codec': 'ffv1-nut'}
 
+_RECIPE_SCHEMA = {'type': 'object', 'required': list(DEFAULT_RECIPE), 'additionalProperties': False,
+    'properties': {
+        **{key: {'const': DEFAULT_RECIPE[key]} for key in
+           ('version', 'resampler', 'geometry', 'gap_policy', 'video_codec')},
+        'fps': {'type': 'object', 'required': ['num', 'den'], 'additionalProperties': False,
+                'properties': {'num': {'type': 'integer', 'const': 24},
+                               'den': {'type': 'integer', 'const': 1}}},
+        'sample_rate': {'type': 'integer', 'minimum': 8000, 'maximum': 192000},
+        'audio_mode': {'enum': ['preserve', 'mute']}}}
+
 
 def validate_recipe(recipe):
-    if (set(recipe) != set(DEFAULT_RECIPE) or any(recipe[k] != DEFAULT_RECIPE[k] for k in
-        ('version', 'resampler', 'fps', 'geometry', 'gap_policy', 'video_codec'))
-        or recipe['audio_mode'] not in ('preserve', 'mute') or type(recipe['sample_rate']) is not int
-        or not 8000 <= recipe['sample_rate'] <= 192000):
-        fail('UNSUPPORTED_CAPABILITY', 'Select the documented versioned CFR24 recipe and preserve/mute audio policy.')
+    validate_json(recipe)
+    validate_schema(recipe, _RECIPE_SCHEMA)
 
 
 def read_frame(pipe, size):
