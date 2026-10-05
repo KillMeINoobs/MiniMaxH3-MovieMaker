@@ -1,0 +1,15 @@
+# Collaboration rules
+
+- Read [the preserved brief](docs/PROJECT_BRIEF.md), then [the superseding product direction](docs/PRODUCT_DIRECTION_V2V.md), [research](docs/RESEARCH.md), [contracts](docs/CONTRACTS.md), [plan](docs/PLAN.md) and the assigned card in [the journal](docs/tasks/INDEX.md). The latest user direction wins where scope/order differs. The journal is Markdown, not an AO scheduler.
+- Keep work within the current assignment and publication/resource authorization. Documentation proposals do not start implementation; a later explicit implementation assignment may do so.
+- Preserve the brief byte for byte; record decisions separately. M0 names, formats and interfaces are proposals until implemented and verified.
+- Work only in the assigned AO worktree and feature branch; verify the assigned base SHA. Do not change shared Git config, remotes, authorization, another worktree or the primary checkout.
+- Distinguish source facts, inferences, proposals, unknowns, CPU/media/browser checks and real GPU results. Record public component revisions and licenses; private native-session/model/machine/auth diagnostics stay in AO. Mocks and publisher examples are not our GPU receipts.
+- Use integer 24 FPS intervals `[start,end)`. Useful coverage is exact; inference limits include padding/context. Source RGB, structural control, appearance references and inpainting have distinct roles.
+- One first owner controls shared schemas, package metadata, lockfiles and skeleton. Downstream starts from the assignment's exact recorded, reviewed, checked common SHA; verify required interfaces actually exist there. Never assume an unmerged dependency is integrated. Interface changes go through that owner.
+- Initial project policy: at most two implementing workers simultaneously; this is not an AO platform limit. One worker owns each outcome and ordinary tests/docs. Code review uses a separate AO reviewer; fixes return to the owner. Workers do not launch workers or nested orchestrators.
+- GPU, ComfyUI installation, ports, output, venv and model settings are shared resources. Authorized GPU/ComfyUI work is sequential with one named resource owner. Cloud workers must not assume the user's hardware is available.
+- No paid services, asset uploads, weight downloads, installs or changes to working ComfyUI without authorization covering the action. Do not scan personal files for inputs. Missing resources are blockers.
+- Optional Depth/Pose backends must remain optional at import. Preserve native queue/execution/progress/interruption/model management; avoid recursive HTTP self-queueing and silent source passthrough for unfinished results.
+- Keep source/appearance/analysis/inpaint roles explicit. Per-scene prompts remain editable and visible; continuation inside a shot resets at cuts independently from identity bindings. Never label proposed nodes/JSON as an executable workflow.
+- Verify the assigned outcome and report meaningful checkpoints, blockers and artifacts through `ao report`. Publishing/integration follows the current task scope; do not infer authorization to create/merge a PR or mutate auth from existing credentials.
