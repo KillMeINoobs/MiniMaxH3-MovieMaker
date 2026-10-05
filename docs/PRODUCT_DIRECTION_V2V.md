@@ -1,5 +1,14 @@
 # Product direction — V2V first
 
+**Later M1 checkpoint:** the human authorized foundation implementation and
+registration/UI-only checking. Actual shared records/Project nodes now exist;
+see [execution scope](decisions/M1_EXECUTION_SCOPE.md),
+[handoff](FOUNDATION_HANDOFF.md) and [validation](validation/M1_FOUNDATION.md).
+Workers never enqueue or perform generation; M1-04 is a human-run workflow
+handoff. Live registration/UI remains BLOCKED, CF unaccepted, GPU NOT PERFORMED
+and M2/M3 gated. The following M0 direction record is historical; its product
+requirements remain the design intent.
+
 This addendum records the latest user direction for M0-V2V-REVISION. It takes priority over conflicting scope/order statements in the [original brief](PROJECT_BRIEF.md), whose bytes remain unchanged. This revision is research and documentation only: **no extension, implemented contract, ready workflow or runtime result exists; GPU NOT PERFORMED**. The first M0 documentation base is `1bfcc50e204797862b2bbc014fce00e4694c122c`, published separately from main; its parent is `8e8cf7253862f94b7787d7065babf2878064ef82`. This revision does not integrate either into main.
 
 ## Intended product

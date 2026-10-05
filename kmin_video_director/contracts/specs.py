@@ -45,19 +45,19 @@ POSITIVE = {**INTEGER, "minimum": 1}
 NUMBER = {"type": "number"}
 UNIT = {"type": "number", "minimum": 0, "maximum": 1}
 JSON_OBJECT = {"type": "object"}
-ID = {"type": "string", "minLength": 1, "maxLength": 96, "pattern": r"^[^\x00-\x1f\x7f]+$"}
+ID = {"type": "string", "minLength": 1, "maxLength": 96, "pattern": r"^[^\x00-\x1f\x7f]+(?![\s\S])"}
 IDS = array(ID, uniqueItems=True)
 RANGE = obj({"start": COUNT, "end": COUNT})
 RATIONAL = obj({"num": INTEGER, "den": POSITIVE})
 DIGEST = obj({"algorithm": {"const": "sha256"},
-              "hex": {"type": "string", "pattern": "^[0-9a-f]{64}$"}})
+              "hex": {"type": "string", "pattern": r"^[0-9a-f]{64}(?![\s\S])"}})
 LOCATOR = obj({"scheme": {"const": "project_relative"}, "path": {"type": "string", "minLength": 1}})
 ERROR = obj({"code": ID, "message": TEXT, "stage": ID, "retryable": BOOL, "details": JSON_OBJECT})
-EXTENSIONS = {"type": "object", "patternProperties": {r"^[A-Za-z][A-Za-z0-9_-]*(?:\.[A-Za-z0-9_-]+)+$": {}},
+EXTENSIONS = {"type": "object", "patternProperties": {r"^[A-Za-z][A-Za-z0-9_-]*(?:\.[A-Za-z0-9_-]+)+(?![\s\S])": {}},
               "additionalProperties": False}
 SETTINGS_FIELDS = {
     "prompt": TEXT, "prompt_recipe_id": nullable(ID),
-    "seed": {"type": "string", "pattern": "^(0|[1-9][0-9]{0,19})$"},
+    "seed": {"type": "string", "pattern": r"^(0|[1-9][0-9]{0,19})(?![\s\S])"},
     "control_spec_id": ID, "audio_mode": enum("preserve", "generate", "mute"),
     "reference_binding_ids": IDS, "continuity_policy": enum("none", "reset", "carry"),
     "spatial_policy": enum("preserve_display_pad", "draft_fit"), "render_profile_id": ID,
@@ -77,7 +77,7 @@ AUDIO_PROBE = obj({"codec": ID, "stream_index": COUNT, "time_base": RATIONAL, "f
 MEDIA = obj({"id": ID, "role": enum("source_video", "reference_image", "reference_video", "reference_audio",
     "prepared_video", "control_map", "render_video", "audio_pcm"), "locator": LOCATOR,
     "fingerprint": obj({"digest": DIGEST, "byte_size": COUNT,
-        "mtime_ns": {"type": "string", "pattern": "^(0|[1-9][0-9]*)$"},
+        "mtime_ns": {"type": "string", "pattern": r"^(0|[1-9][0-9]*)(?![\s\S])"},
         "video_stream": nullable(COUNT), "audio_stream": nullable(COUNT),
         "probe_version": ID, "decoder_version": ID}),
     "probe": obj({"video": nullable(VIDEO_PROBE), "audio": nullable(AUDIO_PROBE)}),
@@ -112,7 +112,7 @@ COMMON = {"id": ID, "count": COUNT, "positive": POSITIVE, "range": RANGE, "ratio
 
 def standalone(name, fields, optional=()):
     return obj({"kind": {"const": "kmin." + name},
-                "schema_version": {"type": "string", "pattern": r"^2\.[0-9]+\.[0-9]+$"}, "id": ID,
+                "schema_version": {"type": "string", "pattern": r"^2\.[0-9]+\.[0-9]+(?![\s\S])"}, "id": ID,
                 "required_features": IDS, "extensions": EXTENSIONS, **fields},
                optional=("required_features", "extensions", *optional))
 

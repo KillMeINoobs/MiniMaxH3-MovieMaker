@@ -52,3 +52,19 @@ in the verification environment. No shared venv changes are permitted.
 DaSiWa is visual inspiration only; no code or assets are copied. The existing
 source ledger stays pinned. Project license selection is recorded separately;
 model licenses do not become this package's license.
+
+## Implementation and review checkpoint
+
+M1 now implements the shared records, Project nodes and presentation foundation
+in the [actual handoff](../FOUNDATION_HANDOFF.md). The
+[validation receipt](../validation/M1_FOUNDATION.md) records synthetic CPU,
+Windows filesystem and interface checks separately from blocked live UI work.
+An independent review requested concrete F1-F9 corrections; the owner supplies
+regressions and a new full pushed candidate for incremental review. No CF or
+downstream acceptance follows from a draft PR or owner checks.
+
+The existing Desktop restart cannot be operated safely by available native
+automation. The supported instance-picker UI restart is reserved for the human
+after the corrected snapshot is reviewed and deployed. No alternate private
+IPC/lifecycle endpoint, shell kill, second server or stale CLI restart is used.
+Foundation retains shared-runtime ownership and generation reservation is NONE.

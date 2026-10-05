@@ -6,7 +6,7 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "count": {
       "type": "integer",
@@ -66,7 +66,7 @@
         },
         "hex": {
           "type": "string",
-          "pattern": "^[0-9a-f]{64}$"
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
         }
       },
       "required": [
@@ -99,7 +99,7 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "message": {
           "type": "string"
@@ -108,7 +108,7 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "retryable": {
           "type": "boolean"
@@ -138,7 +138,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 96,
-              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+              "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
             },
             {
               "type": "null"
@@ -147,13 +147,13 @@
         },
         "seed": {
           "type": "string",
-          "pattern": "^(0|[1-9][0-9]{0,19})$"
+          "pattern": "^(0|[1-9][0-9]{0,19})(?![\\s\\S])"
         },
         "control_spec_id": {
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "audio_mode": {
           "enum": [
@@ -168,7 +168,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 96,
-            "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
           },
           "uniqueItems": true
         },
@@ -189,7 +189,7 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         }
       },
       "required": [
@@ -217,7 +217,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 96,
-              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+              "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
             },
             {
               "type": "null"
@@ -226,13 +226,13 @@
         },
         "seed": {
           "type": "string",
-          "pattern": "^(0|[1-9][0-9]{0,19})$"
+          "pattern": "^(0|[1-9][0-9]{0,19})(?![\\s\\S])"
         },
         "control_spec_id": {
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "audio_mode": {
           "enum": [
@@ -247,7 +247,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 96,
-            "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
           },
           "uniqueItems": true
         },
@@ -268,7 +268,7 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         }
       },
       "required": [],
@@ -281,7 +281,7 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "role": {
           "enum": [
@@ -323,7 +323,7 @@
                 },
                 "hex": {
                   "type": "string",
-                  "pattern": "^[0-9a-f]{64}$"
+                  "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
                 }
               },
               "required": [
@@ -339,7 +339,7 @@
             },
             "mtime_ns": {
               "type": "string",
-              "pattern": "^(0|[1-9][0-9]*)$"
+              "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
             },
             "video_stream": {
               "anyOf": [
@@ -369,13 +369,13 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 96,
-              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+              "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
             },
             "decoder_version": {
               "type": "string",
               "minLength": 1,
               "maxLength": 96,
-              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+              "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
             }
           },
           "required": [
@@ -401,7 +401,7 @@
                       "type": "string",
                       "minLength": 1,
                       "maxLength": 96,
-                      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+                      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
                     },
                     "stream_index": {
                       "type": "integer",
@@ -446,7 +446,7 @@
                         },
                         "hex": {
                           "type": "string",
-                          "pattern": "^[0-9a-f]{64}$"
+                          "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
                         }
                       },
                       "required": [
@@ -557,7 +557,7 @@
                       "type": "string",
                       "minLength": 1,
                       "maxLength": 96,
-                      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+                      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
                     },
                     "stream_index": {
                       "type": "integer",
@@ -643,7 +643,7 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 96,
-                  "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+                  "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
                 },
                 "message": {
                   "type": "string"
@@ -652,7 +652,7 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 96,
-                  "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+                  "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
                 },
                 "retryable": {
                   "type": "boolean"
@@ -694,13 +694,13 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "version": {
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "coded_width": {
           "type": "integer",
@@ -827,13 +827,13 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "color_conversion": {
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "output_width": {
           "type": "integer",
@@ -897,13 +897,13 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "version": {
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "evidence": {
           "enum": [
@@ -1020,7 +1020,7 @@
               },
               "hex": {
                 "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
+                "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
               }
             },
             "required": [
@@ -1034,7 +1034,7 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "runtime": {
           "type": "object"
@@ -1049,7 +1049,7 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         }
       },
       "required": [
@@ -1091,7 +1091,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 96,
-              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+              "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
             },
             {
               "type": "null"
@@ -1127,7 +1127,7 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "decisions": {
           "type": "array",
@@ -1138,7 +1138,7 @@
                 "type": "string",
                 "minLength": 1,
                 "maxLength": 96,
-                "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+                "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
               },
               "mode": {
                 "enum": [

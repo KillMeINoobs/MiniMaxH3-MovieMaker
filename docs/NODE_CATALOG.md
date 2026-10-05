@@ -1,6 +1,14 @@
 # Proposed node collection
 
-**Complete proposed inventory for the stated product, not registered nodes.** Display names and logical types may change during foundation review. These are responsibilities exposed to users, not a promise of one Python function/class per row. Small preparation/finalization nodes may be nested in native expansion, while the timeline and prompt/reference panels may share the main project node. Native ComfyUI nodes stay visible in expanded graphs. No extension or executable workflow exists; **GPU NOT PERFORMED**.
+**The inventory below describes the complete intended product.** M1 foundation
+now supplies four actual CPU Project classes: `KVD_ProjectJSON`,
+`KVD_LoadProject`, `KVD_SaveProject` and `KVD_ValidateProject`, all connected by
+`KVD_PROJECT`. Their actual [handoff](FOUNDATION_HANDOFF.md) and
+[validation](validation/M1_FOUNDATION.md) supersede proposed names for N01.
+Live registration/UI remains BLOCKED; no ready V2V workflow or GPU result is
+claimed. **GPU NOT PERFORMED.** Other rows remain proposed responsibilities,
+not a promise of one Python function/class per row. Native ComfyUI nodes remain
+visible in future native expansion.
 
 The user follows import → scenes/prompts → optional identities → window/control/render → review/export. [Direction](PRODUCT_DIRECTION_V2V.md), [contracts 2.0.0](CONTRACTS.md), [architecture](ARCHITECTURE.md), [workflow specification](WORKFLOW_SPEC.md) and [task journal](tasks/INDEX.md) define acceptance and ownership. Logical types are versioned manifests/IDs unless explicitly a bounded IMAGE/AUDIO/LATENT socket.
 

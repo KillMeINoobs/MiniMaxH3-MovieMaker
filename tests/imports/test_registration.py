@@ -72,6 +72,20 @@ def test_worker_protocol_signatures_and_native_link_types():
         token.check()
 
 
+def test_broken_owned_child_package_is_not_silently_omitted(tmp_path, monkeypatch):
+    from kmin_video_director.registration import build_registry
+    folder = tmp_path / "broken_owned_extensions"
+    child = folder / "broken"
+    child.mkdir(parents=True)
+    (folder / "__init__.py").write_text("")
+    (child / "__init__.py").write_text("raise ImportError('Missing owned import')\n")
+    (child / "media_nodes.py").write_text("class Probe: pass\nNODE_CLASS_MAPPINGS={'KVD_BrokenProbe':Probe}\n")
+    monkeypatch.syspath_prepend(str(tmp_path))
+    importlib.invalidate_caches()
+    with pytest.raises(ValueError, match="EXTENSION_IMPORT_ERROR"):
+        build_registry("broken_owned_extensions")
+
+
 def test_actual_project_nodes_cpu_io_and_reports(tmp_path):
     n = importlib.import_module("kmin_video_director.nodes.project_nodes")
     from kmin_video_director.contracts import dumps, Project

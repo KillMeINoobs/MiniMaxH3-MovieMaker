@@ -47,8 +47,22 @@ paths, URIs, traversal, reserved Windows names and ambiguous separators. Runtime
 resolution additionally checks symlink containment. Save stages a complete file
 and atomically activates it; new destinations cannot be clobbered. Explicit
 overwrite requires the same Project ID and a current revision, with changed
-edits advancing revision. Filesystems without the required atomic operation
-return `PROJECT_IO_ERROR`. I/O errors omit machine paths.
+edits advancing revision. Staging precedes the revision comparison; comparison
+and publication share an OS lease, so an interleaved newer successful save
+cannot be replaced. `PROJECT_BUSY` is retryable. An empty `.kvd-save.lock` file
+persists in each save folder; the OS releases its lease on process exit. Do not
+unlink that file to clear a running writer. Writers using this API share the
+lease; an unrelated editor does not participate in the revision protocol.
+
+Actual I/O holds directory identities through read, staging and publication.
+Windows uses `FILE_LIST_DIRECTORY` access and no delete sharing for every
+component; metadata-only handles cannot supply this guarantee. POSIX uses
+directory-relative descriptors with `O_NOFOLLOW`. Nested reparse/symlink paths
+are rejected; select an existing actual root. `resolve_locator` returns a
+checked Path but is not itself a reservation for a later external write.
+Filesystems without protected/atomic operations return a typed error. I/O
+messages omit machine paths. Windows race regressions are recorded; POSIX
+runtime verification remains NOT PERFORMED in this Windows session.
 
 ## Downstream call signatures
 
@@ -91,11 +105,41 @@ PASS is not evidence that an operation executed. See the synthetic
 profiles and planned/mock results are intentionally labelled synthetic/missing.
 They are not model-load or GPU receipts.
 
+The [all-nine call examples](../tests/contracts/worker_examples.py) construct
+validated records and typed runtime envelopes for every protocol. The
+[conformance test](../tests/imports/test_worker_conformance.py) binds each
+example to its actual signature, checks argument types and confirms that no
+operation handler is registered. It never invokes an operation. Synthetic
+links, opaque unmaterialized values and planned results describe a boundary;
+they are not an executable graph, decoded tensor or successful export.
+
+```python
+import inspect
+from pathlib import Path
+from kmin_video_director.contracts.worker import OPERATION_TYPES
+from tests.contracts.worker_examples import operation_inputs
+
+for name, arguments in operation_inputs(Path(".")).items():
+    inspect.signature(OPERATION_TYPES[name].__call__).bind(None, **arguments)
+    # Signature binding only: no operation is invoked.
+```
+
+`NormalizeMedia.recipe` and `AssembleExport.export_policy` are owner-versioned
+`JsonObject` inputs. Their synthetic example keys do not define a decoder or
+export algorithm; the downstream owner publishes its checked recipe/policy.
+`ResolvedProject.settings` is `Mapping[str, Settings]`; `origins` is
+`Mapping[str, Mapping[str, str]]`. `CancellationFlag.cancel()` and `check()`
+provide a concrete thread-safe token; a consumer may adapt native interruption
+through the `CancellationToken` protocol.
+
 ## Owned node and frontend extension mechanism
 
 Add import-safe modules under `kmin_video_director/nodes/<owner>/`, with empty,
 import-safe `__init__.py` files. Modules ending in `_nodes.py` are discovered
-lexically by `kmin_video_director.registration.build_registry()`.
+lexically by `kmin_video_director.registration.build_registry()`. Discovery
+imports owned child packages explicitly; a broken package cannot silently
+vanish. ImportError becomes `EXTENSION_IMPORT_ERROR` with the module name;
+optional backend handling belongs inside an explicitly requested operation.
 
 ```python
 # nodes/media/media_nodes.py (future media-owned file)
@@ -139,6 +183,17 @@ range ordering, exact coverage, rational reduction, u64 seed bound and ID/hash
 closure additionally require the Python validator. Schema-only validation does
 not prove those relations.
 
+Only schema-declared shared values receive shared semantic rules. Owner reports,
+recipes, mode drafts and namespaced extensions are opaque finite JSON; a key
+called `seed` or a shape called `start/end` there does not become a shared field.
+Canonical seed/digest/ID/version patterns require the complete string, including
+rejection of a final newline. Const/enum equality keeps JSON booleans separate
+from numbers. Active results close over existing windows, scene IDs, generation
+keys, exact global/local coverage and output geometry. Useful input spans link
+to canonical media. Frozen window settings must match current effective scene
+settings and their selected control/profile compatibility. Inactive historical
+attempts may retain old generation keys; they cannot be selected as current.
+
 Unknown major → `UNSUPPORTED_SCHEMA_MAJOR`; unknown required features →
 `UNSUPPORTED_REQUIRED_FEATURE`. Future 2.x optional data round-trips in
 namespaced `extensions`; unknown root fields/enums are rejected. JSON input is
@@ -155,7 +210,9 @@ Optional draft/analysis/binding/state records can be stored and validated.
 `require_runtime_capabilities(operation=...)` truthfully rejects operations in
 this foundation; initial control policy is Canny/off, authored text, empty refs
 and no carry/context. It is a guard, not a substitute for installed component
-validation. Downstream owners register real operations separately.
+validation. Downstream owners register real operations separately and dispatch
+through `REGISTRY.require_operation`. The foundation-only `operation` guard
+always rejects execution; it does not discover downstream registered handlers.
 
 `make_id(kind)` uses UUIDs. `stable_id(kind, *identity)` hashes stable semantic
 coordinates. `cache_key(layer, dependencies, *, algorithm_version)` requires

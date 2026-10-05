@@ -8,13 +8,13 @@
     },
     "schema_version": {
       "type": "string",
-      "pattern": "^2\\.[0-9]+\\.[0-9]+$"
+      "pattern": "^2\\.[0-9]+\\.[0-9]+(?![\\s\\S])"
     },
     "id": {
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "required_features": {
       "type": "array",
@@ -22,14 +22,14 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 96,
-        "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
       },
       "uniqueItems": true
     },
     "extensions": {
       "type": "object",
       "patternProperties": {
-        "^[A-Za-z][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9_-]+)+$": {}
+        "^[A-Za-z][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9_-]+)+(?![\\s\\S])": {}
       },
       "additionalProperties": false
     },
@@ -37,13 +37,13 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "segment_id": {
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "segment_revision": {
       "type": "integer",
@@ -58,7 +58,7 @@
         },
         "hex": {
           "type": "string",
-          "pattern": "^[0-9a-f]{64}$"
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
         }
       },
       "required": [
@@ -74,13 +74,13 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "version": {
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "model_digest": {
           "anyOf": [
@@ -92,7 +92,7 @@
                 },
                 "hex": {
                   "type": "string",
-                  "pattern": "^[0-9a-f]{64}$"
+                  "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
                 }
               },
               "required": [
@@ -147,7 +147,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 96,
-              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+              "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
             },
             "uniqueItems": true
           },
@@ -178,13 +178,13 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 96,
-            "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
           },
           "media_id": {
             "type": "string",
             "minLength": 1,
             "maxLength": 96,
-            "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
           },
           "frame": {
             "type": "integer",
@@ -219,7 +219,7 @@
               },
               "hex": {
                 "type": "string",
-                "pattern": "^[0-9a-f]{64}$"
+                "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
               }
             },
             "required": [
@@ -337,7 +337,7 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         {
           "type": "null"
@@ -358,7 +358,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 96,
-            "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
           },
           "message": {
             "type": "string"
@@ -367,7 +367,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 96,
-            "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
           },
           "retryable": {
             "type": "boolean"

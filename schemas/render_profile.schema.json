@@ -7,13 +7,13 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "version": {
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "evidence": {
       "enum": [
@@ -130,7 +130,7 @@
           },
           "hex": {
             "type": "string",
-            "pattern": "^[0-9a-f]{64}$"
+            "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
           }
         },
         "required": [
@@ -144,7 +144,7 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "runtime": {
       "type": "object"
@@ -159,7 +159,7 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     }
   },
   "required": [

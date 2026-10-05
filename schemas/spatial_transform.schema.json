@@ -7,13 +7,13 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "version": {
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "coded_width": {
       "type": "integer",
@@ -140,13 +140,13 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "color_conversion": {
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "output_width": {
       "type": "integer",

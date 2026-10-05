@@ -65,6 +65,8 @@ const errors = {
   AMBIGUOUS_MEDIA_TIMING: ['The source presentation span needs an explicit timing policy.', 'Для временного диапазона исходника требуется явное правило обработки.'],
   TARGET_EXISTS: ['Choose a new filename or explicitly enable overwrite.', 'Выберите новое имя файла или явно разрешите перезапись.'],
   PROJECT_IO_ERROR: ['Check folder access and support for atomic local file writes.', 'Проверьте доступ к папке и поддержку атомарной записи локальных файлов.'],
+  PROJECT_BUSY: ['Another save is publishing this project. Retry after it completes.', 'Другой процесс сохраняет этот проект. Повторите после завершения.'],
+  EXTENSION_IMPORT_ERROR: ['An owned extension could not load. Check its installation and optional imports.', 'Не удалось загрузить расширение проекта. Проверьте установку и необязательные импорты.'],
   MIGRATION_UNSUPPORTED: ['This input needs a separate migration profile; the original stays intact.', 'Этому файлу нужен отдельный профиль миграции; исходник сохранён.'],
   RESOURCE_LIMIT: ['The requested data exceeds the declared resource limit.', 'Объём запрошенных данных превышает объявленное ограничение.'],
   FRAME_COUNT_MISMATCH: ['Useful, padding and context frame counts do not agree.', 'Числа полезных, дополняющих и контекстных кадров не согласованы.'],

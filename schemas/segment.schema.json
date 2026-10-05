@@ -8,13 +8,13 @@
     },
     "schema_version": {
       "type": "string",
-      "pattern": "^2\\.[0-9]+\\.[0-9]+$"
+      "pattern": "^2\\.[0-9]+\\.[0-9]+(?![\\s\\S])"
     },
     "id": {
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "required_features": {
       "type": "array",
@@ -22,14 +22,14 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 96,
-        "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
       },
       "uniqueItems": true
     },
     "extensions": {
       "type": "object",
       "patternProperties": {
-        "^[A-Za-z][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9_-]+)+$": {}
+        "^[A-Za-z][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9_-]+)+(?![\\s\\S])": {}
       },
       "additionalProperties": false
     },
@@ -42,7 +42,7 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "useful_range": {
       "type": "object",
@@ -68,7 +68,7 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "source_range": {
       "type": "object",
@@ -101,7 +101,7 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 96,
-      "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
     },
     "overrides": {
       "type": "object",
@@ -115,7 +115,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 96,
-              "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+              "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
             },
             {
               "type": "null"
@@ -124,13 +124,13 @@
         },
         "seed": {
           "type": "string",
-          "pattern": "^(0|[1-9][0-9]{0,19})$"
+          "pattern": "^(0|[1-9][0-9]{0,19})(?![\\s\\S])"
         },
         "control_spec_id": {
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         },
         "audio_mode": {
           "enum": [
@@ -145,7 +145,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 96,
-            "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+            "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
           },
           "uniqueItems": true
         },
@@ -166,7 +166,7 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 96,
-          "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
         }
       },
       "required": [],
@@ -178,7 +178,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 96,
-        "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
       },
       "uniqueItems": true
     },
@@ -188,7 +188,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 96,
-        "pattern": "^[^\\x00-\\x1f\\x7f]+$"
+        "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
       },
       "uniqueItems": true
     },
@@ -200,7 +200,7 @@
         },
         "hex": {
           "type": "string",
-          "pattern": "^[0-9a-f]{64}$"
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
         }
       },
       "required": [

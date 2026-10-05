@@ -24,12 +24,23 @@ class ExtensionRegistry:
 
 def build_registry(package=None):
     package = package or __package__ + ".nodes"
-    root = importlib.import_module(package)
-    modules = sorted(info.name for info in pkgutil.walk_packages(root.__path__, root.__name__ + ".")
-                     if not info.ispkg and info.name.endswith("_nodes"))
+    def import_owned(name):
+        try:
+            return importlib.import_module(name)
+        except ImportError:
+            fail("EXTENSION_IMPORT_ERROR", "An owned module cannot be imported; optional backends must be loaded lazily.",
+                 details={"module": name})
+    root = import_owned(package)
+    def walk(owned_package):
+        for info in sorted(pkgutil.iter_modules(owned_package.__path__, owned_package.__name__ + ".")):
+            if info.ispkg:
+                yield from walk(import_owned(info.name))
+            elif info.name.endswith("_nodes"):
+                yield info.name
+    modules = sorted(walk(root))
     nodes, labels, operations = {}, {}, {}
     for name in modules:
-        module = importlib.import_module(name)
+        module = import_owned(name)
         owned = getattr(module, "NODE_CLASS_MAPPINGS", {})
         if not isinstance(owned, dict):
             fail("INVALID_RECORD", "Owned node mappings must be dictionaries.")

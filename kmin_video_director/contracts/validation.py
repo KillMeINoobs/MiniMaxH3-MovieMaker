@@ -4,7 +4,7 @@ import re
 from fractions import Fraction
 
 from ..errors import ContractError, fail
-from .specs import MAX_INT, SCHEMAS
+from .specs import MAX_INT, SCHEMAS, RANGE, RATIONAL, SETTINGS_FIELDS
 
 SUPPORTED_FEATURES = frozenset({"portable_project/1", "cfr24/1", "h3_lattice/1", "structural_control/1"})
 
@@ -29,6 +29,21 @@ def validate_json(value, path="$", depth=0):
             validate_json(child, f"{path}.{key}", depth + 1)
         return
     fail("INVALID_JSON", "Expected finite JSON values.", details={"field": path})
+
+
+def _json_equal(a, b):
+    """JSON equality: booleans are distinct from numbers, including in objects."""
+    if type(a) is bool or type(b) is bool:
+        return type(a) is type(b) and a == b
+    if type(a) in (int, float) and type(b) in (int, float):
+        return a == b
+    if type(a) is not type(b):
+        return False
+    if type(a) is dict:
+        return a.keys() == b.keys() and all(_json_equal(a[k], b[k]) for k in a)
+    if type(a) is list:
+        return len(a) == len(b) and all(_json_equal(x, y) for x, y in zip(a, b))
+    return a == b
 
 
 def validate_schema(value, schema, path="$", document=None):
@@ -57,7 +72,8 @@ def validate_schema(value, schema, path="$", document=None):
              "null": lambda v: v is None}
     if "type" in schema and not types[schema["type"]](value):
         fail("INVALID_RECORD", "Incorrect JSON type.", details={"field": path, "expected": schema["type"]})
-    if "const" in schema and value != schema["const"] or "enum" in schema and value not in schema["enum"]:
+    if ("const" in schema and not _json_equal(value, schema["const"])
+            or "enum" in schema and not any(_json_equal(value, v) for v in schema["enum"])):
         fail("INVALID_RECORD", "Value is outside the declared constants.", details={"field": path})
     if type(value) in (int, float):
         if "minimum" in schema and value < schema["minimum"] or "maximum" in schema and value > schema["maximum"]:
@@ -69,7 +85,7 @@ def validate_schema(value, schema, path="$", document=None):
     if type(value) is list:
         if len(value) < schema.get("minItems", 0):
             fail("INVALID_RECORD", "Array is too short.", details={"field": path})
-        if schema.get("uniqueItems") and any(item in value[:i] for i, item in enumerate(value)):
+        if schema.get("uniqueItems") and any(any(_json_equal(item, v) for v in value[:i]) for i, item in enumerate(value)):
             fail("INVALID_RECORD", "Array contains duplicate entries.", details={"field": path})
         for i, item in enumerate(value):
             validate_schema(item, schema.get("items", {}), f"{path}[{i}]", document)
@@ -96,34 +112,53 @@ def validate_locator(path):
     if type(path) is not str or not path or re.search(r'[\x00-\x1f\x7f\\:< >"|?*]', path.replace(" ", "")):
         fail("INVALID_LOCATOR", "Use a normalized project-relative path.")
     parts = path.split("/")
-    reserved = re.compile(r"^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$", re.I)
+    reserved = re.compile(r"^(con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³])(?: *\..*)?$", re.I)
     if any(not p or p in (".", "..") or p.endswith((".", " ")) or reserved.fullmatch(p) for p in parts):
         fail("INVALID_LOCATOR", "Absolute paths, traversal and reserved names are not portable.")
     return path
 
 
-def _walk_shared(value):
-    if type(value) is list:
+def _walk_shared(value, schema, document=None):
+    """Apply shared semantics only where the schema declares shared values.
+
+    Owner reports, recipes, mode drafts and namespaced extensions remain opaque
+    finite JSON. Their similarly named keys do not become contract fields.
+    """
+    document = document or schema
+    if "$ref" in schema:
+        file, _, fragment = schema["$ref"].partition("#")
+        target = SCHEMAS[file.removesuffix(".schema.json")] if file else document
+        for part in fragment.strip("/").split("/") if fragment else ():
+            target = target[part.replace("~1", "/").replace("~0", "~")]
+        return _walk_shared(value, target, SCHEMAS[file.removesuffix(".schema.json")] if file else document)
+    for variant in ("oneOf", "anyOf"):
+        if variant in schema:
+            for choice in schema[variant]:
+                try:
+                    validate_schema(value, choice, document=document)
+                except ContractError:
+                    continue
+                _walk_shared(value, choice, document)
+                break
+    if schema == SETTINGS_FIELDS["seed"] and int(value) > 2**64 - 1:
+        fail("INVALID_SEED", "Seed must fit an unsigned 64-bit integer.")
+    properties = schema.get("properties", {})
+    if properties == RANGE["properties"] and value["start"] >= value["end"]:
+        fail("INVALID_INTERVAL", "Half-open ranges require start < end.")
+    if properties == RATIONAL["properties"] and math.gcd(value["num"], value["den"]) != 1:
+        fail("INVALID_RATIONAL", "Rationals must be reduced.")
+    if "scheme" in properties and properties["scheme"].get("const") == "project_relative":
+        validate_locator(value["path"])
+    if "kind" in properties and "schema_version" in properties:
+        check_version(value)
+    if type(value) is list and "items" in schema:
         for child in value:
-            _walk_shared(child)
-    elif type(value) is dict:
-        # These shapes are reserved shared values, including inside extension data.
-        if set(value) == {"start", "end"} and value["start"] >= value["end"]:
-            fail("INVALID_INTERVAL", "Half-open ranges require start < end.")
-        if set(value) == {"num", "den"}:
-            if type(value["num"]) is not int or type(value["den"]) is not int or value["den"] <= 0:
-                fail("INVALID_RATIONAL", "Rational denominator must be a positive integer.")
-            if math.gcd(value["num"], value["den"]) != 1:
-                fail("INVALID_RATIONAL", "Rationals must be reduced.")
-        if value.get("scheme") == "project_relative":
-            validate_locator(value["path"])
-        if "seed" in value and type(value["seed"]) is str and int(value["seed"]) > 2**64 - 1:
-            fail("INVALID_SEED", "Seed must fit an unsigned 64-bit integer.")
-        if "kind" in value and "schema_version" in value:
-            check_version(value)
+            _walk_shared(child, schema["items"], document)
+    if type(value) is dict:
         for key, child in value.items():
-            if key != "extensions":
-                _walk_shared(child)
+            child_schema = properties.get(key, schema.get("additionalProperties"))
+            if type(child_schema) is dict:
+                _walk_shared(child, child_schema, document)
 
 
 def check_version(value):
@@ -211,7 +246,7 @@ def validate_result(r):
         fail("INVALID_EVIDENCE", "GPU claims require real GPU receipts.")
     if r["progress"]["done"] > r["progress"]["total"]:
         fail("INVALID_RECORD", "Progress exceeds its total.")
-    if r["status"] == "succeeded":
+    if r["status"] in ("succeeded", "passthrough"):
         if not r["artifacts"] or r["coverage"] is None or not v["receipts"] or r["error"] is not None:
             fail("PARTIAL_RESULT", "Success requires artifacts, exact coverage and validation receipts.")
         coverage = r["coverage"]
@@ -327,12 +362,32 @@ def validate_project(p):
         if not seg["useful_range"]["start"] <= w["useful_range"]["start"] < w["useful_range"]["end"] <= seg["useful_range"]["end"]:
             fail("COVERAGE_MISMATCH", "Window useful range lies outside its editorial segment.")
         link(w["spatial_transform_id"], p.get("spatial_transforms", {}))
-        link(w["control_spec_id"], p["controls"])
-        link(w["render_profile_id"], p["render_profiles"])
+        _check_settings_links(w["resolved_settings"], p, seg, link)
+        if w["resolved_settings"] != {**p["defaults"], **seg["overrides"]}:
+            fail("STALE_DEPENDENCY", "Frozen window settings differ from current effective segment settings.")
+        for span in w["input_spans"]:
+            if span["role"] == "useful":
+                media = link(span["media_id"], p["media"])
+                if media["id"] != seg["source_media_id"] or media["role"] != "prepared_video":
+                    fail("DANGLING_REFERENCE", "Useful input must identify the segment's canonical source.")
     for window_id, result_id in p["active_result_by_window"].items():
+        w = link(window_id, p.get("windows", {}))
         r = link(result_id, p["results"])
         if r["window_id"] != window_id or r["status"] not in ("succeeded", "passthrough"):
             fail("PARTIAL_RESULT", "Only explicit completed matching results may be active.")
+        if r["segment_id"] != w["segment_id"] or r["generation_key"] != w["generation_key"]:
+            fail("STALE_DEPENDENCY", "Active output must match the current window, scene and generation key.")
+        coverage = r["coverage"]
+        spatial = link(w["spatial_transform_id"], p.get("spatial_transforms", {}))
+        passthrough = r["status"] == "passthrough"
+        if passthrough and not by_segment[w["segment_id"]]["passthrough"]:
+            fail("PARTIAL_RESULT", "Source passthrough must be explicitly selected by the segment.")
+        expected_local = {"start": 0, "end": _length(w["useful_range"])} if passthrough else w["output_useful_range"]
+        expected_count = _length(w["useful_range"]) if passthrough else w["inference_frame_count"]
+        if (coverage["useful_range"] != w["useful_range"] or coverage["output_useful_range"] != expected_local
+                or coverage["requested_frames"] != expected_count or coverage["decoded_frames"] != expected_count
+                or coverage["width"] != spatial["output_width"] or coverage["height"] != spatial["output_height"]):
+            fail("COVERAGE_MISMATCH", "Active output coverage and dimensions must match its exact window mapping.")
 
 
 def _check_settings_links(settings, project, segment, link):
@@ -419,5 +474,5 @@ def validate_record(name, data):
     if type(data) is dict and "kind" in data:
         check_version(data)
     validate_schema(data, SCHEMAS[name])
-    _walk_shared(data)
+    _walk_shared(data, SCHEMAS[name])
     validate_semantics(name, data)
