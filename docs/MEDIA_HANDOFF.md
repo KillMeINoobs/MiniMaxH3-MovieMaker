@@ -24,6 +24,19 @@ malformed/boolean-FPS recipes and audio-less mixed modes, then corrected them.
 The new candidate needs its own pinned independent reassessment; the prior
 review and local green tests do not approve it.
 
+M1-02-FIX-R4-MONITOR prepares a local correction from exact
+`465bc3d91777eb7d5d93b68904df10fdc71910cc` (tree
+`56b9c73321b5e6689ab8d83899d45d6edd911357`), the published R1–R3 correction.
+The completed independent [exact-465 source/CPU review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/3#pullrequestreview-5417458849)
+passes the original R1–R3 probes, retains D1–D4 as resolved and requests only
+the unwrapped monitor-constructor error; cleanup already succeeds.
+The owner reproduced that case and places construction and start under the
+same narrow resource-error handler. The initial release permitted local preparation
+only. After reconciling the completed review, the coordinator separately released
+one checked normal corrective commit/push and existing PR3 body update, preserving
+exact c923 as the integrated common/base. The new candidate requires its own
+independent pinned reassessment.
+
 The approved design uses standard-library Python with an explicitly selected
 external FFmpeg/ffprobe backend. Source frames and timestamps stream through
 bounded buffers; canonical video, PCM and manifests live on disk. No inference,
@@ -147,9 +160,12 @@ only during a human-requested node execution. No queue API or model-loading path
 is present. Temporary files are removed on ordinary cancellation/error; already
 written media bytes without a successful manifest are inactive.
 Timeout and current budget/cancellation are checked before backend spawn.
-Every post-spawn setup step, including monitor startup, is inside owned
-termination/wait/pipe cleanup. An unavailable monitor returns `RESOURCE_LIMIT`;
-invalid limits and monitor-start errors suppress the underlying exception context.
+Every post-spawn setup step, including monitor construction and startup, is inside
+owned termination/wait/pipe cleanup. Known `RuntimeError`/`OSError` failures in
+either monitor phase return `RESOURCE_LIMIT` with the underlying exception context
+suppressed. Invalid limits are likewise redacted. Unexpected programming exceptions
+remain visible after mandatory child cleanup; no broad resource-error conversion
+is applied to them.
 Only the handle created by that operation is terminated. Valid completion,
 timeout, cancellation and quota cleanup have actual synthetic checks.
 
@@ -242,11 +258,13 @@ store, automatic execution, foreign-node customization or language-triggered I/O
 was introduced. Visual appearance and native serialization still need the later
 allocated human live gate.
 
-The corrected [CPU receipt](validation/M1_MEDIA.md) records217 passed,
-one POSIX-only skip on Windows and no failures, including100 owned cases.
+The local R4 [CPU receipt](validation/M1_MEDIA.md) records222 passed,
+one POSIX-only skip on Windows and no failures, including105 owned cases.
 D1–D4 were independently resolved at d9b3. R1–R3 were independently reproduced
-there, then reproduced and corrected by the owner; independent reassessment of
-the new candidate remains pending.
+there, then reproduced and corrected by the owner at465; their independent
+exact-465 CPU probes pass. R4 constructor/start redaction and unexpected-error
+visibility have owner real-child checks; this local correction has no independent
+approval. Publication follows the separately reconciled coordinator release.
 The six historical ac335 shared
 assertion failures are resolved by the reviewed common tests imported from
 exact c923. Shared files match that commit; no media-owned shared amendment was

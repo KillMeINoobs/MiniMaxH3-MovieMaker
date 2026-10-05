@@ -28,6 +28,19 @@ The entire checked c923 remains integrated and the PR base remains fixed.
 The new candidate's source/test hashes and publication identity are supplied
 through AO/PR3. It has owner CPU evidence, with separate reassessment pending.
 
+M1-02-FIX-R4-MONITOR is local preparation from the published R1–R3 correction
+`465bc3d91777eb7d5d93b68904df10fdc71910cc` (tree
+`56b9c73321b5e6689ab8d83899d45d6edd911357`, direct parent d9b3).
+Its completed independent [source/CPU review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/3#pullrequestreview-5417458849)
+passes the original R1–R3 probes, retains D1–D4 as resolved and requests only
+R4's unwrapped monitor-constructor failure; both constructor/start probe children
+already terminate, wait and close. The owner reads the actual private evidence,
+reproduces and corrects the error boundary locally. The coordinator reconciled
+the completed exact-465 COMMENT/GET/body/postguard receipt, then explicitly
+released one normal checked corrective commit/push and existing PR3 body update.
+The base and entire integrated common remain c923; this new candidate needs
+separate pinned independent review.
+
 Scope: [five unchanged callable signatures and eight real node definitions](../MEDIA_HANDOFF.md).
 Runtime is standard-library Python plus explicit existing external executables.
 The merge imports foundation-owned changes exactly from c923. No media-owned
@@ -39,6 +52,9 @@ unchanged from cd1b90. Preparation is1.0.1, assembly is1.0.2 and media binding
 is1.0.0; no shared record/schema change was required. The R1–R3 follow-up changes
 three owned source files, two new owned test files, one owned audio test file
 and the same three owned documents. Recipe/export-policy formats stay1.0.0.
+The local R4 diff changes only owned `media/backend.py`, its existing process
+regression test and these three existing media documents. Normalization, audio
+policy, frontend, ports and dependencies stay unchanged from465.
 KVD-WORKER/2.0.0, data/schema2.0.0, five callable signatures, eight owned IDs and
 owner recipe/export versions remain stable. The preserved brief still has
 Git blob `77e34e02374483fc19be006dc5d5b78e40f15042` and canonical SHA256
@@ -77,19 +93,22 @@ pure planning/import/signature/geometry checks still run. CPU tests call operati
 handlers directly. Node definitions are imported/inspected without running a
 ComfyUI workflow or queue.
 
-Final R1–R3 corrected source run: **217 passed, 1 skipped, no failures in66.10s**,
-both backends explicitly selected. This includes all100 owned
+Local R4 corrected source run: **222 passed, 1 skipped, no failures in65.96s**,
+both backends explicitly selected. This includes all105 owned
 media/planning/assembly cases, the actual4:3 geometry case, shared
 contracts/imports/conformance and the existing bounded-memory assertion.
 The skipped case is `test_review_regressions.py`'s POSIX FIFO runtime case on
 Windows; that platform behavior remains NOT PERFORMED.
 
-Frontend results: shared presentation script passed; language-setting synthetic
+Retained frontend results at unchanged source465: shared presentation script
+passed; language-setting synthetic
 host **6/6**, common verification-checker synthetic host **29/29**, eight owned
 EN/RU presentations and owned synthetic-host extension **1/1** passed. The VM
 flag was supplied for all module-host tests. Six shared/owned JavaScript source
 files passed syntax checks. These are portable/synthetic-host checks; no live
-ComfyUI page, graph, serialization or node execution was performed.
+ComfyUI page, graph, serialization or node execution was performed. No frontend
+rerun is needed for this backend-only correction; the prior log hashes and
+unchanged presentation source are retained in the private local receipt.
 
 The normal d062 integration run recorded161 passed/one POSIX skip/no failures
 in32.31s at unchanged media code. The original ac335 owned run recorded44 passed
@@ -100,6 +119,37 @@ exact sources; the combined run above provides fresh owner correction evidence.
 The d9b3 owner run recorded183 passed/one POSIX skip/no failures in50.24s;
 the independent review also ran183/one skip and then reproduced R1–R3 with
 additional bounded probes. A green suite alone did not establish their absence.
+The published R1–R3 owner run recorded217 passed/one POSIX skip/no failures
+in66.10s, including100 owned cases; its numeric evidence remains historical
+at exact465.
+
+## R4 monitor setup correction
+
+The actual private exact-465 reviewer script/results were available and read;
+the owner did not rerun the whole reviewer probe script. The extended process
+test uses tiny synthetic FFmpeg media and captures only its own spawned child.
+Before the production edit, the six monitor cases recorded **2 failed, 4 passed
+in0.40s**. Constructor `RuntimeError` escaped raw with its synthetic message;
+constructor `OSError` was redacted as `PROJECT_IO_ERROR` instead of the required
+monitor `RESOURCE_LIMIT`. Both child-cleanup assertions passed before the error
+assertions failed. Start-phase known failures and unexpected `TypeError` cases
+already passed. Fixture cleanup always terminates, waits and closes captured
+handles, including on a failed assertion; no unrelated process is accessed.
+
+The production change moves Thread construction inside the existing
+`RuntimeError`/`OSError` handler that already covers start. It retains explicit
+exception-context suppression and the enclosing mandatory cleanup; no broader
+exception catch is added. Four constructor/start known-error cases now produce
+redacted `RESOURCE_LIMIT`, including formatted traceback checks. Two unexpected
+constructor/start `TypeError` cases preserve the original exception and visible
+trace while still cleaning the actual child. The complete focused process set
+plus the existing mid-pipe cancellation/quota check records **11 passed in1.95s**.
+Invalid limits start zero children, and valid completion/timeout remain checked.
+The combined fresh222-pass/one-skip result above protects recipes, selected
+streams/bindings, padding, geometry, global PCM and checked export. Backend/API,
+algorithm/recipe/policy versions and shared files remain stable. Owner evidence
+does not approve this working diff; publication follows the separate coordinator
+release after completed exact-465 review reconciliation.
 
 ## R1–R3 independent findings and owner correction
 
@@ -124,8 +174,8 @@ The first full run passed217/one skip in66.50s. A subsequent traceback regressio
 found that the monitor wrapper still exposed its underlying error, and a second
 case reproduced the same issue in invalid-limit conversion. Both red checks
 failed before explicit context suppression; the strengthened six-case R1 set
-then passed. Because error behavior changed, the final combined run was repeated
-at those exact source/test bytes. Frontend source was unchanged after its passing
+then passed. Because error behavior changed, that R1–R3 final combined run was
+repeated at its exact source/test bytes. Frontend source was unchanged after its passing
 run, which was retained rather than repeated for documentation edits.
 
 ## Reproduced preliminary findings and corrections
@@ -204,6 +254,8 @@ manual experiment was run. The original ac335 numbers remain in the
 [pinned d062 receipt](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/blob/d0625152a370a6e20e799eb7d6dbaf224c1e252d/docs/validation/M1_MEDIA.md).
 The previous correction's numbers remain in its
 [pinned d9b3 receipt](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/blob/d9b3a574dbfdd2bb4ec1428b5d91186fff3e107c/docs/validation/M1_MEDIA.md).
+The R1–R3 correction's numbers remain in its
+[pinned465 receipt](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/blob/465bc3d91777eb7d5d93b68904df10fdc71910cc/docs/validation/M1_MEDIA.md).
 Tracemalloc
 starts after fixture generation; measurements include probe/normalize Python
 allocations. The watchdog measures only the operation-owned decoder/encoder
@@ -211,10 +263,10 @@ children. These small-geometry figures do not predict1080p/H3 memory.
 
 | Frames | Python traced peak bytes | Declared active RGB bytes | Decoder/encoder peak working-set bytes | Known operation disk peak bytes |
 | --- | --- | --- | --- | --- |
-| 24 | 1165621 | 6327 | 14815232 / 20209664 | 7782 |
-| 1000 | 1190215 | 6327 | 28753920 / 22364160 | 352316 |
+| 24 | 1160924 | 6327 | 12713984 / 22073344 | 7782 |
+| 1000 | 1211228 | 6327 | 28717056 / 22401024 | 352316 |
 
-Python allocation growth was24594 bytes for an additional976 frames; the active
+Python allocation growth was50304 bytes for an additional976 frames; the active
 pixel bound stayed6327 bytes. The test checks Python peak<8MiB, larger-source
 growth≤1MiB, and observed child peaks<256MiB. PTS and selection size grows on disk.
 The production RGB budget does not claim to impose an OS memory cap on external

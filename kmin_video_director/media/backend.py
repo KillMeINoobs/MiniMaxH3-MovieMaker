@@ -215,8 +215,8 @@ def process(argv, context, budget, *, stdin=None, stdout=subprocess.PIPE):
                         if p.poll() is None:
                             p.kill()  # Only this operation-owned subprocess.
                         return
-            watcher = threading.Thread(target=watch, daemon=True)
             try:
+                watcher = threading.Thread(target=watch, daemon=True)
                 watcher.start()
             except (RuntimeError, OSError):
                 raise ContractError('RESOURCE_LIMIT', 'The media operation monitor could not start.', stage='media') from None

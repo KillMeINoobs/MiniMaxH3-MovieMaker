@@ -60,22 +60,49 @@ def test_invalid_timeout_does_not_spawn_a_backend_child(tmp_path, monkeypatch, t
             assert timeout not in ''.join(traceback.format_exception(raised.value))
 
 
-def test_monitor_start_failure_closes_the_already_spawned_child(tmp_path, monkeypatch):
+@pytest.mark.parametrize('phase', ['constructor', 'start'])
+@pytest.mark.parametrize('error_type', [RuntimeError, OSError])
+def test_monitor_resource_setup_failure_is_redacted_and_closes_child(tmp_path, monkeypatch, phase, error_type):
     source = video(tmp_path, count=2)
     ctx = context(tmp_path)
     with captured_children(monkeypatch) as children:
-        def cannot_start(_):
-            raise RuntimeError('Synthetic monitor-start failure')
-        monkeypatch.setattr(backend.threading.Thread, 'start', cannot_start)
-        with pytest.raises((ContractError, RuntimeError)) as raised:
+        message = f'Synthetic monitor-{phase} failure'
+        def unavailable(*args, **kwargs):
+            raise error_type(message)
+        if phase == 'constructor':
+            monkeypatch.setattr(backend.threading, 'Thread', unavailable)
+        else:
+            monkeypatch.setattr(backend.threading.Thread, 'start', unavailable)
+        with pytest.raises((ContractError, error_type)) as raised:
             with backend.process(null_decode(ctx, source), ctx, backend.Budget(ctx), stdin=subprocess.PIPE):
                 pytest.fail('Unavailable monitor yielded an active backend.')
         assert len(children) == 1
         assert_closed(children[0])
         assert isinstance(raised.value, ContractError)
         assert raised.value.code == 'RESOURCE_LIMIT'
-        assert 'Synthetic monitor-start failure' not in str(raised.value)
-        assert 'Synthetic monitor-start failure' not in ''.join(traceback.format_exception(raised.value))
+        assert message not in str(raised.value)
+        assert message not in ''.join(traceback.format_exception(raised.value))
+
+
+@pytest.mark.parametrize('phase', ['constructor', 'start'])
+def test_unexpected_monitor_setup_error_stays_visible_and_closes_child(tmp_path, monkeypatch, phase):
+    source = video(tmp_path, count=2)
+    ctx = context(tmp_path)
+    unexpected = TypeError(f'Synthetic monitor-{phase} programming error')
+    with captured_children(monkeypatch) as children:
+        def broken(*args, **kwargs):
+            raise unexpected
+        if phase == 'constructor':
+            monkeypatch.setattr(backend.threading, 'Thread', broken)
+        else:
+            monkeypatch.setattr(backend.threading.Thread, 'start', broken)
+        with pytest.raises(TypeError) as raised:
+            with backend.process(null_decode(ctx, source), ctx, backend.Budget(ctx), stdin=subprocess.PIPE):
+                pytest.fail('Broken monitor yielded an active backend.')
+        assert len(children) == 1
+        assert_closed(children[0])
+        assert raised.value is unexpected
+        assert str(unexpected) in ''.join(traceback.format_exception(raised.value))
 
 
 def test_valid_completion_waits_and_closes_pipes(tmp_path, monkeypatch):
