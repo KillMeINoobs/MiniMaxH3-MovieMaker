@@ -1,0 +1,38 @@
+{
+  "kind": "kmin.continuation_state",
+  "schema_version": "2.0.0",
+  "id": "state-1",
+  "extensions": {},
+  "required_features": [],
+  "project_id": "proj-1",
+  "segment_id": "seg-1",
+  "window_id": "win-1",
+  "continuity_group_id": "shot-1",
+  "predecessor_result_id": "result-1",
+  "predecessor_digest": {
+    "algorithm": "sha256",
+    "hex": "abababababababababababababababababababababababababababababababab"
+  },
+  "profile_id": "profile-source-only",
+  "component_signatures": {},
+  "geometry": {},
+  "latent_signatures": {},
+  "artifacts": [],
+  "last_useful_global_end": 180,
+  "last_useful_local_end": 180,
+  "video_tail_range": {
+    "start": 158,
+    "end": 180
+  },
+  "audio_tail_range": null,
+  "mapping_recipe": "unverified",
+  "overlap_frames": 22,
+  "audio_correction": {},
+  "validity": "unverified",
+  "evidence": "source_only",
+  "generation_key": {
+    "algorithm": "sha256",
+    "hex": "abababababababababababababababababababababababababababababababab"
+  },
+  "revision": 1
+}

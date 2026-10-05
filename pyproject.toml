@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=65"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kmin-video-director"
+version = "0.1.0"
+description = "Portable ComfyUI Video-to-Video project foundation"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+verify = ["pytest==8.4.2", "jsonschema==4.26.0"]
+
+[tool.setuptools.packages.find]
+include = ["kmin_video_director*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,352 @@
+{
+  "kind": "kmin.project",
+  "schema_version": "2.0.0",
+  "id": "proj-1",
+  "extensions": {},
+  "required_features": [],
+  "revision": 1,
+  "fps": {
+    "num": 24,
+    "den": 1
+  },
+  "frame_count": 360,
+  "source_media_id": "media-source",
+  "canonical_media_id": "media-cfr",
+  "normalization": {
+    "version": "cfr24/1",
+    "t0": {
+      "num": 0,
+      "den": 1
+    },
+    "duration": {
+      "num": 15,
+      "den": 1
+    },
+    "rounded_frame_count": 360,
+    "frame_count": 360,
+    "duration_error": {
+      "num": 0,
+      "den": 1
+    },
+    "duration_clamp": {
+      "applied": false,
+      "reason": null,
+      "before_frame_count": 360,
+      "after_frame_count": 360
+    },
+    "pts_digest": {
+      "algorithm": "sha256",
+      "hex": "abababababababababababababababababababababababababababababababab"
+    },
+    "report": {
+      "evidence": "synthetic_metadata"
+    }
+  },
+  "media": {
+    "media-source": {
+      "id": "media-source",
+      "role": "source_video",
+      "locator": {
+        "scheme": "project_relative",
+        "path": "media/Сцена 1/clip.bin"
+      },
+      "fingerprint": {
+        "digest": {
+          "algorithm": "sha256",
+          "hex": "abababababababababababababababababababababababababababababababab"
+        },
+        "byte_size": 0,
+        "mtime_ns": "0",
+        "video_stream": 0,
+        "audio_stream": null,
+        "probe_version": "synthetic/1",
+        "decoder_version": "not-run"
+      },
+      "probe": {
+        "video": {
+          "codec": "synthetic",
+          "stream_index": 0,
+          "time_base": {
+            "num": 1,
+            "den": 24
+          },
+          "first_pts": 0,
+          "end_pts": 360,
+          "pts_digest": {
+            "algorithm": "sha256",
+            "hex": "abababababababababababababababababababababababababababababababab"
+          },
+          "rate": {
+            "num": 24,
+            "den": 1
+          },
+          "vfr": false,
+          "width": 640,
+          "height": 360,
+          "rotation": 0,
+          "sar": {
+            "num": 1,
+            "den": 1
+          },
+          "display_matrix": [],
+          "color": "bt709",
+          "pixel_format": "rgb24"
+        },
+        "audio": null
+      },
+      "availability": "missing",
+      "error": {
+        "code": "SOURCE_MISSING",
+        "message": "Synthetic fixture; no asset supplied.",
+        "stage": "validate",
+        "retryable": false,
+        "details": {}
+      }
+    },
+    "media-cfr": {
+      "id": "media-cfr",
+      "role": "prepared_video",
+      "locator": {
+        "scheme": "project_relative",
+        "path": "media/Сцена 1/clip.bin"
+      },
+      "fingerprint": {
+        "digest": {
+          "algorithm": "sha256",
+          "hex": "abababababababababababababababababababababababababababababababab"
+        },
+        "byte_size": 0,
+        "mtime_ns": "0",
+        "video_stream": 0,
+        "audio_stream": null,
+        "probe_version": "synthetic/1",
+        "decoder_version": "not-run"
+      },
+      "probe": {
+        "video": {
+          "codec": "synthetic",
+          "stream_index": 0,
+          "time_base": {
+            "num": 1,
+            "den": 24
+          },
+          "first_pts": 0,
+          "end_pts": 360,
+          "pts_digest": {
+            "algorithm": "sha256",
+            "hex": "abababababababababababababababababababababababababababababababab"
+          },
+          "rate": {
+            "num": 24,
+            "den": 1
+          },
+          "vfr": false,
+          "width": 640,
+          "height": 360,
+          "rotation": 0,
+          "sar": {
+            "num": 1,
+            "den": 1
+          },
+          "display_matrix": [],
+          "color": "bt709",
+          "pixel_format": "rgb24"
+        },
+        "audio": null
+      },
+      "availability": "missing",
+      "error": {
+        "code": "SOURCE_MISSING",
+        "message": "Synthetic fixture; no asset supplied.",
+        "stage": "validate",
+        "retryable": false,
+        "details": {}
+      }
+    }
+  },
+  "defaults": {
+    "prompt": "A cinematic scene. / Сцена",
+    "prompt_recipe_id": null,
+    "seed": "18446744073709551615",
+    "control_spec_id": "ctrl-canny",
+    "audio_mode": "preserve",
+    "reference_binding_ids": [],
+    "continuity_policy": "none",
+    "spatial_policy": "preserve_display_pad",
+    "render_profile_id": "profile-source-only"
+  },
+  "controls": {
+    "ctrl-canny": {
+      "kind": "kmin.control_spec",
+      "schema_version": "2.0.0",
+      "id": "ctrl-canny",
+      "extensions": {},
+      "required_features": [],
+      "type": "canny",
+      "enabled": true,
+      "backend": {
+        "id": "comfy-native-canny",
+        "version": "source-b87fe48",
+        "parameters": {
+          "low_threshold": 0.4,
+          "high_threshold": 0.8
+        },
+        "model_digest": null,
+        "temporal_policy": "fixed_parameters"
+      },
+      "strength": 1.0,
+      "schedule": {
+        "start_percent": 0.0,
+        "end_percent": 1.0
+      },
+      "conditioning_role": "structural_control_video",
+      "compatibility": {
+        "profile_ids": [
+          "profile-source-only"
+        ],
+        "evidence": "source_only"
+      },
+      "preprocess_version": "canny/1",
+      "map_fingerprint": null
+    }
+  },
+  "render_profiles": {
+    "profile-source-only": {
+      "id": "profile-source-only",
+      "version": "native-h3/1",
+      "evidence": "source_only",
+      "receipts": [],
+      "fps": {
+        "num": 24,
+        "den": 1
+      },
+      "lattice": {
+        "offset": 5,
+        "step": 17
+      },
+      "shape_min": 5,
+      "policy_inference_min": 124,
+      "policy_inference_max": 345,
+      "policy_duration_max": {
+        "num": 15,
+        "den": 1
+      },
+      "grid": 32,
+      "base_family": "ref2va",
+      "components": {},
+      "node_signatures": {},
+      "core_revision": "b87fe48b0491425f682f7ffdaed56d0387cb6c5d",
+      "runtime": {},
+      "sampling": {},
+      "control_branch": {},
+      "memory_policy": "one_window"
+    }
+  },
+  "segments": [
+    {
+      "kind": "kmin.segment",
+      "schema_version": "2.0.0",
+      "id": "seg-1",
+      "extensions": {},
+      "required_features": [],
+      "revision": 1,
+      "project_id": "proj-1",
+      "useful_range": {
+        "start": 0,
+        "end": 360
+      },
+      "source_range": {
+        "start": 0,
+        "end": 360
+      },
+      "source_media_id": "media-cfr",
+      "boundary_before": "first",
+      "continuity_group_id": "shot-1",
+      "overrides": {},
+      "analysis_ids": [],
+      "prompt_draft_ids": [],
+      "selected": true,
+      "passthrough": false
+    }
+  ],
+  "audio_timeline": {
+    "mode": "preserve",
+    "source_media_id": null,
+    "source_offset": {
+      "num": 0,
+      "den": 1
+    },
+    "sample_rate": 48000,
+    "channel_layout": "stereo",
+    "decisions": [],
+    "rounding": "absolute_half_up",
+    "sample_count": 720000,
+    "codec": {},
+    "presentation": {}
+  },
+  "results": {},
+  "active_result_by_window": {},
+  "mode_drafts": {
+    "vid2va": {},
+    "ref2va": {
+      "saved_note": "Later / Позже"
+    }
+  },
+  "detection_proposals": {},
+  "scene_analyses": {},
+  "prompt_recipes": {},
+  "subjects": {},
+  "reference_bindings": {},
+  "continuation_states": {},
+  "windows": {},
+  "spatial_transforms": {
+    "space-1": {
+      "id": "space-1",
+      "version": "spatial/1",
+      "coded_width": 640,
+      "coded_height": 360,
+      "source_sar": {
+        "num": 1,
+        "den": 1
+      },
+      "display_matrix": [],
+      "display_width": 640,
+      "display_height": 360,
+      "scale": {
+        "num": 1,
+        "den": 1
+      },
+      "fitted_width": 640,
+      "fitted_height": 360,
+      "canvas_width": 640,
+      "canvas_height": 384,
+      "content_rect": {
+        "x": 0,
+        "y": 12,
+        "width": 640,
+        "height": 360
+      },
+      "pad_fill": {
+        "rgb": [
+          0,
+          0,
+          0
+        ],
+        "control": [
+          0,
+          0,
+          0
+        ],
+        "mask": 0
+      },
+      "resampler": "none",
+      "color_conversion": "rgb24",
+      "output_width": 640,
+      "output_height": 360,
+      "output_sar": {
+        "num": 1,
+        "den": 1
+      }
+    }
+  }
+}

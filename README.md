@@ -1,27 +1,133 @@
 # ComfyUI-KMIN-VideoDirector
 
-A proposed complete local ComfyUI node collection for video creation/transformation, timeline editing and supplied usable workflows. **V2V is the main first mode:** gameplay or low-poly Blender video → photorealistic cinematic output, with structural control, editable per-scene prompts, optional subject appearance images and measured continuity across windows/scenes. Photorealism is a goal to evaluate, not a demonstrated result. Higgsfield and DaSiWa are workflow/visual inspiration, not equivalent backends.
+The M1 foundation implements portable Projects and four ComfyUI Project nodes.
+The intended first product mode is video-to-video: gameplay or low-poly video
+to cinematic output with structural control and editable scene prompts.
+Media processing and H3 generation belong to the next outcomes and are not
+implemented here. Photorealism, GPU fit and video quality remain unverified.
 
-**Second M0 documentation revision only. No extension, installation package, implemented schemas, executable nodes, ready workflow or GPU result exists here. GPU NOT PERFORMED.** Windows RTX 5070 Ti 16 GB / 32 GB RAM is the target; fit is UNVERIFIED. WSL is not required. First M0 base is `1bfcc50e204797862b2bbc014fce00e4694c122c`, published separately from main; this revision does not merge into main.
+This is a **draft foundation**. Synthetic CPU and presentation checks are
+recorded in [M1 foundation validation](docs/validation/M1_FOUNDATION.md).
+The human restarted reviewed205; the later source/CPU-reviewed `ac335b8`
+snapshot retains its identical backend and all four registered Project classes.
+The ordinary selector saved Russian and restored English with verified server
+readback. Complete browser layout/native graph save/reload remain **BLOCKED**.
+The daf57 checker review requested bounded failure/recovery and transient-marker
+cleanup. The coherent correction and extension-aware shared tests have 36
+frontend and 29 focused import/conformance checks passing; these owner results
+need pinned review and a fresh live check. Installed ac335 remains unchanged.
+**GPU NOT PERFORMED.**
+No workflow was queued, model loaded, inference performed or user video decoded.
 
-The first planned proof is: short clip → real 24 FPS normalization → legal windows → Canny preview → native H3 ControlNet → trim padding → assemble/export, with a comparable control-off run. It must work without character references; source RGB must not become a hidden appearance reference. VID2VA is our workflow name, not a separate checkpoint.
+## Available nodes
 
-Read these in order:
+| Stable class ID | Purpose |
+|---|---|
+| `KVD_ProjectJSON` | Validate Project JSON; return a Project, canonical JSON and structural report. |
+| `KVD_LoadProject` | Load a relative Project file from an explicitly selected local folder. |
+| `KVD_SaveProject` | Save a Project atomically; overwrite is explicit and revision checked. |
+| `KVD_ValidateProject` | Revalidate the Project and report structural evidence. |
 
-1. [Original brief](docs/PROJECT_BRIEF.md), preserved byte for byte.
-2. [Latest V2V product direction](docs/PRODUCT_DIRECTION_V2V.md), explicit supersessions and requirements reconciliation.
-3. [Research](docs/RESEARCH.md), actual native/ControlNet/enhancer/Motion-Context/Qwen/UI source, revisions/licenses and unknowns.
-4. [Architecture](docs/ARCHITECTURE.md) and [contracts 2.0.0](docs/CONTRACTS.md), proposed bounded execution and shared records.
-5. [Proposed node catalog](docs/NODE_CATALOG.md) and [future workflow specification](docs/WORKFLOW_SPEC.md), inventory/wiring and acceptance, not executable assets.
-6. [Staged plan](docs/PLAN.md) and [task journal](docs/tasks/INDEX.md), short proof → editor/runner → scene prompts → optional identity → continuation → ready V2V workflows; then additional controls/creation modes.
-7. [Collaboration rules](AGENTS.md).
+These nodes use `KVD_PROJECT` connections. Validation does not decode, generate
+or prove asset availability. Reports distinguish structure, unchecked assets
+and unperformed GPU work. Missing files and invalid records return shared error
+codes. Project JSON starts empty; provide a Project or load the synthetic example.
 
-Pinned native code aligns frames upward to `17*k+5` at 24 FPS. Under the strict 15-second project limit, the largest legal inference window is 345 frames; a 360-frame useful clip needs multiple windows. See [the constraint table](docs/RESEARCH.md#constraints) for shape limits, training guidance and product policy.
+The interface defaults to English. Use the visible **EN / RU** selector in a
+KVD node panel, or **Settings → KVD → Interface → Language / Язык (EN / RU)**.
+The persisted setting is `KVD.Language`. Changing language translates our
+labels, help, errors and status; stable keys, values, enum semantics and
+connections remain unchanged. Native ComfyUI and other packs keep their own
+presentation. Selector text/save readback has partial actual browser evidence;
+complete layout and graph roundtrip acceptance is still blocked.
 
-Arbitrary input duration is handled step by step with disk-backed preprocessing, bounded analysis/render windows, quotas and resumable receipts. Scene/shot markers remain distinct from inference-window edges. A Qwen VLM analyzer and optional text enhancer draft editable H3 prompts; H3's embedded Qwen encoder is separate. Optional images explicitly bind subjects across scenes; continuation state resets at deliberate cuts. These are product requirements with explicit later gates, not implemented features.
+## Portable data and extension interfaces
 
-Neither `test-1.mp4` nor `video_minimax_h3_fun_controlnet_union_test.json` was supplied. No user asset, model weight or third-party implementation was copied into this repository. No repositories were cloned or dependencies installed. Original brief blob `77e34e02374483fc19be006dc5d5b78e40f15042` retains SHA256 `81B86AB34ADD27455F5A6B4F37652050A5DDE0FEEB024F25616FF1D53D6C513B`; its working bytes are also preserved despite checkout line-ending differences.
+[KVD-WORKER/2.0.0](docs/FOUNDATION_HANDOFF.md) documents actual imports,
+record types, callable signatures, extension registration and ownership.
+Bundled [schemas](schemas/project.schema.json) describe the data structure;
+the stdlib Python validator also checks interval coverage, ID/hash closure,
+selected streams, settings inheritance and other relations.
 
-The project license is **not selected**. Core/extensions and model licenses differ; future borrowing/usage needs the [recorded checks](docs/RESEARCH.md#licenses). The local MVP has no model redistribution or paid inference dependency.
+Projects use integer 24 FPS intervals `[start,end)`, stable identifiers,
+project-relative Unicode paths and content hashes. Seeds are decimal strings
+including the unsigned 64-bit range. JSON round-trips canonically; unknown
+schema majors/required features and invalid locators/ranges/digests are rejected.
+The explicit v1-example migration writes a separate file and preserves its
+source. It is a narrow conformance migration, not support for every old format.
 
-M0 ends with documentation checks, commit and this revision's own-branch push/compare handoff. A previously recorded PR/auth blocker is not retried here. All implementation/backlog tasks remain NOT STARTED and need later assignments; no runtime/GPU work is authorized by these documents.
+Depth/Pose/VLM/enhancer/model packages are absent from foundation imports.
+Future analysis/reference/continuation data can be stored and checked;
+unsupported operations are rejected. The nine downstream protocols have no
+registered execution handlers. Owned modules can add real nodes/handlers and
+translations without changing shared package files.
+
+## Setup and checks
+
+Runtime dependencies are the Python standard library (Python 3.10+). No pip
+install, model download or core/other-pack update is needed for this foundation.
+For registration, copy an explicitly selected repository snapshot into a new
+`custom_nodes/ComfyUI-KMIN-VideoDirector` directory in the **actual running
+installation**. Keep `__init__.py`, `kmin_video_director/`, `schemas/` and `web/`
+together. Avoid duplicate copies; use the running application's supported
+restart after saving work and confirming the queue is idle. A CLI's default
+workspace may differ from the running Desktop installation.
+
+[workflows/foundation_project.json](workflows/foundation_project.json) is a
+synthetic UI fixture for four actual Project nodes and two connections.
+It contains missing synthetic assets and planned metadata, with no generation
+nodes. It is not the downstream V2V workflow. Current live verification is
+**load/serialize/inspect only; do not queue it**.
+
+CPU checks use an isolated verification environment; do not install verification
+dependencies in the shared ComfyUI venv. Checked development dependency versions
+are in [requirements-verify.lock](requirements-verify.lock).
+
+```text
+python -m venv .venv
+.venv/Scripts/python -m pip install -r requirements-verify.lock
+.venv/Scripts/python -m pytest tests/contracts tests/imports -q
+node --experimental-vm-modules --test tests/ui/presentation.test.mjs tests/ui/language.test.mjs tests/ui/verification.test.mjs
+git diff <accepted-base> HEAD --check
+```
+
+Unix uses `.venv/bin/python`. The CPU suite validates synthetic records with an
+independent Draft 2020-12 validator, exercises Project-only I/O in temporary
+folders, blocks optional imports and checks every downstream call shape. It
+performs no media decoding, model inference or ComfyUI queue submission. Node's
+VM-module flag is used only to test the actual frontend module against a
+synthetic native host; those tests are not browser acceptance.
+
+Project load/save supports an existing user-selected local folder, regular files
+and a stable folder layout during operations. Standard Python operations check
+relative paths and regular inputs, stage complete JSON and publish atomically
+where replace/link is supported. Explicit overwrite and the existing cooperative
+publication/revision guard protect normal API saves from stale revisions. Missing,
+malformed and cyclic paths give typed errors. This is ordinary local storage;
+it provides no OS security boundary against another process deliberately changing
+filesystem objects during I/O. See the [storage scope](docs/decisions/M1_LOCAL_STORAGE_SCOPE.md)
+and [validation receipt](docs/validation/M1_FOUNDATION.md) for the changed operating
+assumptions and historical review. POSIX runtime checks remain NOT PERFORMED.
+
+## Project documents
+
+Read the [preserved brief](docs/PROJECT_BRIEF.md),
+[superseding V2V direction](docs/PRODUCT_DIRECTION_V2V.md),
+[pinned research](docs/RESEARCH.md), [architecture](docs/ARCHITECTURE.md),
+[contracts](docs/CONTRACTS.md), [node inventory](docs/NODE_CATALOG.md),
+[workflow specification](docs/WORKFLOW_SPEC.md), [plan](docs/PLAN.md) and
+[task journal](docs/tasks/INDEX.md). The
+[M1 execution decision](docs/decisions/M1_EXECUTION_SCOPE.md) records later
+human authorization and the manual-generation boundary separately from the
+brief. Accepted C0 is `7960568eff779c8c35c3d28a985a243368b91c26`; it includes the
+merged M0 final head. A separately reviewed, checked CF is still pending.
+
+M1-04 prepares a real workflow for the **human** to run. Workers do not perform
+H3/VLM/enhancer generation, download weights or inspect generated user-video
+output. M2/M3 remain gated. A locally supplied sample stays outside public
+artifacts and has not been decoded by foundation.
+
+The brief is preserved byte for byte; the research ledger remains pinned.
+No personal media, model weights or third-party implementation is bundled.
+DaSiWa is visual inspiration only. Project license selection remains open;
+see [notices](NOTICES.md) and the [component license ledger](docs/RESEARCH.md#licenses).

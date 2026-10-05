@@ -1,6 +1,15 @@
 # Architecture proposal
 
-**M0 design only.** Nothing below is an implemented extension, node, module or running service. Read [the unchanged brief](PROJECT_BRIEF.md) then [the superseding direction](PRODUCT_DIRECTION_V2V.md). [Research](RESEARCH.md) records source facts/unknowns; [contracts](CONTRACTS.md) proposes version 2.0.0. [Node catalog](NODE_CATALOG.md) and [workflow specification](WORKFLOW_SPEC.md) describe the complete intended collection. **GPU NOT PERFORMED.**
+**M0 product design with an M1 foundation checkpoint.** Shared 2.0.0 records,
+portable Project I/O, extension discovery and four Project nodes now exist;
+see the actual [handoff](FOUNDATION_HANDOFF.md) and
+[validation](validation/M1_FOUNDATION.md). The broader media/render/editor
+architecture below remains planned. Live registration/UI is BLOCKED and CF is
+unaccepted. [Current execution scope](decisions/M1_EXECUTION_SCOPE.md) assigns
+generation to the human; workers prepare and check the workflow without running
+it. Read [the unchanged brief](PROJECT_BRIEF.md),
+[direction](PRODUCT_DIRECTION_V2V.md) and [pinned research](RESEARCH.md).
+**GPU NOT PERFORMED.**
 
 ## Recommended path
 

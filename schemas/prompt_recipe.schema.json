@@ -1,0 +1,367 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kmin-video-director.invalid/schemas/2.0.0/prompt_recipe.schema.json",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "const": "kmin.prompt_recipe"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^2\\.[0-9]+\\.[0-9]+(?![\\s\\S])"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "required_features": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 96,
+        "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+      },
+      "uniqueItems": true
+    },
+    "extensions": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9_-]+)+(?![\\s\\S])": {}
+      },
+      "additionalProperties": false
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "segment_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "segment_revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "accepted",
+        "superseded"
+      ]
+    },
+    "authored_intent": {
+      "type": "string"
+    },
+    "dialogue_locks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "visible_text_locks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "analysis_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 96,
+        "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+      },
+      "uniqueItems": true
+    },
+    "desired_style": {
+      "type": "string"
+    },
+    "format_id": {
+      "enum": [
+        "h3.base/1",
+        "h3.ref/1"
+      ]
+    },
+    "format_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "guide": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+        },
+        "model_digest": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "const": "sha256"
+                },
+                "hex": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+                }
+              },
+              "required": [
+                "algorithm",
+                "hex"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "mode": {
+      "enum": [
+        "t2va",
+        "i2va",
+        "fl2va",
+        "l2va",
+        "ref2va"
+      ]
+    },
+    "blocks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "final_text": {
+      "type": "string"
+    },
+    "text_digest": {
+      "type": "object",
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "hex": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+        }
+      },
+      "required": [
+        "algorithm",
+        "hex"
+      ],
+      "additionalProperties": false
+    },
+    "event_ranges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "range": {
+            "type": "object",
+            "properties": {
+              "start": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "end": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "start",
+              "end"
+            ],
+            "additionalProperties": false
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "range",
+          "text"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "reference_binding_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 96,
+        "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+      },
+      "uniqueItems": true
+    },
+    "validation": {
+      "type": "object"
+    },
+    "accepted": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "digest": {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "const": "sha256"
+                },
+                "hex": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+                }
+              },
+              "required": [
+                "algorithm",
+                "hex"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "text",
+            "revision",
+            "digest"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "enhancer": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 96,
+              "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+            },
+            "version": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 96,
+              "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+            },
+            "model_digest": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "algorithm": {
+                      "const": "sha256"
+                    },
+                    "hex": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+                    }
+                  },
+                  "required": [
+                    "algorithm",
+                    "hex"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "kind",
+    "schema_version",
+    "id",
+    "project_id",
+    "segment_id",
+    "revision",
+    "segment_revision",
+    "status",
+    "authored_intent",
+    "dialogue_locks",
+    "visible_text_locks",
+    "analysis_ids",
+    "desired_style",
+    "format_id",
+    "format_version",
+    "guide",
+    "mode",
+    "blocks",
+    "final_text",
+    "text_digest",
+    "event_ranges",
+    "reference_binding_ids",
+    "validation",
+    "accepted",
+    "enhancer",
+    "warnings"
+  ],
+  "additionalProperties": false
+}

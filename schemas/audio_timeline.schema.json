@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kmin-video-director.invalid/schemas/2.0.0/audio_timeline.schema.json",
+  "type": "object",
+  "properties": {
+    "mode": {
+      "enum": [
+        "preserve",
+        "generate",
+        "mute"
+      ]
+    },
+    "source_media_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 96,
+          "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source_offset": {
+      "type": "object",
+      "properties": {
+        "num": {
+          "type": "integer",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "den": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "num",
+        "den"
+      ],
+      "additionalProperties": false
+    },
+    "sample_rate": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "channel_layout": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "segment_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96,
+            "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+          },
+          "mode": {
+            "enum": [
+              "preserve",
+              "generate",
+              "mute"
+            ]
+          }
+        },
+        "required": [
+          "segment_id",
+          "mode"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "rounding": {
+      "const": "absolute_half_up"
+    },
+    "sample_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "codec": {
+      "type": "object"
+    },
+    "presentation": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "mode",
+    "source_media_id",
+    "source_offset",
+    "sample_rate",
+    "channel_layout",
+    "decisions",
+    "rounding",
+    "sample_count",
+    "codec",
+    "presentation"
+  ],
+  "additionalProperties": false
+}

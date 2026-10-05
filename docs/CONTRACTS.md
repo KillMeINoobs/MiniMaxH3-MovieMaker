@@ -1,8 +1,25 @@
-# Proposed contracts 2.0.0
+# Contracts 2.0.0
 
-**Proposal only: no schemas, classes, nodes, interfaces or tests are implemented.** Worker interface family: `KVD-WORKER/2.0.0`; serialized record family: `kmin.*`, `schema_version: "2.0.0"`. One foundation owner turns this document into a checked implementation before downstream work. [Research](RESEARCH.md) separates source capabilities from these product policies; [architecture](ARCHITECTURE.md) assigns responsibilities.
+**M1 implementation checkpoint:** schema 2.0.0 records, semantic validation,
+canonical serialization, local Project I/O, migration and four Project nodes
+now exist. Actual imports, signatures, field spellings and extension ownership
+are documented in [FOUNDATION_HANDOFF](FOUNDATION_HANDOFF.md); exported
+[schemas](../schemas/project.schema.json) and synthetic fixtures are checked.
+Media/render/analysis/reference/continuation operations remain future work;
+their protocols are interfaces, not execution handlers. Live registration/UI
+is BLOCKED and CF is not accepted. [Validation](validation/M1_FOUNDATION.md)
+separates CPU evidence from the unperformed browser/media/GPU gates.
+The later [local storage decision](decisions/M1_LOCAL_STORAGE_SCOPE.md) defines
+stable-folder, regular-file operating assumptions and supersedes earlier OS
+isolation claims. Record/window/control validation and 2.0.0 interfaces are unchanged.
 
-Version **2.0.0 supersedes the unimplemented 1.0.0 proposal**: Segment becomes unambiguously editorial (technical splits belong only to GenerationWindow), serialized locators become project-relative only, and Settings uses logical reference bindings plus an explicit prompt-recipe/continuation policy. Those semantic changes justify a major version; new analysis/recipe/binding/state records extend the same family. There is no deployed v1 data or implemented migration assumed. A future explicit v1-example migrator maps boundary/ref/locator meanings, preserves IDs/source bytes, writes a new file and invalidates affected plans; it must not claim compatibility by changing the version string alone. Prompt block format/provider versions are separate from project schema versions.
+The remaining design text and partial JSON examples originated in M0. They
+explain product intent; use the implemented handoff/schemas for exact APIs and
+complete data. Worker interface family: `KVD-WORKER/2.0.0`; serialized record
+family: `kmin.*`, `schema_version: "2.0.0"`. [Research](RESEARCH.md) retains source
+capabilities and pins; [architecture](ARCHITECTURE.md) assigns responsibilities.
+
+Version **2.0.0 supersedes the unimplemented 1.0.0 proposal**: Segment becomes unambiguously editorial (technical splits belong only to GenerationWindow), serialized locators become project-relative only, and Settings uses logical reference bindings plus an explicit prompt-recipe/continuation policy. Those semantic changes justify a major version; new analysis/recipe/binding/state records extend the same family. There is no deployed v1 data. The implemented explicit v1-example migrator maps boundary/ref/locator meanings, preserves IDs/source bytes, writes a new file and invalidates affected plans; it must not claim compatibility by changing the version string alone. Prompt block format/provider versions are separate from project schema versions.
 
 ## Types and compatibility
 
@@ -22,7 +39,7 @@ With a non-null `prompt_recipe_id`, Settings.prompt must match that accepted rec
 
 Every standalone Project, Segment, GenerationWindow, ControlSpec, RenderResult, DetectionProposal, SceneAnalysis, PromptRecipe, ReferenceBinding and ContinuationState has `kind`, `schema_version` and `id`. Nested shared records use the enclosing version. Interface and data version need not advance together; provenance records both. Names are logical proposals, not classes.
 
-Major change: reject unknown major with `UNSUPPORTED_SCHEMA_MAJOR`; preserve the original file and offer an explicit migration, never coerce or downgrade. Minor changes may add optional fields with defined defaults; reject unknown required features/enums, preserve unknown optional extensions in a namespaced `extensions` object on round trip. Patch changes do not change meanings. A future migrator is explicit, deterministic, writes a new file, records from/to version and checksums, retains IDs when semantics permit, and marks affected plans/results stale. No migration code exists in M0.
+Major change: reject unknown major with `UNSUPPORTED_SCHEMA_MAJOR`; preserve the original file and offer an explicit migration, never coerce or downgrade. Minor changes may add optional fields with defined defaults; reject unknown required features/enums, preserve unknown optional extensions in a namespaced `extensions` object on round trip. Patch changes do not change meanings. The v1-example migrator is explicit, deterministic, writes a new file, records from/to version and checksums, retains IDs when semantics permit, and marks affected plans/results stale. M1 implements only the narrow kvd.v1-example/1 profile described in the handoff; other legacy shapes are rejected.
 
 ## MediaRef and source time
 

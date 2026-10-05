@@ -1,0 +1,83 @@
+{
+  "kind": "kmin.generation_window",
+  "schema_version": "2.0.0",
+  "id": "win-1",
+  "extensions": {},
+  "required_features": [],
+  "project_id": "proj-1",
+  "segment_id": "seg-1",
+  "plan_revision": 1,
+  "ordinal": 0,
+  "useful_range": {
+    "start": 0,
+    "end": 180
+  },
+  "inference_frame_count": 192,
+  "output_useful_range": {
+    "start": 0,
+    "end": 180
+  },
+  "input_spans": [
+    {
+      "role": "useful",
+      "inference_range": {
+        "start": 0,
+        "end": 180
+      },
+      "media_id": "media-cfr",
+      "source_range": {
+        "start": 0,
+        "end": 180
+      }
+    },
+    {
+      "role": "padding",
+      "inference_range": {
+        "start": 180,
+        "end": 192
+      },
+      "repeat_frame": 179
+    }
+  ],
+  "context": {
+    "mode": "none",
+    "before": 0,
+    "after": 0,
+    "dependency_result_ids": [],
+    "continuation_state_id": null
+  },
+  "padding": {
+    "before": 0,
+    "after": 12,
+    "method": "repeat_boundary"
+  },
+  "spatial_transform_id": "space-1",
+  "control_spec_id": "ctrl-canny",
+  "render_profile_id": "profile-source-only",
+  "resolved_settings": {
+    "prompt": "A cinematic scene. / Сцена",
+    "prompt_recipe_id": null,
+    "seed": "18446744073709551615",
+    "control_spec_id": "ctrl-canny",
+    "audio_mode": "preserve",
+    "reference_binding_ids": [],
+    "continuity_policy": "none",
+    "spatial_policy": "preserve_display_pad",
+    "render_profile_id": "profile-source-only"
+  },
+  "resolved_settings_digest": {
+    "algorithm": "sha256",
+    "hex": "159fff79ff05ac8bc44edd6a24c686e58984b4d8eb16b9808b1f495eb760a328"
+  },
+  "plan_digest": {
+    "algorithm": "sha256",
+    "hex": "abababababababababababababababababababababababababababababababab"
+  },
+  "generation_key": {
+    "algorithm": "sha256",
+    "hex": "abababababababababababababababababababababababababababababababab"
+  },
+  "compiled_prompt": "A cinematic scene.",
+  "prompt_recipe_id": null,
+  "reference_manifest": []
+}

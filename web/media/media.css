@@ -1,0 +1,6 @@
+.kvd-media-summary {
+  box-sizing: border-box; margin: 0; padding: 9px 12px;
+  border-left: 3px solid #72c7c5; border-radius: 4px;
+  background: #142b30; color: #d8f0ec;
+  font: 12px/1.5 system-ui, sans-serif; white-space: normal;
+}

@@ -1,19 +1,126 @@
 # M1-01 — Portable project and shared foundation
 
-- **Goal:** A user can load/save and validate one portable project; every downstream owner has the same checked interface.
-- **Scope:** Implement the proposed 2.0.0 records, validation/serialization/errors, migration policy/conformance fixtures and import-safe registration skeleton. Sole first owner for shared schemas/helpers/package metadata/dependencies/lockfiles and license/attribution decisions.
-- **Non-goals:** Media decoding, H3/VLM inference, timeline UI, model download or user-environment changes.
-- **Inputs/read paths:** AGENTS.md, README.md, docs/PROJECT_BRIEF.md, docs/PRODUCT_DIRECTION_V2V.md, docs/RESEARCH.md, docs/ARCHITECTURE.md, docs/CONTRACTS.md, docs/NODE_CATALOG.md, docs/WORKFLOW_SPEC.md, docs/PLAN.md, docs/tasks/INDEX.md and this card.
-- **Outputs/new paths (proposed):** schemas/project.schema.json and other shared record schemas; kmin_video_director/contracts/; shared registration/version/errors; root package/dependency files and chosen lockfile; tests/contracts/, tests/imports/; contract/license documentation.
-- **Dependencies/base commit:** Human-reviewed revised M0 C0; full SHA UNASSIGNED. Do not start on main or assume first M0 is integrated. Verify assigned actual C0 HEAD/read paths, implement/review/check/integrate CF and record its full SHA before dependent starts. Research/document base D0 is 1bfcc50e204797862b2bbc014fce00e4694c122c; it is not an automatic launch base.
-- **Interfaces:** KVD-WORKER/2.0.0; kmin.* schema 2.0.0. Publish conformance fixtures for media/render and later draft/binding/state interfaces, with unsupported runtime features rejected.
-- **Acceptance:** Stable IDs/hashes/Unicode/project-relative paths/overrides round-trip; reject absolute/traversal locators, unknown major/required features and invalid ranges/seeds/digests; explicit migration preserves original; deterministic cache defaults; project can load/save without optional Depth/Pose/VLM/enhancer/models. Shared license/notices reviewed before distribution.
-- **Checks:** Future python -m pytest tests/contracts tests/imports; schema/conformance JSON parse, import with optional packages absent, public-path/privacy and git diff --check. No GPU PASS from these checks.
-- **Environment:** CPU Windows-compatible environment assigned separately; no mandatory WSL. Verification dependencies may be used/installed only within future assignment scope, never inferred from M0.
-- **GPU ownership:** None; do not access GPU/ComfyUI runtime. Future real consumers use one allocated sequential owner.
-- **Publication/review:** NOT STARTED; this M0 does not authorize implementation/publishing. Later assignment supplies scope; one owner includes ordinary tests/docs, separate AO reviewer, fixes return to owner. No private assets/session/auth/machine diagnostics in public outputs.
-- **Status/blockers:** PROPOSED / NOT STARTED; required common SHA, owner, implementation/environment/publication allocation not supplied. GPU NOT PERFORMED. Technical gates above are future blockers, not evidence of a failed run.
+- **Goal:** Load/save and validate portable Projects; downstream owners share one checked interface.
+- **Owner/status:** Assigned foundation owner; reviewed ac335 deployed, four-class registration/served source PASS. Ordinary selector partial browser evidence; complete native graph/layout BLOCKED. Coherent F15/F16/shared-test correction needs pinned review; CF unaccepted.
+- **Base:** Accepted C0 `7960568eff779c8c35c3d28a985a243368b91c26`, including M0 final `9dac703183e3e56929432054f5ebc6d63c26d8e2`. The preserved brief and source ledger are unchanged.
+- **Scope:** Validated/versioned 2.0.0 records, schemas, canonical JSON, settings inheritance, ordinary local Project I/O with relative-path checks and cooperative publication/revision leases, explicit migration/errors/cache conventions, import-safe extension discovery and four Project nodes. Persisted English/Russian presentation with stable semantics. The [local storage decision](../decisions/M1_LOCAL_STORAGE_SCOPE.md) supersedes earlier OS isolation claims.
+- **Shared ownership:** schemas/, kmin_video_director/contracts/, common errors/version/registration/helpers, root package/dependencies/lockfile, frontend settings/translations/tokens, notices, README and central PLAN/INDEX. Owned downstream modules/tests extend through documented discovery without changing shared files.
+- **Non-goals:** Media decoding, H3/VLM/enhancer inference, model downloads, timeline editor, fake downstream operations or worker GPU generation.
+- **Read paths:** AGENTS, README, preserved brief, PRODUCT_DIRECTION_V2V, RESEARCH, ARCHITECTURE, CONTRACTS, NODE_CATALOG, WORKFLOW_SPEC, PLAN, INDEX and all M1 cards. Later human direction is recorded separately in [execution scope](../decisions/M1_EXECUTION_SCOPE.md).
+- **Implemented outputs:** 16 schemas; 15 conformance record fixtures; contracts/common registration/root package; web/; contracts/import/UI tests; [handoff](../FOUNDATION_HANDOFF.md); [validation](../validation/M1_FOUNDATION.md); NOTICES; synthetic Project UI workflow.
+- **Interfaces:** `KVD-WORKER/2.0.0`, `kmin.*` schema2.0.0. Actual import paths/types/call signatures and all-nine typed examples are in the handoff. No registered handler for ProbeMedia, NormalizeMedia, PlanWindows, PrepareWindow, BuildControl, CompileWindowPrompt, ExpandNativeRender, FinalizeWindow or AssembleExport.
+- **CPU acceptance:** Windows synthetic records/import/serialization/schema/I/O/conformance and meaningful review regressions pass. Relative Unicode paths, safe integers/u64 seeds, version/features, malformed fields and source-preserving migration are covered. Optional dependencies are absent from imports.
+- **UI acceptance:** Helper semantics pass; discoverable persisted EN/RU switch and scoped presentation are implemented. Human restart and four-class registration passed at205. The opt-in fixture aborted loading and the old checker falsely logged PASS. Its correction has synthetic negative/success tests; actual layout/screenshots/language save-reload remain BLOCKED pending review and fresh browser checks.
+- **Environment:** Isolated verification venv only; Python stdlib runtime, no required WSL. Windows normal-use I/O verified; POSIX runtime/FIFO checks NOT PERFORMED. Prior adversarial checks are historical, not current storage acceptance.
+- **Resource ownership:** Sole shared-ComfyUI registration/UI owner until explicit release. Own namespaced snapshot only; no core/other-pack/settings changes or lifecycle workaround. Generation reservation NONE; GPU NOT PERFORMED.
+- **Publication/review:** Own feature branch/SSH push and one draft [PR2](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2) are authorized. Exact corrected SHA/clean tree/receipts go through AO for separate review. No main merge or self-review claim.
+- **Dependent gate:** Full CF/UI remains unaccepted. The coordinator released M1-02 CPU-only work after preflight from exact source-reviewed ac335; no runtime/browser/GPU grant. Other launches and integration require exact checked assigned SHAs.
 
 ## Journal
 
-First M0 established the short proof and shared-base policy. M0-V2V-REVISION reconciles this outcome with the updated product direction and proposed 2.0.0 interfaces. No code, fixture/media generation, dependency install, inference or task launch occurred.
+M0 was documentation only. Later human direction authorized M1 implementation
+and registration/UI-only runtime checking. Initial lock was released after C0,
+brief and private native/client preflight checks. The first published candidate
+was `12feb672faafadd417936a92b0a13f9bd4d336e3`; follow-up
+`260a37dadc04477d1d0779f188ffaf5ebff0c35b` fixed EOF, per-side overhead and
+control/stream checks. Separate review requested F1-F9 corrections; owner
+regressions reproduced them and the next corrected candidate is pinned through
+AO/PR. See the validation matrix for each fix. Artifact publication is not CF
+acceptance. Live checks stay BLOCKED; shared-runtime ownership stays retained.
+
+The final review of `fdce306ce6b7ac4c38491b593b6a821555d224c3` confirmed F2-F9
+resolved, found F1b still open for in-place junction changes, F10 raw cyclic-path
+errors and source-derived F11 FIFO blocking. Later human direction explicitly
+narrowed storage to stable local folders and regular files. The owner preserved
+F10 typed resolution, replaced the special isolation layer with standard Python
+I/O and retained revision/lease semantics. Historical F1b is not labelled fixed;
+two obsolete adversarial rename tests are retired. Normal-use/error regressions
+and the new exact candidate require review against the declared revised contract.
+Schema/interface 2.0.0, nodes and nine signatures remain unchanged. See validation
+for fresh counts; no approval is inherited from the earlier head.
+
+Independent review approved exact `20541f938306ff6bbf80c01565fd318ea3bcbd82` for
+source/CPU under ordinary stable local storage. Its 97-file snapshot was
+deployed, then human-restarted. Live catalog/MCP registered all four Project
+classes with matching schemas; the registration fixture validated without
+errors. No ComfyUI node/workflow was executed.
+
+The dedicated browser fixture showed a null-canvas loading error while its old
+checker reported PASS. This is rejected evidence. That earlier source follow-up started
+only after the native graph-load hook, requires each load's successful boolean
+result, checks original fixture semantics and restores the initial KVD language
+on failed roundtrips. Ten actual-module tests against a synthetic host reproduce
+negative paths and successful metadata roundtrip/persist; the existing
+presentation test remains passing. Startup timing remains source-derived until
+the corrected browser path is checked. Foreign-pack errors stay separate; no
+foreign fix, deployed patch or additional restart is performed. The new exact
+candidate needs independent pinned review, then actual EN/RU screenshots and
+save/reload evidence before CF. Shared-runtime allocation remains retained.
+
+Exact `31f242a12adf5facb1e5ccba798f1d0c64f1b9da` review requested F12/F13
+changes: the native void setting setter hid pending/rejected persistence and
+restoration, and the checker accepted missing panels after reload. The owner
+reproduced these cases; coordinator scope included the same source-derived
+ordinary-selector defect. Both paths now use the shared awaited setter and
+status-checked per-key readback, with honest current/stored/recovery evidence
+and localized save errors. Graph/canvas/panels and semantic data are checked
+after required loads and before final checker acceptance. Source/CPU checks
+passed and independent review approved ac335. Its exact 100-file archive was
+deployed with identical backend; six served own assets and the four-class live
+catalog were verified. Actual ordinary selection saved RU and restored
+effective EN with server readback; other preferences stayed unchanged. Complete
+layout/native load/save/reload remain blocked. A fresh checker-disabled client
+restored synthetic metadata/panels but workflow controls were covered by a
+loading overlay; screenshot capture and complete native serialization were
+unavailable.
+
+Actual served native code returns a boolean; a served wrapper awaits and drops
+that return. This is source evidence; the awaited runtime value remains
+unrecorded. The scoped checker follow-up records actual return/type/stack and
+readiness, correlates all four native hooks per requested load, and requires
+exact fixture data/panels/canvas after every load. Void without that proof,
+hidden aborts and missing/duplicate/reordered hooks reject. The 29 frontend
+checks passed at daf57, retaining F12/F13, but its independent
+[review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2#pullrequestreview-5414488723)
+found indefinite pending-load/recovery and current/stale marker leaks (F15/F16).
+The owner reproduced them before correcting bounded failure-only deadlines,
+all-outcome matching-ID cleanup and marker-free cloned input/output/cache.
+Late fulfillment/rejection cannot revive PASS, retry or erase a newer marker.
+Verified recovery remains required. Extension-aware shared tests now retain
+foundation IDs as a subset and evaluate every owned metadata class under missing
+optional packages; nine signature examples do not assume an empty default
+registry or invoke handlers. Explicitly empty and extension-present registry
+cases preserve unsupported/discovery/duplicate/broken-import coverage.
+Fresh 36 frontend and 29 focused shared tests pass as owner evidence. This
+coherent candidate requires independent pinned review before deployment;
+installed ac335 stays unchanged.
+Shared-runtime allocation is retained and CF remains unaccepted. No node,
+workflow, model, media or GPU execution occurred.
+
+The later exact-c923 source/synthetic review approved that correction. Its
+approved archive was deployed with unchanged backend; the single live fixture
+attempt then rejected a stable serialization mismatch. The failed projection
+was not captured, so no exact changed field or cause is established. Registration
+and ordinary EN/RU save/readback/restoration do not accept the blocked graph,
+layout or CF gates.
+
+The current local-only diagnostics preparation retains the existing rejection
+and recovery rules and records complete stable projections plus a typed first
+JSON-path difference on semantic failure, or explicitly unavailable capture.
+The source-preparation fallback finding PREP-DIAG1 was reproduced and corrected:
+unavailable diagnostics have guarded, bounded error formatting and a complete
+envelope budget check, retaining original rejection/cleanup/verified recovery.
+Owner checks passed; that local c08 candidate subsequently received independent
+source/synthetic approval and was separately deployed for one diagnostic attempt.
+Published PR2 remains exact c923. Its strict failure captured six added unlinked
+native widget sockets; all other stable fields and two links were unchanged.
+Native source explains the input contract, while the exclusive runtime writer
+remains unknown. The two owned fixtures now explicitly declare those six inputs,
+with a focused source-supported synthetic normalization regression. No comparator,
+backend/interface or ordinary-selector change belongs to this correction. Its
+new local candidate requires separate exact review; no publication/deployment or
+corrected browser retry is released. Installed c08 remains fixed. Four selectors/
+captions were observed, only three help/status blocks; the fourth is unobserved.
+Screenshot 10060 produced no image. Full graph/reload/layout/CF remains blocked.
+M1-02/M1-03 CPU-only work has separate exact-common-base releases; shared runtime,
+CF and native H3/GPU acceptance remain ungranted.

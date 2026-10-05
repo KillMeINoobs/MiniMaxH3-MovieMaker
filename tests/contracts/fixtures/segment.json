@@ -1,0 +1,25 @@
+{
+  "kind": "kmin.segment",
+  "schema_version": "2.0.0",
+  "id": "seg-1",
+  "extensions": {},
+  "required_features": [],
+  "revision": 1,
+  "project_id": "proj-1",
+  "useful_range": {
+    "start": 0,
+    "end": 360
+  },
+  "source_range": {
+    "start": 0,
+    "end": 360
+  },
+  "source_media_id": "media-cfr",
+  "boundary_before": "first",
+  "continuity_group_id": "shot-1",
+  "overrides": {},
+  "analysis_ids": [],
+  "prompt_draft_ids": [],
+  "selected": true,
+  "passthrough": false
+}

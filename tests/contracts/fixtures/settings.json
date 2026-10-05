@@ -1,0 +1,11 @@
+{
+  "prompt": "A cinematic scene. / Сцена",
+  "prompt_recipe_id": null,
+  "seed": "18446744073709551615",
+  "control_spec_id": "ctrl-canny",
+  "audio_mode": "preserve",
+  "reference_binding_ids": [],
+  "continuity_policy": "none",
+  "spatial_policy": "preserve_display_pad",
+  "render_profile_id": "profile-source-only"
+}

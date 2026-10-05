@@ -1,0 +1,30 @@
+{
+  "id": "profile-source-only",
+  "version": "native-h3/1",
+  "evidence": "source_only",
+  "receipts": [],
+  "fps": {
+    "num": 24,
+    "den": 1
+  },
+  "lattice": {
+    "offset": 5,
+    "step": 17
+  },
+  "shape_min": 5,
+  "policy_inference_min": 124,
+  "policy_inference_max": 345,
+  "policy_duration_max": {
+    "num": 15,
+    "den": 1
+  },
+  "grid": 32,
+  "base_family": "ref2va",
+  "components": {},
+  "node_signatures": {},
+  "core_revision": "b87fe48b0491425f682f7ffdaed56d0387cb6c5d",
+  "runtime": {},
+  "sampling": {},
+  "control_branch": {},
+  "memory_policy": "one_window"
+}

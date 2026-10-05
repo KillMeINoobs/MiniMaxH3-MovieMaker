@@ -1,0 +1,36 @@
+{
+  "kind": "kmin.render_result",
+  "schema_version": "2.0.0",
+  "id": "result-1",
+  "extensions": {},
+  "required_features": [],
+  "request_id": "request-1",
+  "attempt": 1,
+  "project_id": "proj-1",
+  "segment_id": "seg-1",
+  "window_id": "win-1",
+  "generation_key": {
+    "algorithm": "sha256",
+    "hex": "abababababababababababababababababababababababababababababababab"
+  },
+  "status": "planned",
+  "stage": "prepare",
+  "progress": {
+    "done": 0,
+    "total": 1,
+    "unit": "window"
+  },
+  "artifacts": [],
+  "coverage": null,
+  "audio": null,
+  "provenance": {},
+  "validation": {
+    "evidence_kind": "mock",
+    "gpu": "not_performed",
+    "receipts": []
+  },
+  "error": null,
+  "warnings": [
+    "Synthetic metadata; no execution."
+  ]
+}

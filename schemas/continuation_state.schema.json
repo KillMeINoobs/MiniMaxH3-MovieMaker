@@ -1,0 +1,654 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kmin-video-director.invalid/schemas/2.0.0/continuation_state.schema.json",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "const": "kmin.continuation_state"
+    },
+    "schema_version": {
+      "type": "string",
+      "pattern": "^2\\.[0-9]+\\.[0-9]+(?![\\s\\S])"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "required_features": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 96,
+        "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+      },
+      "uniqueItems": true
+    },
+    "extensions": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z][A-Za-z0-9_-]*(?:\\.[A-Za-z0-9_-]+)+(?![\\s\\S])": {}
+      },
+      "additionalProperties": false
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "segment_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "window_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "continuity_group_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "predecessor_result_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "predecessor_digest": {
+      "type": "object",
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "hex": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+        }
+      },
+      "required": [
+        "algorithm",
+        "hex"
+      ],
+      "additionalProperties": false
+    },
+    "profile_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "component_signatures": {
+      "type": "object"
+    },
+    "geometry": {
+      "type": "object"
+    },
+    "latent_signatures": {
+      "type": "object"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 96,
+            "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+          },
+          "role": {
+            "enum": [
+              "source_video",
+              "reference_image",
+              "reference_video",
+              "reference_audio",
+              "prepared_video",
+              "control_map",
+              "render_video",
+              "audio_pcm"
+            ]
+          },
+          "locator": {
+            "type": "object",
+            "properties": {
+              "scheme": {
+                "const": "project_relative"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "scheme",
+              "path"
+            ],
+            "additionalProperties": false
+          },
+          "fingerprint": {
+            "type": "object",
+            "properties": {
+              "digest": {
+                "type": "object",
+                "properties": {
+                  "algorithm": {
+                    "const": "sha256"
+                  },
+                  "hex": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+                  }
+                },
+                "required": [
+                  "algorithm",
+                  "hex"
+                ],
+                "additionalProperties": false
+              },
+              "byte_size": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "mtime_ns": {
+                "type": "string",
+                "pattern": "^(0|[1-9][0-9]*)(?![\\s\\S])"
+              },
+              "video_stream": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "audio_stream": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "probe_version": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 96,
+                "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+              },
+              "decoder_version": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 96,
+                "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+              }
+            },
+            "required": [
+              "digest",
+              "byte_size",
+              "mtime_ns",
+              "video_stream",
+              "audio_stream",
+              "probe_version",
+              "decoder_version"
+            ],
+            "additionalProperties": false
+          },
+          "probe": {
+            "type": "object",
+            "properties": {
+              "video": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "codec": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+                      },
+                      "stream_index": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "time_base": {
+                        "type": "object",
+                        "properties": {
+                          "num": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "den": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "num",
+                          "den"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "first_pts": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "end_pts": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "pts_digest": {
+                        "type": "object",
+                        "properties": {
+                          "algorithm": {
+                            "const": "sha256"
+                          },
+                          "hex": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+                          }
+                        },
+                        "required": [
+                          "algorithm",
+                          "hex"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "rate": {
+                        "type": "object",
+                        "properties": {
+                          "num": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "den": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "num",
+                          "den"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "vfr": {
+                        "type": "boolean"
+                      },
+                      "width": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 9007199254740991
+                      },
+                      "height": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 9007199254740991
+                      },
+                      "rotation": {
+                        "type": "number"
+                      },
+                      "sar": {
+                        "type": "object",
+                        "properties": {
+                          "num": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "den": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "num",
+                          "den"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "display_matrix": {
+                        "type": "array",
+                        "items": {
+                          "type": "number"
+                        }
+                      },
+                      "color": {
+                        "type": "string"
+                      },
+                      "pixel_format": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "codec",
+                      "stream_index",
+                      "time_base",
+                      "first_pts",
+                      "end_pts",
+                      "pts_digest",
+                      "rate",
+                      "vfr",
+                      "width",
+                      "height",
+                      "rotation",
+                      "sar",
+                      "display_matrix",
+                      "color",
+                      "pixel_format"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "audio": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "codec": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 96,
+                        "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+                      },
+                      "stream_index": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "time_base": {
+                        "type": "object",
+                        "properties": {
+                          "num": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "den": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "num",
+                          "den"
+                        ],
+                        "additionalProperties": false
+                      },
+                      "first_pts": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "sample_rate": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 9007199254740991
+                      },
+                      "channels": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 9007199254740991
+                      },
+                      "skip_samples": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "codec",
+                      "stream_index",
+                      "time_base",
+                      "first_pts",
+                      "sample_rate",
+                      "channels"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "video",
+              "audio"
+            ],
+            "additionalProperties": false
+          },
+          "availability": {
+            "enum": [
+              "available",
+              "missing",
+              "changed"
+            ]
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "stage": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 96,
+                    "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  },
+                  "details": {
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "code",
+                  "message",
+                  "stage",
+                  "retryable",
+                  "details"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "locator",
+          "fingerprint",
+          "probe",
+          "availability",
+          "error"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "last_useful_global_end": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "last_useful_local_end": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "video_tail_range": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "additionalProperties": false
+    },
+    "audio_tail_range": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            }
+          },
+          "required": [
+            "start",
+            "end"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "mapping_recipe": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 96,
+      "pattern": "^[^\\x00-\\x1f\\x7f]+(?![\\s\\S])"
+    },
+    "overlap_frames": {
+      "enum": [
+        5,
+        22,
+        39,
+        56
+      ]
+    },
+    "audio_correction": {
+      "type": "object"
+    },
+    "validity": {
+      "enum": [
+        "unverified",
+        "valid",
+        "stale",
+        "incompatible"
+      ]
+    },
+    "evidence": {
+      "enum": [
+        "source_only",
+        "load_verified",
+        "gpu_verified"
+      ]
+    },
+    "generation_key": {
+      "type": "object",
+      "properties": {
+        "algorithm": {
+          "const": "sha256"
+        },
+        "hex": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])"
+        }
+      },
+      "required": [
+        "algorithm",
+        "hex"
+      ],
+      "additionalProperties": false
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    }
+  },
+  "required": [
+    "kind",
+    "schema_version",
+    "id",
+    "project_id",
+    "segment_id",
+    "window_id",
+    "continuity_group_id",
+    "predecessor_result_id",
+    "predecessor_digest",
+    "profile_id",
+    "component_signatures",
+    "geometry",
+    "latent_signatures",
+    "artifacts",
+    "last_useful_global_end",
+    "last_useful_local_end",
+    "video_tail_range",
+    "audio_tail_range",
+    "mapping_recipe",
+    "overlap_frames",
+    "audio_correction",
+    "validity",
+    "evidence",
+    "generation_key",
+    "revision"
+  ],
+  "additionalProperties": false
+}

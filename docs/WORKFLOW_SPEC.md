@@ -1,6 +1,14 @@
 # Future ready-workflow specification
 
-**PROPOSED, NOT EXECUTABLE.** This document and its diagram are not a ComfyUI workflow JSON. No KVD nodes are registered or implementation present. The upstream native template is a source recipe, not our ready product workflow or a tested installation. **GPU NOT PERFORMED**. Future assets must meet the acceptance below before README can call them ready.
+**Future V2V workflow acceptance.** This document and its diagram are not a
+ComfyUI workflow JSON. M1 foundation implements four Project classes and a
+[synthetic Project UI fixture](../workflows/foundation_project.json); live
+registration/load remains BLOCKED. That fixture has no generation nodes and
+does not satisfy this V2V workflow outcome. The upstream native template is a
+source recipe, not our tested installation. M1-04 prepares a real workflow for
+the human to run under [current scope](decisions/M1_EXECUTION_SCOPE.md).
+**GPU NOT PERFORMED**. Future assets must meet the acceptance below before
+README can call them ready.
 
 ## User flow and proposed wiring
 

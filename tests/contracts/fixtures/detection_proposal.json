@@ -1,0 +1,25 @@
+{
+  "kind": "kmin.detection_proposal",
+  "schema_version": "2.0.0",
+  "id": "cut-1",
+  "extensions": {},
+  "required_features": [],
+  "project_id": "proj-1",
+  "canonical_media_id": "media-cfr",
+  "source_digest": {
+    "algorithm": "sha256",
+    "hex": "abababababababababababababababababababababababababababababababab"
+  },
+  "boundary_frame": 180,
+  "detector": {
+    "id": "synthetic",
+    "version": "1",
+    "parameters": {}
+  },
+  "score": 0.5,
+  "score_scale": "illustration",
+  "evidence_media_ids": [],
+  "state": "proposed",
+  "accepted_boundary": null,
+  "decision_revision": 0
+}
