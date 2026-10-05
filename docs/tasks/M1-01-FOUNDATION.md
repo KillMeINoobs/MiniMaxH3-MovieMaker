@@ -96,3 +96,21 @@ coherent candidate requires independent pinned review before deployment;
 installed ac335 stays unchanged.
 Shared-runtime allocation is retained and CF remains unaccepted. No node,
 workflow, model, media or GPU execution occurred.
+
+The later exact-c923 source/synthetic review approved that correction. Its
+approved archive was deployed with unchanged backend; the single live fixture
+attempt then rejected a stable serialization mismatch. The failed projection
+was not captured, so no exact changed field or cause is established. Registration
+and ordinary EN/RU save/readback/restoration do not accept the blocked graph,
+layout or CF gates.
+
+The current local-only diagnostics preparation retains the existing rejection
+and recovery rules and records complete stable projections plus a typed first
+JSON-path difference on semantic failure, or explicitly unavailable capture.
+The source-preparation fallback finding PREP-DIAG1 was reproduced and corrected:
+unavailable diagnostics have guarded, bounded error formatting and a complete
+envelope budget check, retaining original rejection/cleanup/verified recovery.
+Owner checks pass; separate pinned source review is pending. Published PR2 and
+deployment remain exact c923. No publication/deployment/live retry is released.
+M1-02/M1-03 CPU-only work has separate exact-common-base releases; shared runtime,
+CF and native H3/GPU acceptance remain ungranted.

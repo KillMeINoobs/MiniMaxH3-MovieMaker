@@ -19,14 +19,14 @@ It does **not** accept CF; a separate reviewer checks the pinned final candidate
 | Shared import/conformance amendment | PASS: 29 focused Python tests in the two shared modules; extension-present, missing-foundation-ID, eager-dependency, discovery/duplicate/broken-import and explicitly empty-registry cases. |
 | Optional dependencies absent | PASS: subprocess blocks media/model/ComfyUI/schema packages and checks every discovered owned class/INPUT_TYPES. A synthetic added node is accepted; eager dependencies at import or metadata stages reject. |
 | Nine downstream callable interfaces | PASS: typed examples bind signatures/types without handler discovery/invocation or I/O. All nine names reject against an explicitly empty registry; discovered guard handlers do not affect call examples. |
-| EN/RU selector/helper/checker regressions | PASS: 36 Node checks; presentation invariants, six actual-selector tests and 29 actual-checker tests against synthetic native hosts. They do not prove browser appearance/persistence. |
+| EN/RU selector/helper/checker regressions | Local follow-up PASS: 43 Node checks; presentation invariants, six actual-selector tests and 36 actual-checker tests against synthetic native hosts. New candidate review is pending; these tests do not prove browser appearance/persistence. |
 | Frontend syntax | PASS: presentation, verified language helper, extension and opt-in checker parse. |
 | Diff/brief/ledger/privacy | Checked before publication; final exact receipts are recorded with the candidate in AO. |
-| Live `/object_info` registration | PASS: human-restarted reviewed205 registered four classes; reviewed ac335 archive retains the identical backend. Fresh actual catalog/MCP agree on all four classes and metadata. Readonly fixture validation has zero errors and one intentional disconnected-load warning. |
-| Served own frontend | PASS at deployed ac335: six served assets byte-match its approved archive. No restart or deployed patch was used for that refresh. |
-| Ordinary EN/RU selector | PARTIAL browser acceptance: actual selector interaction showed English/Russian panel help/status, stored RU with status-checked readback, then restored effective EN. Other preference hashes stayed unchanged; a fresh ordinary client displayed RU. Full layout and graph invariants remain unaccepted. |
-| Actual frontend console/layout | BLOCKED: current ac335 checker truthfully reports an incomplete native load; exact return/type is absent from that receipt. Screenshot capture timed out; no accepted screenshots or complete layout inspection. Historical null-canvas/invalid PASS evidence and foreign-pack errors are recorded separately. |
-| Native workflow load/save/reload | BLOCKED: ordinary checker-disabled client restores synthetic metadata/panels, but a loading overlay prevents further workflow controls. An intended reload returned ERR_ABORTED and is not accepted as a completed roundtrip. |
+| Live `/object_info` registration | Retained PASS: human-restarted reviewed205 registered four classes; later reviewed c923 has the identical backend. Actual catalog/MCP agree on four classes and metadata. Readonly fixture validation has zero errors and one intentional disconnected-load warning. No live calls occurred during this local diagnostics follow-up. |
+| Served own frontend | Retained PASS at deployed c923: six served assets byte-match its approved archive. No restart or deployed patch was used for that refresh. The local diagnostics candidate is not deployed. |
+| Ordinary EN/RU selector | PARTIAL browser acceptance at c923: actual selector showed four English/Russian help/status panels, stored RU with status-checked readback, then restored the original explicitly stored EN. Other preferences stayed unchanged. Fresh-client/page-reload RU persistence, full layout and graph invariants remain unaccepted. |
+| Actual frontend console/layout | BLOCKED at c923: the first native load fulfilled with `undefined` and ordered correlated completion, then rejected a stable fixture mismatch. Its exact differing field/cause is unknown. Screenshot capture timed out with no image or accepted layout. Historical and foreign/unattributed errors are separate. |
+| Native workflow load/save/reload | BLOCKED at c923: one roundtrip attempt failed its first stable projection comparison. No second load, checker retry or persist phase was performed. Four nodes/panels/two links alone do not establish all values, ports, order or custom titles. |
 | POSIX local I/O/FIFO runtime | NOT PERFORMED in this Windows session; platform-specific FIFO test is skipped. Windows unit test uses a synthetic nonregular stat result to check rejection before open. |
 | CPU media decoding / real user video | NOT PERFORMED by foundation. |
 | H3/VLM/enhancer generation / GPU / quality / fit | NOT PERFORMED. No queue submission, model load, weight download or output inspection. |
@@ -298,7 +298,50 @@ Before accepting CF, record actual registration/import, absence of actionable
 errors from this pack,
 discoverable switch, readable layout and save/reload evidence on the same
 reviewed deployed snapshot. Until then these rows stay BLOCKED and downstream
-implementation remains gated. Shared-runtime ownership has not been released.
+runtime/browser acceptance remains gated. The coordinator separately released
+M1-02 and M1-03 CPU-only source work on each assignment's exact reviewed checked
+common base. Their implementation/review does not accept CF, allocate the shared
+runtime or establish native H3/GPU execution. Shared-runtime ownership has not
+been released.
+
+## Failure-time diagnostics: local follow-up from c923
+
+Exact c923 (`c923d9e4292ea40e4a3f37f2feace8fa252eecb4`) received independent
+source/synthetic approval and was deployed for the one bounded live attempt.
+The saved FAIL receipt contains lifecycle/identity/return evidence but no actual
+failed stable projection. All three observed Project JSON widget values match
+the fixture exactly; that does not establish every projected field. No native,
+own-presentation or foreign-hook cause is inferred.
+
+The local checker amendment captures complete expected/actual stable
+projections and `first_difference` at the existing failed comparison, tied to
+its stage and native load ID when applicable. Paths use bracket JSON notation;
+both sides include `present`, JSON `type` and the exact `value` when present.
+Missing fields/indices, null, type/value changes and object-key order remain
+distinct. The same untruncated JSON strings still decide equality; labels,
+titles and layout remain outside that projection, with titles checked separately.
+
+The complete diagnostic envelope has a 262,144-code-unit budget. Excess size or
+capture failure reports unavailable evidence, preserves the original mismatch
+error and does not emit partial projections or a claimed first difference.
+Unavailable error formatting is guarded and limited to 1,024 code units,
+with explicit truncation status and a budget check of the entire envelope.
+If that metadata cannot be represented within budget, a small fixed unavailable
+receipt is used. Focused red-to-green tests reproduce the source-preparation
+finding PREP-DIAG1: overlong and unprintable diagnostic errors previously escaped
+that bound or replaced the original mismatch. Both now retain the original
+FAIL/cleanup and verified recovery after RU. A dedicated opaque-JSON test also
+retains the original comparator's object-key-order rejection.
+Earlier native serialization errors likewise retain their original error.
+Cleanup, deadlines, verified preference recovery and all failure/PASS criteria
+are unchanged. The new actual-module synthetic cases cover values, ports,
+links, identity, absent fields/indices, deterministic first-path order, cosmetic
+invariance, post-RU recovery, unavailable/budgeted capture and original-error
+preservation. The 43 frontend tests pass locally; eight focused
+registration/import checks from the initial local preparation are retained.
+Unchanged backend/I/O suites were not rerun. A separate exact
+source review is pending. No new browser/MCP/runtime call, deployment,
+publication or corrected live PASS occurred for this preparation.
 
 ## Integrity and public artifacts
 

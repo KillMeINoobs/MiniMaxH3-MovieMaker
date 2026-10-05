@@ -11,6 +11,70 @@ function semanticWorkflow(graph) {
     outputs:(n.outputs || []).map(({name,type,links}) => ({name,type,links:links || []}))})), links:graph.links});
 }
 function check(value, message) { if (!value) throw new Error(message); }
+const DIAGNOSTIC_CHARACTER_LIMIT = 262144;
+function firstStableDifference(expected, actual) {
+  const type = value => value === null ? 'null' : Array.isArray(value) ? 'array' : typeof value;
+  const side = (value,present) => present ? {present:true,type:type(value),value} : {present:false,type:'missing'};
+  const pending = [{expected,actual,path:'$',expectedPresent:true,actualPresent:true}];
+  while (pending.length) {
+    const item = pending.pop();
+    const {expected:a,actual:b,path,expectedPresent,actualPresent} = item;
+    const difference = kind => ({path,kind,expected:side(a,expectedPresent),actual:side(b,actualPresent)});
+    if (!expectedPresent || !actualPresent) return difference(item.missingKind);
+    const kind = type(a);
+    if (kind !== type(b)) return difference('type');
+    if (kind !== 'array' && kind !== 'object') {
+      if (a !== b) return difference('value');
+      continue;
+    }
+    const keysA = Object.keys(a), keysB = Object.keys(b);
+    if (kind === 'object' && keysA.length === keysB.length && keysA.every(k=>Object.hasOwn(b,k)) &&
+      keysA.some((k,i)=>k !== keysB[i])) return difference('object_key_order');
+    const keys = kind === 'array' ? Array.from({length:Math.max(a.length,b.length)},(_,i)=>i) :
+      [...keysA,...keysB.filter(k=>!Object.hasOwn(a,k))];
+    for (let i=keys.length-1;i>=0;i--) {
+      const key = keys[i];
+      pending.push({expected:a[key],actual:b[key],path:path+'['+JSON.stringify(key)+']',
+        expectedPresent:Object.hasOwn(a,key),actualPresent:Object.hasOwn(b,key),
+        missingKind:kind === 'array' ? 'missing_index' : 'missing_field'});
+    }
+  }
+  return null;
+}
+function checkStableWorkflow(actual, expected, message, receipt, loadId=null) {
+  // Equality uses the original full JSON strings, never the diagnostic budget or diff.
+  if (actual !== expected) {
+    const details = {stage:message,load_id:loadId,comparison:'exact_stable_json',
+      expected_characters:expected.length,actual_characters:actual.length,
+      limit_characters:DIAGNOSTIC_CHARACTER_LIMIT};
+    try {
+      if (expected.length + actual.length > DIAGNOSTIC_CHARACTER_LIMIT)
+        throw new Error('Stable projections exceed the diagnostic character limit');
+      const expectedProjection = JSON.parse(expected), actualProjection = JSON.parse(actual);
+      const firstDifference = firstStableDifference(expectedProjection,actualProjection);
+      if (!firstDifference) throw new Error('First stable field difference unavailable');
+      const diagnostic = {...details,status:'captured',expected_projection:expectedProjection,
+        actual_projection:actualProjection,first_difference:firstDifference};
+      if (JSON.stringify(diagnostic).length > DIAGNOSTIC_CHARACTER_LIMIT)
+        throw new Error('Stable projections and first difference exceed the diagnostic character limit');
+      receipt.semantic_failure = diagnostic;
+    } catch (error) {
+      let captureError = 'Diagnostic error formatting unavailable';
+      try { captureError = String(error?.message ?? error); } catch {}
+      const unavailable = {...details,status:'unavailable',capture_error:captureError.slice(0,1024),
+        capture_error_truncated:captureError.length > 1024};
+      try {
+        if (JSON.stringify(unavailable).length > DIAGNOSTIC_CHARACTER_LIMIT)
+          throw new Error('Unavailable diagnostic envelope exceeds its character limit');
+        receipt.semantic_failure = unavailable;
+      } catch {
+        receipt.semantic_failure = {status:'unavailable',limit_characters:DIAGNOSTIC_CHARACTER_LIMIT,
+          capture_error:'Diagnostic envelope formatting unavailable',metadata_unavailable:true};
+      }
+    }
+  }
+  check(actual === expected,message); // Capture failure must preserve this original rejection.
+}
 const FAILURE_DEADLINE_MS = 15000;
 async function beforeFailureDeadline(promise, message, onExpire) {
   let timer;
@@ -107,8 +171,8 @@ async function verify({banner, phase, startup}) {
       const fixture = await response.json();
       const saved = sessionStorage.getItem('KVD.FoundationVerification.saved');
       const selected = withoutVerificationMarker(phase === 'persist' && saved ? JSON.parse(saved) : fixture);
-      check(semanticWorkflow(selected) === semanticWorkflow(fixture),
-        'Saved verification fixture has different Project types, ports, values or links');
+      checkStableWorkflow(semanticWorkflow(selected),semanticWorkflow(fixture),
+        'Saved verification fixture has different Project types, ports, values or links',receipt);
       const expectedTitles = new Map(selected.nodes.filter(n=>n.title).map(n=>[n.id,n.title]));
       const checkTitles = () => {
         for (const [id,title] of expectedTitles)
@@ -190,7 +254,8 @@ async function verify({banner, phase, startup}) {
             app.graph.extra?.kvd?.verification_load_id === trace.load_id,
             'Native workflow load completion belongs to a different request');
           checkLoadedGraph();
-          check(semanticWorkflow(app.graph.serialize()) === expected,'Fixture data changed during native loading');
+          checkStableWorkflow(semanticWorkflow(app.graph.serialize()),expected,
+            'Fixture data changed during native loading',receipt,trace.load_id);
           trace.completion = completed === true ? 'native_return_and_lifecycle' : 'native_lifecycle_and_graph';
         } catch (error) {
           observation.expired = true;
@@ -210,7 +275,8 @@ async function verify({banner, phase, startup}) {
       await load(selected);
       checkTitles();
       const before = semanticWorkflow(app.graph.serialize());
-      check(before === semanticWorkflow(selected),'Fixture data changed during native loading');
+      checkStableWorkflow(before,semanticWorkflow(selected),'Fixture data changed during native loading',
+        receipt,receipt.native_loads.at(-1)?.load_id);
       if (phase === 'roundtrip') {
         // Exercise a custom title without changing the committed fixture or semantic keys.
         const title = 'KVD check · custom / Сцена';
@@ -224,13 +290,16 @@ async function verify({banner, phase, startup}) {
         check(getLanguage() === 'ru','Russian setting did not apply');
         checkTitles();
         const serialized = app.graph.serialize();
-        check(semanticWorkflow(serialized) === before,'Language changed keys, values or connections');
+        checkStableWorkflow(semanticWorkflow(serialized),before,'Language changed keys, values or connections',
+          receipt,receipt.native_loads.at(-1)?.load_id);
         await load(serialized);
-        check(semanticWorkflow(app.graph.serialize()) === before,'Native save/configure roundtrip changed data');
+        checkStableWorkflow(semanticWorkflow(app.graph.serialize()),before,'Native save/configure roundtrip changed data',
+          receipt,receipt.native_loads.at(-1)?.load_id);
         checkTitles();
       } else if (phase === 'persist') {
         check(saved && initialLanguage === 'ru' && getLanguage() === 'ru','Russian did not persist over page reload');
-        check(semanticWorkflow(app.graph.serialize()) === semanticWorkflow(JSON.parse(saved)),'Page reload changed saved workflow');
+        checkStableWorkflow(semanticWorkflow(app.graph.serialize()),semanticWorkflow(JSON.parse(saved)),
+          'Page reload changed saved workflow',receipt,receipt.native_loads.at(-1)?.load_id);
       }
       receipt.persisted_language = await readPersistedLanguage(api);
       receipt.current_language = getLanguage();
@@ -240,7 +309,8 @@ async function verify({banner, phase, startup}) {
       checkLoadedGraph();
       checkTitles();
       const actual = withoutVerificationMarker(app.graph.serialize());
-      check(semanticWorkflow(actual) === before,'Final graph keys, values or connections changed');
+      checkStableWorkflow(semanticWorkflow(actual),before,'Final graph keys, values or connections changed',
+        receipt,receipt.native_loads.at(-1)?.load_id);
       const input = app.graph.getNodeById(1).widgets.find(w=>w.name === 'project_json').value;
       check(input.includes('Сцена') && input.includes('18446744073709551615'),'Unicode or seed value lost');
       receipt.nodes = actual.nodes.map(n=>n.type); receipt.links = actual.links.length;

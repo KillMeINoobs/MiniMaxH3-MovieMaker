@@ -4,8 +4,9 @@ This file documents actual imports, types and signatures. The foundation owns
 shared files; consumers use the exact pushed, separately checked interface base
 assigned through AO. Full CF is unaccepted. After read-only preflight, the
 coordinator released M1-02 CPU-only implementation from source-reviewed ac335,
-with no shared-runtime/browser allocation.
-That exception does not accept UI/CF or integrate downstream code. Media/adapter code
+and subsequently released M1-03 CPU-only source work. Each owner uses its
+assigned exact checked common base, with no shared-runtime/browser allocation.
+Those exceptions do not accept UI/CF or integrate downstream code. Media/adapter code
 does not exist in this foundation. No callable handler for the nine downstream
 operations is registered yet.
 
@@ -238,6 +239,37 @@ correction has 36 frontend checks and 29 focused shared import/conformance
 checks passing. These results require a new pinned review before deployment and
 actual browser acceptance. The installed ac335 checker remains unchanged.
 See the [validation receipt](validation/M1_FOUNDATION.md).
+
+The subsequent c923 source/synthetic review approved those bounded checker and
+shared-test corrections. Its exact archive was deployed without backend changes.
+The one authorized live roundtrip rejected a stable serialization mismatch;
+ordered native completion and a fulfilled `undefined` did not override that
+rejection. The captured Project JSON value stayed unchanged across EN/RU/EN,
+but the failed stable projection was absent. Neither a differing field nor its
+cause is established. Registration and ordinary selector readback/restoration
+are separate from unaccepted graph/layout/save-reload/CF evidence.
+
+The local follow-up retains the same exact stable JSON comparison. A differing
+comparison now records `semantic_failure` in the opt-in console receipt before
+throwing: stage/load ID, complete expected/actual stable projections, and the
+deterministic first bracket-form JSON path with values, JSON types and presence.
+Missing object fields and array indices are distinct from explicit null; array
+and object-key order remain significant. Cosmetic data stays outside the
+existing projection, and custom titles keep their separate checks.
+
+Diagnostics are limited to 262,144 JavaScript string code units including their
+JSON envelope. Budget/capture failure reports `status: "unavailable"` and a
+capture error, with no claimed partial projection or first difference. Error
+formatting is guarded; its text is limited to 1,024 code units with explicit
+truncation status. The complete unavailable envelope is also budget-checked;
+unavailable metadata falls back to a small fixed receipt. Neither formatting
+failure nor an overlong diagnostic error can replace the original mismatch. The
+original complete-string equality and error still decide rejection; deadlines,
+late-settlement invalidation, verified language recovery and matching-ID cleanup
+are unchanged. Native/serialization errors before a completed comparison retain
+their original error without claiming captured fields. This local candidate
+needs its own pinned review. No new publication, deployment or live retry has
+occurred, and its synthetic diagnostics are not the missing live evidence.
 
 The owned [language settings helper](../web/common/language-settings.js) is
 shared by the real selector and checker. `SETTING_ID` remains `KVD.Language`.

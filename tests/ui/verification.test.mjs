@@ -15,7 +15,8 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
   loseCanvasOnReload=false, losePanelsAfterFinalRead=false, malformedRead=false,
   dropLoadReturn=false, loadHookSequences=[], returnedOutcomes=[], rejections=[],
   staleConfigureData=false, staleCompletionGraph=false, deferLoads=false, deferLoadNumber,
-  pauseBeforeConfigureNumber, rejectionAfterPause, deferReadNumber}={}) {
+  pauseBeforeConfigureNumber, rejectionAfterPause, deferReadNumber, diagnosticParseError, serializeError,
+  fixtureForTest=fixture}={}) {
   const scheduled = [], loads = [], messages = [], elements = [], stored = new Map();
   const writes = [], writeWaiters = [], reads = [], warnings = [];
   const loadResumers = [], loadWaiters = [];
@@ -101,7 +102,10 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
       Object.defineProperty(node,'title',{get:()=>data.title,set:value=>{data.title=value;}});
       return node;
     });
-    return {_nodes:nodes, links:current.links, extra:current.extra, serialize:()=>structuredClone(current),
+    return {_nodes:nodes, links:current.links, extra:current.extra, serialize:()=>{
+      if (serializeError) throw serializeError;
+      return structuredClone(current);
+    },
       getNodeById:id=>nodes.find(node=>node.id === id)};
   }});
   const context = vm.createContext({
@@ -125,6 +129,7 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
     clearTimeout:id=>timers.delete(id),
     console:{info:(...values)=>messages.push({level:'info',values}), error:(...values)=>messages.push({level:'error',values})},
   });
+  if (diagnosticParseError) context.JSON = {stringify:JSON.stringify,parse(){throw diagnosticParseError;}};
   const appModule = new vm.SyntheticModule(['app'], function() { this.setExport('app',app); }, {context});
   const api = {async fetchApi(route, options) {
     assert.equal(route,'/settings/KVD.Language');
@@ -154,7 +159,7 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
   context.fetch = async(url, options)=>{
     assert.ok(String(url).endsWith('/examples/foundation_project.json'));
     assert.ok(!options?.method || options.method === 'GET','checker must not submit a request');
-    return {ok:true,json:async()=>structuredClone(fixture)};
+    return {ok:true,json:async()=>structuredClone(fixtureForTest)};
   };
   await checker.evaluate();
   presentation.namespace.setLanguage(language);
@@ -685,4 +690,193 @@ test('F13: each reload requires owned panels and a usable canvas', async()=>{
     assert.equal(host.saved(),undefined);
     assert.equal(host.persistedLanguage(),'en');
   }
+});
+
+test('semantic failure captures full stable projections and the first typed field difference', async()=>{
+  const cases = [
+    {change:g=>{g.nodes[2].widgets_values[2]=true;},path:'$["nodes"][2]["widgets_values"][2]',kind:'value',
+      expected:{present:true,type:'boolean',value:false},actual:{present:true,type:'boolean',value:true}},
+    {change:g=>{g.nodes[1].inputs[0].link=9;},path:'$["nodes"][1]["inputs"][0]["link"]',kind:'value',
+      expected:{present:true,type:'number',value:1},actual:{present:true,type:'number',value:9}},
+    {change:g=>{g.nodes[0].outputs[0].type='STRING';},path:'$["nodes"][0]["outputs"][0]["type"]',kind:'value',
+      expected:{present:true,type:'string',value:'KVD_PROJECT'},actual:{present:true,type:'string',value:'STRING'}},
+    {change:g=>{g.links[1][4]='0';},path:'$["links"][1][4]',kind:'type',
+      expected:{present:true,type:'number',value:0},actual:{present:true,type:'string',value:'0'}},
+    {change:g=>{g.nodes[1].id=22;},path:'$["nodes"][1]["id"]',kind:'value',
+      expected:{present:true,type:'number',value:2},actual:{present:true,type:'number',value:22}},
+    {change:g=>{delete g.nodes[1].type;},path:'$["nodes"][1]["type"]',kind:'missing_field',
+      expected:{present:true,type:'string',value:'KVD_ValidateProject'},actual:{present:false,type:'missing'}},
+    {change:g=>{g.nodes[2].widgets_values.push(null);},path:'$["nodes"][2]["widgets_values"][3]',kind:'missing_index',
+      expected:{present:false,type:'missing'},actual:{present:true,type:'null',value:null}},
+    {change:g=>{g.nodes[2].widgets_values.pop();},path:'$["nodes"][2]["widgets_values"][2]',kind:'missing_index',
+      expected:{present:true,type:'boolean',value:false},actual:{present:false,type:'missing'}},
+  ];
+  for (const {change,path,kind,expected,actual} of cases) {
+    const host = await harness({dropLoadReturn:true,changeInitialGraph:change});
+    host.setGraphReady();
+    await host.extension.afterLoadGraph();
+    await host.flush();
+    const receipt = host.receipt();
+    assert.equal(receipt.status,'FAIL');
+    assert.equal(receipt.reason,'Fixture data changed during native loading');
+    const diagnostic = receipt.semantic_failure;
+    assert.ok(diagnostic,'failed semantic comparison must retain its diagnostic');
+    assert.equal(diagnostic.status,'captured');
+    assert.equal(diagnostic.load_id,receipt.native_loads[0].load_id);
+    assert.equal(diagnostic.stage,receipt.reason);
+    assert.deepEqual(diagnostic.first_difference,{path,kind,expected,actual});
+    assert.equal(diagnostic.expected_projection.nodes.length,4);
+    assert.deepEqual(diagnostic.expected_projection.links,fixture.links);
+    assert.equal(diagnostic.expected_projection.nodes[0].widgets_values[0],fixture.nodes[0].widgets_values[0]);
+    assert.notDeepEqual(diagnostic.actual_projection,diagnostic.expected_projection);
+    assert.equal(diagnostic.actual_projection.nodes[0].widgets_values[0],fixture.nodes[0].widgets_values[0]);
+    assert.equal(diagnostic.actual_projection.nodes[0].title,undefined,'cosmetic data stays outside the stable projection');
+    assert.equal(host.marker(),undefined);
+    assert.equal(host.saved(),undefined);
+    assert.equal(receipt.serialized_workflow,undefined);
+    assert.equal(host.outstandingTimers(),0);
+  }
+});
+
+test('first stable difference follows projection order and post-RU failure retains verified recovery', async()=>{
+  const first = await harness({changeInitialGraph:g=>{
+    g.nodes[3].id=44;
+    g.links[0][2]=9;
+    g.nodes[0].outputs[0].name='changed-port';
+  }});
+  first.setGraphReady(); await first.extension.afterLoadGraph(); await first.flush();
+  assert.ok(first.receipt().semantic_failure,'failed semantic comparison must retain its diagnostic');
+  assert.equal(first.receipt().semantic_failure.first_difference.path,'$["nodes"][0]["outputs"][0]["name"]');
+  const ordered = await harness({query:'?kvd-check=foundation&phase=roundtrip',changeLoadedGraph(g,count){
+    if (count === 2) g.nodes[0].widgets_values[0]='changed on second load';
+  }});
+  ordered.setGraphReady(); await ordered.extension.afterLoadGraph(); await ordered.flush();
+  const receipt = ordered.receipt();
+  assert.equal(receipt.status,'FAIL');
+  assert.equal(receipt.semantic_failure.load_id,receipt.native_loads[1].load_id);
+  assert.equal(receipt.semantic_failure.first_difference.path,'$["nodes"][0]["widgets_values"][0]');
+  assert.equal(receipt.original_language_restored,true);
+  assert.equal(receipt.restored_persisted_language,'en');
+  assert.equal(ordered.saved(),undefined);
+  assert.equal(ordered.marker(),undefined);
+});
+
+test('cosmetic changes leave existing stable acceptance and successful evidence unchanged', async()=>{
+  const host = await harness({changeInitialGraph:g=>{
+    g.nodes[0].title='Native cosmetic title'; g.nodes[0].pos=[999,888]; g.nodes[0].color='#123456';
+    g.nodes[1].inputs[0].label='Localized input'; g.nodes[0].outputs[0].label='Localized output';
+    g.extra.cosmetic={keep:'metadata'};
+  }});
+  host.setGraphReady(); await host.extension.afterLoadGraph(); await host.flush();
+  assert.equal(host.receipt().status,'PASS');
+  assert.equal(host.receipt().semantic_failure,undefined);
+  assert.equal(host.receipt().serialized_workflow.nodes[0].title,'Native cosmetic title');
+  assert.deepEqual(host.receipt().serialized_workflow.extra.cosmetic,{keep:'metadata'});
+});
+
+test('diagnostic budget and capture failure cannot mask rejection or prevent marker cleanup', async()=>{
+  for (const options of [
+    {changeInitialGraph:g=>{g.nodes[2].widgets_values[1]='x'.repeat(300000);}},
+    {changeInitialGraph:g=>{g.nodes[2].widgets_values[2]=true;},diagnosticParseError:new Error('Diagnostic parser unavailable')},
+  ]) {
+    const host = await harness(options);
+    host.setGraphReady(); await host.extension.afterLoadGraph(); await host.flush();
+    const receipt = host.receipt();
+    assert.equal(receipt.status,'FAIL');
+    assert.equal(receipt.reason,'Fixture data changed during native loading');
+    assert.ok(receipt.semantic_failure,'unavailable diagnostics must be reported explicitly');
+    assert.equal(receipt.semantic_failure.status,'unavailable');
+    assert.equal(receipt.semantic_failure.expected_projection,undefined);
+    assert.equal(receipt.semantic_failure.actual_projection,undefined);
+    assert.equal(receipt.semantic_failure.first_difference,undefined);
+    assert.match(receipt.semantic_failure.capture_error,/limit|unavailable/i);
+    assert.equal(host.marker(),undefined);
+    assert.equal(host.saved(),undefined);
+  }
+  const original = new Error('Native serialization unavailable');
+  const host = await harness({serializeError:original});
+  host.setGraphReady(); await host.extension.afterLoadGraph(); await host.flush();
+  assert.equal(host.receipt().reason,original.message);
+  assert.equal(host.receipt().error_stack,original.stack);
+  assert.equal(host.receipt().semantic_failure,undefined,'no comparison data was available');
+  assert.equal(host.marker(),undefined);
+});
+
+test('PREP-DIAG1: overlong capture errors keep the entire unavailable envelope bounded', async()=>{
+  for (const afterRU of [false,true]) {
+    const host = await harness({query:'?kvd-check=foundation&phase='+(afterRU ? 'roundtrip' : 'display'),
+      diagnosticParseError:new Error('x'.repeat(300000)),changeLoadedGraph(g,count){
+        if (count === (afterRU ? 2 : 1)) g.nodes[2].widgets_values[2]=true;
+      }});
+    host.setGraphReady(); await host.extension.afterLoadGraph(); await host.flush();
+    const receipt = host.receipt(), diagnostic = receipt.semantic_failure;
+    assert.equal(receipt.status,'FAIL');
+    assert.equal(receipt.reason,'Fixture data changed during native loading');
+    assert.equal(diagnostic.status,'unavailable');
+    assert.ok(JSON.stringify(diagnostic).length <= diagnostic.limit_characters,'whole unavailable envelope must respect the capture budget');
+    assert.equal(diagnostic.capture_error_truncated,true);
+    assert.equal(diagnostic.expected_projection,undefined);
+    assert.equal(diagnostic.actual_projection,undefined);
+    assert.equal(diagnostic.first_difference,undefined);
+    assert.equal(diagnostic.load_id,receipt.native_loads[afterRU ? 1 : 0].load_id);
+    assert.equal(host.marker(),undefined);
+    assert.equal(host.saved(),undefined);
+    assert.equal(receipt.serialized_workflow,undefined);
+    assert.equal(host.persistedLanguage(),'en');
+    if (afterRU) assert.equal(receipt.original_language_restored,true);
+    assert.equal(host.outstandingTimers(),0);
+  }
+});
+
+test('PREP-DIAG1: unprintable capture errors cannot replace mismatch or block verified recovery', async()=>{
+  const failures = [
+    {message:{toString(){throw new Error('diagnostic-format-error');}}},
+    Object.defineProperty({},'message',{get(){throw new Error('diagnostic-message-error');}}),
+  ];
+  for (const diagnosticParseError of failures) for (const afterRU of [false,true]) {
+    const host = await harness({query:'?kvd-check=foundation&phase='+(afterRU ? 'roundtrip' : 'display'),
+      diagnosticParseError,changeLoadedGraph(g,count){
+        if (count === (afterRU ? 2 : 1)) g.nodes[2].widgets_values[2]=true;
+      }});
+    host.setGraphReady(); await host.extension.afterLoadGraph(); await host.flush();
+    const receipt = host.receipt(), diagnostic = receipt.semantic_failure;
+    assert.equal(receipt.status,'FAIL');
+    assert.equal(receipt.reason,'Fixture data changed during native loading');
+    assert.equal(diagnostic.status,'unavailable');
+    assert.match(diagnostic.capture_error,/formatting unavailable/i);
+    assert.ok(JSON.stringify(diagnostic).length <= diagnostic.limit_characters);
+    assert.equal(diagnostic.expected_projection,undefined);
+    assert.equal(diagnostic.actual_projection,undefined);
+    assert.equal(diagnostic.first_difference,undefined);
+    assert.equal(host.marker(),undefined);
+    assert.equal(host.saved(),undefined);
+    assert.equal(host.persistedLanguage(),'en');
+    if (afterRU) {
+      assert.equal(receipt.original_language_restored,true);
+      assert.equal(receipt.restored_persisted_language,'en');
+    }
+    assert.equal(host.outstandingTimers(),0);
+  }
+});
+
+test('stable diagnostic preserves rejection of JSON object-key order with the original comparator', async()=>{
+  // An offline opaque widget entry exercises the existing generic JSON field;
+  // this is not a claim that a native Project widget accepts such a value.
+  const testFixture = structuredClone(fixture);
+  testFixture.nodes[2].widgets_values.push({first:1,second:2});
+  const host = await harness({fixtureForTest:testFixture,changeInitialGraph(g){
+    g.nodes[2].widgets_values[3]={second:2,first:1};
+  }});
+  host.setGraphReady(); await host.extension.afterLoadGraph(); await host.flush();
+  const receipt = host.receipt(), difference = receipt.semantic_failure.first_difference;
+  assert.equal(receipt.status,'FAIL');
+  assert.equal(receipt.reason,'Fixture data changed during native loading');
+  assert.equal(difference.path,'$["nodes"][2]["widgets_values"][3]');
+  assert.equal(difference.kind,'object_key_order');
+  assert.deepEqual(difference.expected.value,difference.actual.value);
+  assert.notEqual(JSON.stringify(difference.expected.value),JSON.stringify(difference.actual.value));
+  assert.deepEqual(Object.keys(difference.expected.value),['first','second']);
+  assert.deepEqual(Object.keys(difference.actual.value),['second','first']);
+  assert.equal(host.marker(),undefined);
+  assert.equal(host.saved(),undefined);
 });
