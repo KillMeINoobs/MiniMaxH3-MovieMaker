@@ -50,7 +50,9 @@ folders. No native execution or generated pixels are produced by these tests.
 
 Independent [source/CPU review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2#pullrequestreview-5411533237)
 approved exact `20541f938306ff6bbf80c01565fd318ea3bcbd82` under the revised local
-storage assumptions. Its 97 committed deployment files byte-matched that tree.
+storage assumptions. Its 97 deployment files byte-matched the approved archive
+from that commit; Windows line endings were checked against canonical Git blobs
+separately.
 The human restarted the existing Desktop instance; new process/start evidence,
 unchanged deployed hashes, one live listener and an idle queue were reconciled
 privately. Live ComfyUI 0.38.2 / Python 3.13.12 / frontend 1.53.6 registered all
