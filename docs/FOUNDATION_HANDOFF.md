@@ -2,9 +2,9 @@
 
 This file documents actual imports, types and signatures. The foundation owns
 shared files; consumers use the exact pushed, separately checked interface base
-assigned through AO. Full CF is unaccepted. The coordinator assigned M1-02
-read-only preflight from source-reviewed ac335; CPU-only implementation follows
-its explicit preflight release, with no shared-runtime/browser allocation.
+assigned through AO. Full CF is unaccepted. After read-only preflight, the
+coordinator released M1-02 CPU-only implementation from source-reviewed ac335,
+with no shared-runtime/browser allocation.
 That exception does not accept UI/CF or integrate downstream code. Media/adapter code
 does not exist in this foundation. No callable handler for the nine downstream
 operations is registered yet.
@@ -119,8 +119,10 @@ They are not model-load or GPU receipts.
 The [all-nine call examples](../tests/contracts/worker_examples.py) construct
 validated records and typed runtime envelopes for every protocol. The
 [conformance test](../tests/imports/test_worker_conformance.py) binds each
-example to its actual signature, checks argument types and confirms that no
-operation handler is registered. It never invokes an operation. Synthetic
+example to its actual signature and checks argument types without invoking an
+operation or assuming which handlers are registered. Separate cases verify all
+nine unsupported errors against an explicitly empty registry and construct a
+synthetic extension with guard handlers to prove call-shape independence. Synthetic
 links, opaque unmaterialized values and planned results describe a boundary;
 they are not an executable graph, decoded tensor or successful export.
 
@@ -169,6 +171,12 @@ or raises `UNSUPPORTED_CAPABILITY`. Optional modules must remain import-safe;
 missing optional backends fail when explicitly requested. No shared-file edit
 is needed to add a node module.
 
+The shared import test requires the four foundation IDs as a subset and calls
+`INPUT_TYPES()` on every discovered owned class with optional packages blocked.
+Synthetic extension cases accept an import-safe added node, reject eager
+optional imports at module/metadata stages, and retain the missing-foundation-ID
+guard. Discovery, duplicate and broken-owned-package checks remain separate.
+
 Add owned JS files under `web/<owner>/`; ComfyUI discovers them through the root
 `WEB_DIRECTORY="./web"`. Import `registerPresentation` from the relative
 `common/presentation.js` module and register EN/RU `title`, `help`, `fields`
@@ -198,8 +206,10 @@ actual return type/value, readiness, rejection/stack and ordered native hooks:
 `beforeLoadGraph`, `beforeConfigureGraph`, `afterConfigureGraph`, `afterLoadGraph`.
 The configured input must match that request, including a fresh transient ID
 in only the synthetic fixture's owned metadata. Configuration/completion must
-retain that ID; stale events/data reject. The ID is removed before successful
-serialization, preserving the fixture's original metadata. A fulfilled undefined result from
+retain that ID; stale events/data reject. Reserved IDs from saved input are
+stripped before a fresh internal ID is assigned. All-outcome cleanup removes
+only the matching current ID; serialized output/cache is marker-free, with
+other metadata and custom titles preserved. A fulfilled undefined result from
 a return-discarding wrapper requires the complete per-call sequence plus exact
 serialized fixture data, four owned panels, two links and a usable canvas.
 True also requires those assertions; false, rejected, unrelated, incomplete,
@@ -213,9 +223,19 @@ The deferred callback avoids recursively awaiting the loader from its own hook;
 elapsed time is not the readiness condition. Only the explicit opt-in synthetic
 fixture is loaded, with asset scans skipped and no queue call. Failed checks
 attempt to restore the original KVD preference, reporting success only after
-verified persistence. Only a successful opted-in check exposes its synthetic
-native serialized workflow in the console receipt. This new checker correction
-has synthetic tests; it requires a new pinned review before deployment and
+verified persistence. Each requested asynchronous native load has a 15-second
+failure deadline; failure restoration and final preference readback each have
+their own 15-second deadline. Expiry invalidates acceptance and records pending
+return state. It cannot establish readiness or cancel native work. Browser
+timers cannot preempt a synchronously blocked event loop. Late settlements are
+handled and logged as unaccepted; they cannot retry, save a fixture, revive PASS
+or remove a newer request's marker. Only a successful opted-in check exposes its
+synthetic native serialized workflow in the console receipt.
+
+The [exact-daf review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2#pullrequestreview-5414488723)
+requested F15/F16 changes after its 29 frontend tests passed. The coherent owner
+correction has 36 frontend checks and 29 focused shared import/conformance
+checks passing. These results require a new pinned review before deployment and
 actual browser acceptance. The installed ac335 checker remains unchanged.
 See the [validation receipt](validation/M1_FOUNDATION.md).
 

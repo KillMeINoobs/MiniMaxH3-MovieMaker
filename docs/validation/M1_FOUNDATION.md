@@ -10,15 +10,16 @@ It does **not** accept CF; a separate reviewer checks the pinned final candidate
 
 | Check | Result / scope |
 |---|---|
-| Synthetic Python contracts/import/I/O/conformance | PASS: 103 tests on Windows; one POSIX FIFO test skipped, no failures. |
-| Draft 2020-12 schemas and examples | PASS: 16 exported schemas; 15 synthetic record fixtures; schema bytes match declarative source. |
+| Synthetic Python contracts/import/I/O/conformance | Retained exact-ac335 source/CPU evidence: 103 tests on Windows; one POSIX FIFO test skipped. Unchanged backend suite was not rerun for this checker/shared-test correction. |
+| Draft 2020-12 schemas and examples | Retained PASS: 16 exported schemas; 15 synthetic record fixtures. Schema/fixture/declarative bytes remain unchanged. |
 | Project serialization/migration | PASS: Unicode/spaces, immutable settings, full u64 seeds, duplicate keys, version/features, explicit migration/source preservation. |
 | Ordinary local I/O failures | PASS: read/staging/flush/publication failures preserve old bytes and clean temporary files. A post-publication cleanup error logs a redacted warning and returns the committed save. |
 | Concurrent Project API writers | PASS: newer revision remains saved; publish-time lease defers a competing writer with retryable PROJECT_BUSY. |
 | Invalid/cyclic path resolution | PASS: save/load/migration/locator/explicit asset checks return redacted PROJECT_IO_ERROR for a cyclic selected root; cyclic migration source/destination paths preserve original bytes. |
-| Optional dependencies absent | PASS: subprocess blocks media/model/ComfyUI/schema packages; four Project classes still import and expose inputs. |
-| Nine downstream callable interfaces | PASS: typed examples bind actual signatures; every unimplemented operation rejects registry dispatch; no handler invoked. |
-| EN/RU selector/helper/checker regressions | PASS: 29 Node checks; presentation invariants, six actual-selector tests and 22 actual-checker tests against synthetic native hosts. They do not prove browser appearance/persistence. |
+| Shared import/conformance amendment | PASS: 29 focused Python tests in the two shared modules; extension-present, missing-foundation-ID, eager-dependency, discovery/duplicate/broken-import and explicitly empty-registry cases. |
+| Optional dependencies absent | PASS: subprocess blocks media/model/ComfyUI/schema packages and checks every discovered owned class/INPUT_TYPES. A synthetic added node is accepted; eager dependencies at import or metadata stages reject. |
+| Nine downstream callable interfaces | PASS: typed examples bind signatures/types without handler discovery/invocation or I/O. All nine names reject against an explicitly empty registry; discovered guard handlers do not affect call examples. |
+| EN/RU selector/helper/checker regressions | PASS: 36 Node checks; presentation invariants, six actual-selector tests and 29 actual-checker tests against synthetic native hosts. They do not prove browser appearance/persistence. |
 | Frontend syntax | PASS: presentation, verified language helper, extension and opt-in checker parse. |
 | Diff/brief/ledger/privacy | Checked before publication; final exact receipts are recorded with the candidate in AO. |
 | Live `/object_info` registration | PASS: human-restarted reviewed205 registered four classes; reviewed ac335 archive retains the identical backend. Fresh actual catalog/MCP agree on all four classes and metadata. Readonly fixture validation has zero errors and one intentional disconnected-load warning. |
@@ -31,10 +32,16 @@ It does **not** accept CF; a separate reviewer checks the pinned final candidate
 | H3/VLM/enhancer generation / GPU / quality / fit | NOT PERFORMED. No queue submission, model load, weight download or output inspection. |
 | CI | No checks registered on the draft PR; no CI PASS. |
 
+Backend rows retain reviewed ac335 evidence. The fresh checker/shared-test
+correction ran only the focused Python modules, frontend suite and relevant
+integrity checks; it does not claim a new complete backend or POSIX run.
+
 Commands used in the isolated verification environment:
 
 ```text
 .venv/Scripts/python -m pytest tests/contracts tests/imports -q
+# Focused coherent checker/shared-test follow-up:
+.venv/Scripts/python -m pytest tests/imports/test_registration.py tests/imports/test_worker_conformance.py -q
 node --experimental-vm-modules --test tests/ui/presentation.test.mjs tests/ui/language.test.mjs tests/ui/verification.test.mjs
 node --check web/common/presentation.js
 node --check web/common/language-settings.js
@@ -217,7 +224,7 @@ evidence; project JSON, ports, values, links and titles stay unchanged. Stale
 metadata and unrelated events cannot complete a pending call. A successful
 check alone retains the native serialized synthetic graph. New return/diagnostic
 and stale-request regressions first failed against the earlier checker; the
-corrected frontend suite passes 29 checks. Saved graph types/ports/values/links
+daf57 frontend suite passed 29 checks. Saved graph types/ports/values/links
 must match the approved Project fixture before native loading; stale saved
 data is rejected without loading other nodes. A stackless native rejection now
 produces a truthful FAIL receipt.
@@ -225,6 +232,46 @@ These are owner source/CPU results; the new candidate needs separate pinned
 review before deployment. Installed ac335 stays fixed and CF remains unaccepted.
 No foreign pack/core modification, lifecycle action, node execution or queue
 submission occurred.
+
+## F15/F16 bounded failure and reserved metadata correction
+
+Independent [exact-daf review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2#pullrequestreview-5414488723)
+requested changes on `daf57da38313d43c34e665853f79d33633a3d36f`. Its actual
+source/synthetic receipt was read back at the exact commit before publication
+of the next owner candidate. The owner reproduced the supplied pending second
+load after verified RU, current-marker leak after invalid return, and stale
+saved-marker PASS using copies of the private probes with only their result
+destination changed; reviewer originals were preserved. Those reproductions
+demonstrate defects, not acceptance. Seven actual-checker regression groups
+cover the correction; six initially failed on daf57 before the fix.
+
+The requested native load now fails after a 15-second asynchronous deadline,
+records pending return state and invalidates its per-call observer. The deadline
+is failure-only, not proof of completion, a native cancellation API or a way to
+preempt a blocked browser event loop. Failure recovery and final own-key
+readback each have a separate 15-second deadline so their pending promises
+cannot suppress the FAIL receipt. Restored status requires the existing
+supported write/readback proof; timeout/rejection or unavailable readback is
+reported as unverified. Late native fulfillment/rejection is handled and
+logged separately as unaccepted, with no retry, saved fixture or revived PASS.
+
+Reserved `extra.kvd.verification_load_id` is scrubbed from cloned saved input
+before inserting the fresh correlation ID and from serialized output/cache.
+Cleanup runs even when native return, lifecycle, graph or presentation checks
+throw. Runtime cleanup removes only this call's matching ID, including after
+late configuration; it preserves a newer/different ID. Other metadata, custom
+titles, values and both links remain intact. A successful persist-phase check
+refreshes only its owned synthetic cache with marker-free native serialization.
+
+Fresh owner checks: 36 frontend tests and 29 focused shared import/conformance
+tests PASS. Controlled timers/pending promises test failure/recovery bounds,
+late fulfillment/rejection, stalled recovery/readback and newer-marker
+preservation. Shared tests retain the required foundation subset and all-owned
+metadata safety under absent optional packages, separate all-nine signature
+examples from handler availability, and test real empty/extension registries
+without invoking handlers. The changed candidate needs separate pinned review;
+installed ac335 and all live BLOCKED rows remain unchanged. No runtime or media
+operation occurred for this correction.
 
 ## Browser check procedure for the next reviewed snapshot
 

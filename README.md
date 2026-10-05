@@ -12,8 +12,11 @@ The human restarted reviewed205; the later source/CPU-reviewed `ac335b8`
 snapshot retains its identical backend and all four registered Project classes.
 The ordinary selector saved Russian and restored English with verified server
 readback. Complete browser layout/native graph save/reload remain **BLOCKED**.
-A new checker compatibility/diagnostic correction needs pinned review and a
-fresh live check. **GPU NOT PERFORMED.**
+The daf57 checker review requested bounded failure/recovery and transient-marker
+cleanup. The coherent correction and extension-aware shared tests have 36
+frontend and 29 focused import/conformance checks passing; these owner results
+need pinned review and a fresh live check. Installed ac335 remains unchanged.
+**GPU NOT PERFORMED.**
 No workflow was queued, model loaded, inference performed or user video decoded.
 
 ## Available nodes

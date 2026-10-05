@@ -1,6 +1,6 @@
 # Durable task journal
 
-This Markdown directory is our journal, **not an AO built-in scheduler**. Cards record outcomes and do not launch workers. M1 foundation is implemented as a draft; downstream outcomes remain gated. Read [direction](../PRODUCT_DIRECTION_V2V.md), [plan](../PLAN.md), [research](../RESEARCH.md), [architecture](../ARCHITECTURE.md), [contracts 2.0.0](../CONTRACTS.md), [nodes](../NODE_CATALOG.md) and [workflow specification](../WORKFLOW_SPEC.md) after the preserved brief.
+This Markdown directory is our journal, **not an AO built-in scheduler**. Cards record outcomes and do not launch workers. M1 foundation is implemented as a draft; full CF/UI remains gated, with the explicit M1-02 CPU dependency exception recorded below. Read [direction](../PRODUCT_DIRECTION_V2V.md), [plan](../PLAN.md), [research](../RESEARCH.md), [architecture](../ARCHITECTURE.md), [contracts 2.0.0](../CONTRACTS.md), [nodes](../NODE_CATALOG.md) and [workflow specification](../WORKFLOW_SPEC.md) after the preserved brief.
 
 ## Ownership and status
 
@@ -8,8 +8,8 @@ This Markdown directory is our journal, **not an AO built-in scheduler**. Cards 
 |---|---|---|
 | First M0 | Original documentation outcome | Published D0, included by the accepted merged C0 |
 | M0-V2V-REVISION | Research/documentation owner | Accepted merged C0; brief and source ledger preserved |
-| [M1-01 foundation](M1-01-FOUNDATION.md) | Assigned foundation owner | Reviewed ac335 deployed; registration/served source PASS; selector partial; native graph/layout BLOCKED; new checker review pending; CF unaccepted |
-| [M1-02 media](M1-02-MEDIA.md) | Coordinator-assigned media owner | Read-only preflight on reviewed ac335; CPU implementation after explicit release; no runtime/browser/GPU allocation |
+| [M1-01 foundation](M1-01-FOUNDATION.md) | Assigned foundation owner | Reviewed ac335 deployed; registration/served source PASS; selector partial; native graph/layout BLOCKED; coherent F15/F16/shared-test correction awaiting review; CF unaccepted |
+| [M1-02 media](M1-02-MEDIA.md) | Coordinator-assigned media owner | CPU implementation released after preflight on exact reviewed ac335; no runtime/browser/GPU allocation |
 | [M1-03 H3](M1-03-H3.md) | Adapter owner, unassigned | PROPOSED / NOT STARTED; CF start, actual CM for finish |
 | [M1-04 human handoff](M1-04-GPU-GATE.md) | Future handoff owner; human generation | GATED on CH; prepare real workflow; GPU NOT PERFORMED until human evidence |
 | [M2-01 editor](M2-01-EDITOR.md) | Editor owner, unassigned | PROPOSED / GATED; accepted real CG |
@@ -73,15 +73,18 @@ stayed unchanged. Complete layout/native roundtrip remains blocked. A served
 wrapper discards the native load result; its exact runtime value is unrecorded.
 The new owned checker captures return/stack/readiness and correlates the full
 native per-call hook sequence with exact graph/panel assertions and a transient
-request ID. Its 29 frontend
-checks pass on synthetic hosts, including hidden-abort cases. That new source
-needs pinned review before deployment; installed ac335 stays fixed. No CF or
+request ID. Its 29 frontend checks passed on synthetic hosts, but the
+[exact-daf review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2#pullrequestreview-5414488723)
+requested F15/F16 bounded failure/recovery and current/stale marker cleanup.
+The coherent owner correction has 36 frontend and 29 focused shared tests
+passing, including late rejection/newer-marker and extension-present cases.
+It needs a new pinned review before deployment; installed ac335 stays fixed. No CF or
 shared-resource release follows from partial browser evidence.
 
 The coordinator assigned a second implementer for M1-02 read-only preflight
 from exact source-reviewed `ac335b87c966b3353c5115c663d4344ff08c01a0`.
-CPU-only owned media/planning/assembly work follows its explicit preflight
-release while UI/CF remains blocked. This is a dependency-order exception,
+CPU-only owned media/planning/assembly work was subsequently released after
+preflight while UI/CF remains blocked. This is a dependency-order exception,
 not a main merge or runtime/GPU grant. Foundation still owns shared contracts,
 package/dependencies, frontend and central docs and is the only ComfyUI owner.
 Media shared-interface changes return to foundation/coordinator; no moving or

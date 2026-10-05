@@ -14,10 +14,14 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
   savedWorkflow, deferWrites=false, writeOutcomes=[], readStatus=200, losePanelsOnReload=false,
   loseCanvasOnReload=false, losePanelsAfterFinalRead=false, malformedRead=false,
   dropLoadReturn=false, loadHookSequences=[], returnedOutcomes=[], rejections=[],
-  staleConfigureData=false, staleCompletionGraph=false, deferLoads=false}={}) {
+  staleConfigureData=false, staleCompletionGraph=false, deferLoads=false, deferLoadNumber,
+  pauseBeforeConfigureNumber, rejectionAfterPause, deferReadNumber}={}) {
   const scheduled = [], loads = [], messages = [], elements = [], stored = new Map();
   const writes = [], writeWaiters = [], reads = [], warnings = [];
   const loadResumers = [], loadWaiters = [];
+  const readResumers = [], readWaiters = [];
+  const timers = new Map();
+  let timerId = 0;
   let extension, current, graphReady = readyAtSetup, language = settingLanguage;
   let persisted = storedLanguage;
   let panelsLost = false;
@@ -41,6 +45,10 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
     },
   };
   if (savedWorkflow) stored.set('KVD.FoundationVerification.saved',JSON.stringify(savedWorkflow));
+  const pauseLoad = () => new Promise(resolve=>{
+    loadResumers.push(resolve);
+    for (const waiter of loadWaiters.splice(0)) waiter();
+  });
   const app = {
     registerExtension(value) { extension = value; },
     ui: { settings: {
@@ -50,11 +58,13 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
     } },
     canvas: unavailableCanvas ? null : {ds:{}, setDirty() {}},
     async loadGraphData(data, ...options) {
+      data = structuredClone(data); // The actual native implementation clones its argument.
       loads.push({data:structuredClone(data), options});
       const outcome = (loads.length - 1) in outcomes ? outcomes[loads.length - 1] : true;
       const hooks = loadHookSequences[loads.length - 1] ||
         ['beforeLoadGraph','beforeConfigureGraph','afterConfigureGraph','afterLoadGraph'];
       for (const hook of hooks.filter(name=>name.startsWith('before'))) {
+        if (hook === 'beforeConfigureGraph' && loads.length === pauseBeforeConfigureNumber) await pauseLoad();
         const hookData = structuredClone(data);
         if (staleConfigureData && hook === 'beforeConfigureGraph')
           hookData.extra.kvd.verification_load_id = 'previous-request';
@@ -68,10 +78,10 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
       // The native configure catch returns false before either completion hook.
       if (!graphReady || outcome !== true) return graphReady ? outcome : false;
       for (const hook of hooks.filter(name=>name.startsWith('after'))) {
-        if (hook === 'afterLoadGraph' && deferLoads) await new Promise(resolve=>{
-          loadResumers.push(resolve);
-          for (const waiter of loadWaiters.splice(0)) waiter();
-        });
+        if (hook === 'afterLoadGraph' && (deferLoads || loads.length === deferLoadNumber)) {
+          await pauseLoad();
+          if (rejectionAfterPause) throw rejectionAfterPause;
+        }
         if (staleCompletionGraph) current.extra.kvd.verification_load_id = 'previous-request';
         await extension[hook]?.();
       }
@@ -102,7 +112,17 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
       body:{append(){}},
     },
     sessionStorage:{getItem:key=>stored.get(key) ?? null, setItem:(key,value)=>stored.set(key,value)},
-    setTimeout:callback=>scheduled.push(callback),
+    setTimeout(callback, delay=0) {
+      const id = ++timerId;
+      timers.set(id,{callback,delay});
+      if (delay === 0) scheduled.push(async()=>{
+        if (!timers.has(id)) return;
+        timers.delete(id);
+        await callback();
+      });
+      return id;
+    },
+    clearTimeout:id=>timers.delete(id),
     console:{info:(...values)=>messages.push({level:'info',values}), error:(...values)=>messages.push({level:'error',values})},
   });
   const appModule = new vm.SyntheticModule(['app'], function() { this.setExport('app',app); }, {context});
@@ -110,6 +130,10 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
     assert.equal(route,'/settings/KVD.Language');
     assert.ok(!options?.method || options.method === 'GET');
     reads.push(persisted);
+    if (reads.length === deferReadNumber) await new Promise(resolve=>{
+      readResumers.push(resolve);
+      for (const waiter of readWaiters.splice(0)) waiter();
+    });
     if (losePanelsAfterFinalRead && reads.length === 4) panelsLost = true;
     const status = typeof readStatus === 'function' ? readStatus(reads.length) : readStatus;
     return {ok:status === 200,status,json:async()=>malformedRead ? {error:'Unconfirmed'} : persisted};
@@ -136,6 +160,19 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
   presentation.namespace.setLanguage(language);
   await extension.setup();
   return {extension, loads, scheduled, messages, elements, writes, reads, warnings,
+    marker:()=>current?.extra?.kvd?.verification_load_id,
+    serialized:()=>structuredClone(current),
+    setMarker(value) { current.extra.kvd.verification_load_id = value; },
+    fireDeadline() {
+      const entry = [...timers].find(([,timer])=>timer.delay > 0);
+      assert.ok(entry,'pending native loads/recovery require a bounded failure deadline');
+      const [id,timer] = entry;
+      assert.ok(timer.delay <= 30000,'a deadline must be bounded');
+      timers.delete(id);
+      timer.callback();
+      return timer.delay;
+    },
+    outstandingTimers:()=>timers.size,
     setGraphReady() { graphReady = true; },
     async flush() { while (scheduled.length) await scheduled.shift()(); },
     receipt() { const entry = messages.findLast(message=>message.values[0] === '[KVD verification]'); return entry && JSON.parse(entry.values[1]); },
@@ -149,6 +186,10 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
     async whenLoadPaused() {
       while (!loadResumers.length) await new Promise(resolve=>loadWaiters.push(resolve));
       return loadResumers[0];
+    },
+    async whenReadPaused() {
+      while (!readResumers.length) await new Promise(resolve=>readWaiters.push(resolve));
+      return readResumers[0];
     },
   };
 }
@@ -293,6 +334,169 @@ test('a stalled call and an unrelated completion event cannot create successful 
   assert.equal(host.receipt().status,'FAIL');
   assert.match(host.receipt().reason,/native.*load/i);
   assert.equal(host.receipt().serialized_workflow,undefined);
+});
+
+test('F15: a pending second load fails within its deadline and verifies original-language recovery', async()=>{
+  const host = await harness({query:'?kvd-check=foundation&phase=roundtrip',dropLoadReturn:true,deferLoadNumber:2});
+  host.setGraphReady();
+  await host.extension.afterLoadGraph();
+  const running = host.flush();
+  const resume = await host.whenLoadPaused();
+  try {
+    assert.equal(host.persistedLanguage(),'ru');
+    assert.ok(host.marker());
+    const deadline = host.fireDeadline();
+    await running;
+    const receipt = host.receipt();
+    assert.equal(receipt.status,'FAIL');
+    assert.match(receipt.reason,/native.*load.*(deadline|timed out|exceeded)/i);
+    assert.equal(receipt.native_loads[1].timed_out,true);
+    assert.equal(receipt.native_loads[1].deadline_ms,deadline);
+    assert.equal(receipt.native_loads[1].return_state,'pending');
+    assert.equal(receipt.native_loads[1].acceptance_invalidated,true);
+    assert.equal(receipt.original_language_restored,true);
+    assert.equal(receipt.restored_persisted_language,'en');
+    assert.equal(host.persistedLanguage(),'en');
+    assert.equal(host.marker(),undefined);
+    assert.equal(host.saved(),undefined);
+    assert.equal(receipt.serialized_workflow,undefined);
+  } finally { resume(); await running; }
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(host.receipt().status,'FAIL','late settlement cannot revive the failed run');
+  assert.equal(host.saved(),undefined);
+  assert.equal(host.marker(),undefined);
+  assert.equal(host.outstandingTimers(),0);
+});
+
+test('F15: late configuration cleans its expired ID without saving or repeating verification', async()=>{
+  const host = await harness({pauseBeforeConfigureNumber:1,dropLoadReturn:true});
+  host.setGraphReady();
+  await host.extension.afterLoadGraph();
+  const running = host.flush();
+  const resume = await host.whenLoadPaused();
+  try {
+    host.fireDeadline();
+    await running;
+    assert.equal(host.receipt().status,'FAIL');
+    assert.equal(host.saved(),undefined);
+  } finally { resume(); await running; }
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(host.marker(),undefined);
+  assert.equal(host.loads.length,1,'no automatic retry');
+  assert.equal(host.receipt().status,'FAIL');
+  assert.equal(host.messages.filter(m=>m.values[0] === '[KVD verification]').length,1);
+  assert.equal(host.outstandingTimers(),0);
+});
+
+test('F15: late fulfillment or rejection preserves a newer request marker and remains failed', async()=>{
+  for (const rejectionAfterPause of [undefined,new Error('Late native rejection')]) {
+    const host = await harness({deferLoadNumber:1,dropLoadReturn:true,rejectionAfterPause});
+    host.setGraphReady();
+    await host.extension.afterLoadGraph();
+    const running = host.flush();
+    const resume = await host.whenLoadPaused();
+    try {
+      host.fireDeadline();
+      await running;
+      host.setMarker('newer-owned-or-foreign-request');
+    } finally { resume(); await running; }
+    await new Promise(resolve=>setImmediate(resolve));
+    assert.equal(host.receipt().status,'FAIL');
+    assert.equal(host.marker(),'newer-owned-or-foreign-request');
+    assert.equal(host.saved(),undefined);
+    assert.equal(host.loads.length,1);
+    const late = host.messages.find(m=>m.values[0] === '[KVD verification late load]');
+    assert.ok(late,'late settlements require honest diagnostics');
+    assert.equal(JSON.parse(late.values[1]).accepted,false);
+    assert.equal(host.outstandingTimers(),0);
+  }
+});
+
+test('F15: pending recovery is bounded and cannot claim a restored preference', async()=>{
+  const host = await harness({query:'?kvd-check=foundation&phase=roundtrip',deferLoadNumber:2,deferWrites:true});
+  host.setGraphReady();
+  await host.extension.afterLoadGraph();
+  const running = host.flush();
+  const saveRU = await host.whenWrite(1);
+  saveRU.resolve();
+  const resume = await host.whenLoadPaused();
+  let restore;
+  try {
+    host.fireDeadline();
+    restore = await host.whenWrite(2);
+    host.fireDeadline();
+    await running;
+    assert.equal(host.receipt().status,'FAIL');
+    assert.equal(host.receipt().original_language_restored,false);
+    assert.equal(host.receipt().restored_persisted_language,undefined);
+    assert.equal(host.persistedLanguage(),'ru');
+    assert.equal(host.marker(),undefined);
+    assert.equal(host.saved(),undefined);
+  } finally { restore?.resolve(); resume(); await running; }
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(host.receipt().status,'FAIL');
+  assert.equal(host.receipt().original_language_restored,false,'late recovery is not verified evidence');
+  assert.equal(host.saved(),undefined);
+  assert.equal(host.outstandingTimers(),0);
+});
+
+test('F15: stalled failure readback produces an unverified FAIL receipt within its own deadline', async()=>{
+  const host = await harness({deferLoadNumber:1,deferReadNumber:2});
+  host.setGraphReady();
+  await host.extension.afterLoadGraph();
+  const running = host.flush();
+  const resumeLoad = await host.whenLoadPaused();
+  let resumeRead;
+  try {
+    host.fireDeadline();
+    resumeRead = await host.whenReadPaused();
+    host.fireDeadline();
+    await running;
+    assert.equal(host.receipt().status,'FAIL');
+    assert.equal(host.receipt().persisted_language,'unverified');
+    assert.equal(host.receipt().original_language_restored,undefined,'no preference was changed');
+    assert.equal(host.marker(),undefined);
+    assert.equal(host.saved(),undefined);
+  } finally { resumeRead?.(); resumeLoad(); await running; }
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(host.receipt().status,'FAIL');
+  assert.equal(host.receipt().persisted_language,'unverified','late readback is not verified evidence');
+  assert.equal(host.outstandingTimers(),0);
+});
+
+test('F16: every failed post-load assertion removes only its current marker', async()=>{
+  for (const options of [{returnedOutcomes:[true,1]},{outcomes:[true,false]},
+    {losePanelsOnReload:true},{changeLoadedGraph(graph,count){if (count === 2) graph.nodes[2].widgets_values[2]=true;}}]) {
+    const host = await harness({query:'?kvd-check=foundation&phase=roundtrip',...options});
+    host.setGraphReady();
+    await host.extension.afterLoadGraph();
+    await host.flush();
+    assert.equal(host.receipt().status,'FAIL');
+    assert.equal(host.persistedLanguage(),'en');
+    assert.equal(host.marker(),undefined);
+    assert.equal(host.saved(),undefined);
+  }
+});
+
+test('F16: stale saved reserved IDs are stripped while other metadata and custom titles survive', async()=>{
+  const saved = structuredClone(fixture);
+  saved.nodes[1].title = 'Saved custom title / Сцена';
+  saved.extra.kvd.verification_load_id = 'old-verification-request';
+  saved.extra.kvd.other_metadata = {keep:'owned metadata'};
+  saved.extra.unrelated_metadata = {keep:'other metadata'};
+  const host = await harness({query:'?kvd-check=foundation&phase=persist',settingLanguage:'ru',savedWorkflow:saved,dropLoadReturn:true});
+  host.setGraphReady();
+  await host.extension.afterLoadGraph();
+  await host.flush();
+  assert.equal(host.receipt().status,'PASS');
+  assert.equal(saved.extra.kvd.verification_load_id,'old-verification-request','input is not mutated');
+  assert.notEqual(host.loads[0].data.extra.kvd.verification_load_id,'old-verification-request');
+  const expected = structuredClone(saved);
+  delete expected.extra.kvd.verification_load_id;
+  assert.deepEqual(host.receipt().serialized_workflow,expected);
+  assert.deepEqual(host.serialized(),expected);
+  assert.deepEqual(JSON.parse(host.saved()),expected);
+  assert.equal(host.outstandingTimers(),0);
 });
 
 test('first-load widget corruption rejects even when later serialization is stable', async()=>{

@@ -145,7 +145,7 @@ The 22 changed paths are documentation only; staged `git diff --check` passed. O
 
 ## M1-01 checkpoint, 2026-10-05
 
-Foundation owns shared schemas/contracts/registration/errors/version/dependencies and UI settings/translations. Actual schema 2.0.0 records, canonical portable Project I/O, four Project nodes and nine callable downstream protocols exist. The human narrowed storage to ordinary stable local folders in the [local storage decision](decisions/M1_LOCAL_STORAGE_SCOPE.md), superseding OS isolation claims after the fdce review. Independent source/CPU review approved `20541f938306ff6bbf80c01565fd318ea3bcbd82` under that contract. Its human-restarted snapshot registered all four classes. The opt-in UI fixture hit a loading error and falsely logged PASS, so appearance/persisted language/workflow reload remain BLOCKED. The scoped checker correction has negative and successful synthetic-host tests; its new exact candidate needs separate review and actual browser evidence. See [M1 foundation validation](validation/M1_FOUNDATION.md). GPU/video NOT PERFORMED; no CF acceptance, resource release or downstream launch. M1-04 is manual-generation handoff, M2/M3 remain gated.
+Foundation owns shared schemas/contracts/registration/errors/version/dependencies and UI settings/translations. Actual schema 2.0.0 records, canonical portable Project I/O, four Project nodes and nine callable downstream protocols exist. The human narrowed storage to ordinary stable local folders in the [local storage decision](decisions/M1_LOCAL_STORAGE_SCOPE.md), superseding OS isolation claims after the fdce review. Independent source/CPU review approved `20541f938306ff6bbf80c01565fd318ea3bcbd82` under that contract. Its human-restarted snapshot registered all four classes. The opt-in UI fixture hit a loading error and falsely logged PASS, so appearance/persisted language/workflow reload remain BLOCKED. The scoped checker correction has negative and successful synthetic-host tests; its new exact candidate needs separate review and actual browser evidence. See [M1 foundation validation](validation/M1_FOUNDATION.md). GPU/video NOT PERFORMED; no CF acceptance or runtime allocation release. The explicit M1-02 CPU ordering exception is recorded below. M1-04 is manual-generation handoff, M2/M3 remain gated.
 
 Exact-31 review then found unverified setting persistence/restoration and missing
 final panels (F12/F13). The owner follow-up includes the ordinary language
@@ -155,9 +155,13 @@ a new pinned review; installed205 stayed fixed during that source stage.
 Independent review then approved ac335, whose exact archive was refreshed with
 unchanged backend and verified served assets/registration. Actual ordinary
 selector/readback/restoration has partial browser evidence. Complete native
-graph/layout is still blocked; the new lifecycle/diagnostic checker has
-29 synthetic frontend checks and needs pinned review before deployment.
-The coordinator assigned M1-02 read-only preflight from exact reviewed ac335,
-with CPU work after explicit preflight release and checked stacked publication
+graph/layout is still blocked. The exact-daf review requested F15/F16 bounded
+failure/recovery and reserved-marker cleanup despite 29 passing frontend tests.
+The coherent owner correction retains ordered correlated loads and verified
+preference recovery, adds failure-only deadlines and safe late cleanup, and
+includes extension-aware shared tests. Fresh 36 frontend and 29 focused shared
+tests pass; the new exact candidate needs pinned review before deployment.
+Installed ac335 stays unchanged. The coordinator released M1-02 CPU work after
+preflight from exact reviewed ac335, with checked stacked publication
 targeting foundation. This grants no shared runtime/UI/CF acceptance or main
 merge; foundation retains shared-file/runtime ownership.
