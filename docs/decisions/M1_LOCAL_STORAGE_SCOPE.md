@@ -63,7 +63,10 @@ unchanged.
    presentation, brief/ledger/privacy and base-to-candidate diff. Publish the
    checked feature follow-up to draft PR #2 and report its exact SHA through AO.
 
-Shared runtime ownership is retained. Deployment, restart, live node execution,
-queues, inference, weights, user-video decoding/output inspection and GPU work
-remain unperformed. CF/downstream acceptance still requires separate review
-and actual registration/EN-RU/browser evidence.
+At this scope decision, deployment/restart and runtime execution were still
+unperformed. The reviewed `20541f9` snapshot was subsequently deployed and
+human-restarted; four-class registration passed. Its UI fixture needs a scoped
+readiness/checker correction and a new reviewed browser check, as recorded in
+[validation](../validation/M1_FOUNDATION.md). Shared ownership is retained;
+CF remains unaccepted. Node/workflow execution, queues, inference, weights,
+user-video decoding/output inspection and GPU work remain unperformed.

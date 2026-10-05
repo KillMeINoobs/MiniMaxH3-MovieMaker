@@ -66,8 +66,12 @@ layer is retired; useful typed-error/revision fixes and normal-use regressions
 remain. A new exact candidate requires review against that explicit revised
 contract. No CF/downstream acceptance follows from a draft PR or owner checks.
 
-The existing Desktop restart cannot be operated safely by available native
-automation. The supported instance-picker UI restart is reserved for the human
-after the corrected snapshot is reviewed and deployed. No alternate private
-IPC/lifecycle endpoint, shell kill, second server or stale CLI restart is used.
-Foundation retains shared-runtime ownership and generation reservation is NONE.
+Available native automation could not safely operate the Desktop restart.
+The human subsequently restarted the reviewed `20541f9` snapshot through the
+existing application; actual four-class registration passed. The opt-in UI
+fixture hit a loading/readiness failure and an invalid checker PASS. Its scoped
+source correction and synthetic regressions require separate pinned review and
+new browser evidence. No deployed patch or additional restart is performed at
+this follow-up stage. No private IPC/lifecycle endpoint, shell kill, second
+server or stale CLI restart is used. Foundation retains shared-runtime ownership
+and generation reservation is NONE.

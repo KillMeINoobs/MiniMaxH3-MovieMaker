@@ -182,6 +182,22 @@ Consumers add their own presentation registration and tests; shared amendments
 return to foundation. No dependency installation, model download or automatic
 generation belongs in node import, discovery or frontend setup.
 
+The human-restarted, source-approved `20541f938306ff6bbf80c01565fd318ea3bcbd82`
+snapshot registered all four classes. Its opt-in UI fixture aborted loading,
+so presentation/reload acceptance remains blocked. The checker follow-up waits
+for the public `afterLoadGraph` lifecycle hook, checks `app.isGraphReady` and
+canvas availability, and requires `loadGraphData` to return `true` for each
+native load. A caught load failure cannot count as PASS. These APIs are declared
+by the checked frontend's
+[v1.53.6 extension interface](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/types/comfy.ts)
+and [application API](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/scripts/app.ts).
+The deferred callback avoids recursively awaiting the loader from its own hook;
+elapsed time is not the readiness condition. Only the explicit opt-in synthetic
+fixture is loaded, with asset scans skipped and no queue call. Failed checks
+restore the original KVD preference when possible. This correction has synthetic
+tests; its updated live behavior still requires review/deployment acceptance.
+See the [validation receipt](validation/M1_FOUNDATION.md).
+
 ## Version, migration and unsupported features
 
 Schemas exported under `schemas/*.schema.json` are generated from bundled
