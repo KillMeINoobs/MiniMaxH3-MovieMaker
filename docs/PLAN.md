@@ -1,6 +1,6 @@
 # V2V-first staged product plan
 
-**M1-01 source/CPU approved at `20541f9`; four-class live registration PASS. UI fixture correction needs pinned review and new live acceptance; CF remains unaccepted. GPU NOT PERFORMED.** Follow the [preserved brief](PROJECT_BRIEF.md) and [superseding direction](PRODUCT_DIRECTION_V2V.md), [research](RESEARCH.md), [architecture](ARCHITECTURE.md), [contracts 2.0.0](CONTRACTS.md), [proposed nodes](NODE_CATALOG.md), [future workflow acceptance](WORKFLOW_SPEC.md) and [journal/cards](tasks/INDEX.md). Four Project nodes and shared contracts now exist; media/H3/editor operations remain future work. See [the actual handoff](FOUNDATION_HANDOFF.md), [execution scope](decisions/M1_EXECUTION_SCOPE.md) and [validation](validation/M1_FOUNDATION.md).
+**M1-01 source/CPU approved at `ac335b8`; four-class registration/served source PASS. Ordinary selector has partial browser evidence; native graph/layout gate remains BLOCKED. A new checker candidate needs pinned review; CF remains unaccepted. GPU NOT PERFORMED.** Follow the [preserved brief](PROJECT_BRIEF.md) and [superseding direction](PRODUCT_DIRECTION_V2V.md), [research](RESEARCH.md), [architecture](ARCHITECTURE.md), [contracts 2.0.0](CONTRACTS.md), [proposed nodes](NODE_CATALOG.md), [future workflow acceptance](WORKFLOW_SPEC.md) and [journal/cards](tasks/INDEX.md). Four Project nodes and shared contracts now exist; media/H3/editor operations remain future work. See [the actual handoff](FOUNDATION_HANDOFF.md), [execution scope](decisions/M1_EXECUTION_SCOPE.md) and [validation](validation/M1_FOUNDATION.md).
 
 Goal: a complete usable ComfyUI video node collection, built around gameplay/low-poly → cinematic V2V. Prove a short no-ref Canny/native-H3 path first. Then deliver scenes and reliable long-input execution, editable analyzed/enhanced prompts, optional image identity, measured continuation/cut resets, and real workflows. Additional controls and creation modes extend that product.
 
@@ -9,6 +9,13 @@ Goal: a complete usable ComfyUI video node collection, built around gameplay/low
 Exact document revision base **D0**: 1bfcc50e204797862b2bbc014fce00e4694c122c (first M0, not merged into main). Parent **B0**: 8e8cf7253862f94b7787d7065babf2878064ef82. This revision advances only its assigned branch from B0 to D0 before editing; it does not integrate main. Neither main nor an unreviewed documentation branch is an automatic implementation launch base.
 
 Accepted **C0** is `7960568eff779c8c35c3d28a985a243368b91c26`, the actual merged documentation base containing M0 head `9dac703183e3e56929432054f5ebc6d63c26d8e2`. Foundation starts from C0. CF remains unaccepted; the corrected candidate is pinned through AO/draft PR2 for incremental independent review. A checked common commit may live on an explicitly selected shared integration branch; no main merge is implied. Each dependent verifies the actual full SHA, required interfaces/files and checks there. Symbolic labels and presumed unmerged files are insufficient.
+
+The coordinator explicitly assigned M1-02 read-only preflight on source-reviewed
+`ac335b87c966b3353c5115c663d4344ff08c01a0`; its CPU-only implementation follows
+the separate preflight release while full UI/CF acceptance remains blocked.
+This ordering exception grants no ComfyUI/browser/deployment/GPU allocation.
+Foundation keeps sole shared-file/runtime ownership; interface changes return
+to that owner, and downstream integration still requires checked assigned SHAs.
 
 ~~~mermaid
 flowchart TD
@@ -68,7 +75,7 @@ M3 controls/modes can share a base with disjoint areas; GPU validation and share
 
 ## M1 shortest verified path
 
-1. Accept revised M0, record C0 and assign foundation/publication scope. Implement/check shared 2.0.0 records and optional-import-safe skeleton; separately review/integrate CF.
+1. Accept revised M0, record C0 and assign foundation/publication scope. Implement/check shared 2.0.0 records and optional-import-safe skeleton; separately review/integrate CF. The explicit ac335 CPU-only M1-02 exception above does not satisfy the outstanding live UI gate.
 2. Media produces actual timestamp normalization, canonical disk artifacts, balanced no-context windows, spatial transforms and absolute audio accounting. Adapter works against CF conformance fixtures, knowing real media code is absent there.
 3. Integrate CM; finish adapter on that actual common commit. Expand normal native nodes, exact Canny maps, frozen visible prompt/seed/profile and useful finalization. Source RGB/audio ref, guide and inpaint inputs are absent; refs/context empty. Review/check CH.
 4. Prepare a real, registered workflow for the human with the approved existing runtime/models. Workers do not enqueue, load models or perform inference. Template converted Ref2VA + original Union is first recipe. A deliberate v2 profile needs ten-block/AdaLN/post_norm/conversion validation, not filename substitution. No implicit installs/downloads/ComfyUI changes.
@@ -116,7 +123,7 @@ Normalization compares F/24 with the decoded source span D: error <=1/48 s when 
 
 ## Environment, publication and review
 
-Current M1 assignment authorizes own feature commits/SSH push, one draft PR, isolated CPU verification and an own-package snapshot for registration/UI checks. No main merge. The human restarted the reviewed `20541f9` snapshot; registration passed. The observed own fixture failure now requires a source correction and separate pinned review before deployment changes. No further restart, lifecycle workaround, second server, shared-venv/core/other-pack change, generation or weights are authorized at this follow-up stage. CF remains gated by independent review and actual live evidence.
+Current M1 assignment authorizes own feature commits/SSH push, one draft PR, isolated CPU verification and reviewed own-package snapshots for registration/UI checks. No main merge. Human-restarted205 registered; reviewed ac335 was refreshed from its exact archive with unchanged backend and served-source proof. The new checker compatibility/diagnostic correction requires pinned review before deployment. No further restart, lifecycle workaround, second server, shared-venv/core/other-pack change, generation or weights are authorized at this follow-up stage. CF remains gated by independent review and actual live evidence.
 
 The following M0 publication record is historical:
 
@@ -144,4 +151,13 @@ Exact-31 review then found unverified setting persistence/restoration and missin
 final panels (F12/F13). The owner follow-up includes the ordinary language
 selector, a shared awaited save/readback helper and localized honest failure
 state, plus repeated graph/panel checks. These source/CPU corrections require
-a new pinned review; the installed 205 snapshot and live/CF gates remain unchanged.
+a new pinned review; installed205 stayed fixed during that source stage.
+Independent review then approved ac335, whose exact archive was refreshed with
+unchanged backend and verified served assets/registration. Actual ordinary
+selector/readback/restoration has partial browser evidence. Complete native
+graph/layout is still blocked; the new lifecycle/diagnostic checker has
+29 synthetic frontend checks and needs pinned review before deployment.
+The coordinator assigned M1-02 read-only preflight from exact reviewed ac335,
+with CPU work after explicit preflight release and checked stacked publication
+targeting foundation. This grants no shared runtime/UI/CF acceptance or main
+merge; foundation retains shared-file/runtime ownership.

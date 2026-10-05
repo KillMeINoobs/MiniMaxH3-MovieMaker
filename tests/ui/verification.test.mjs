@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 import { pathToFileURL } from 'node:url';
+import { randomUUID } from 'node:crypto';
 
 const fixture = JSON.parse(await readFile('workflows/foundation_project.json', 'utf8'));
 const checkerSource = await readFile('web/zz_verification.js', 'utf8');
@@ -11,9 +12,12 @@ const presentationSource = await readFile('web/common/presentation.js', 'utf8');
 async function harness({query='?kvd-check=foundation&phase=display', outcomes=[], changeInitialGraph, changeLoadedGraph,
   readyAtSetup=false, unavailableCanvas=false, settingLanguage='en', storedLanguage=settingLanguage,
   savedWorkflow, deferWrites=false, writeOutcomes=[], readStatus=200, losePanelsOnReload=false,
-  loseCanvasOnReload=false, losePanelsAfterFinalRead=false, malformedRead=false}={}) {
+  loseCanvasOnReload=false, losePanelsAfterFinalRead=false, malformedRead=false,
+  dropLoadReturn=false, loadHookSequences=[], returnedOutcomes=[], rejections=[],
+  staleConfigureData=false, staleCompletionGraph=false, deferLoads=false}={}) {
   const scheduled = [], loads = [], messages = [], elements = [], stored = new Map();
   const writes = [], writeWaiters = [], reads = [], warnings = [];
+  const loadResumers = [], loadWaiters = [];
   let extension, current, graphReady = readyAtSetup, language = settingLanguage;
   let persisted = storedLanguage;
   let panelsLost = false;
@@ -47,15 +51,38 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
     canvas: unavailableCanvas ? null : {ds:{}, setDirty() {}},
     async loadGraphData(data, ...options) {
       loads.push({data:structuredClone(data), options});
+      const outcome = (loads.length - 1) in outcomes ? outcomes[loads.length - 1] : true;
+      const hooks = loadHookSequences[loads.length - 1] ||
+        ['beforeLoadGraph','beforeConfigureGraph','afterConfigureGraph','afterLoadGraph'];
+      for (const hook of hooks.filter(name=>name.startsWith('before'))) {
+        const hookData = structuredClone(data);
+        if (staleConfigureData && hook === 'beforeConfigureGraph')
+          hookData.extra.kvd.verification_load_id = 'previous-request';
+        await extension[hook]?.(hookData);
+      }
+      if ((loads.length - 1) in rejections) throw rejections[loads.length - 1];
       current = structuredClone(data);
       if (loads.length === 1) changeInitialGraph?.(current);
       changeLoadedGraph?.(current, loads.length);
       if (loseCanvasOnReload && loads.length === 2) app.canvas = null;
-      await extension.afterLoadGraph?.();
-      const outcome = (loads.length - 1) in outcomes ? outcomes[loads.length - 1] : true;
-      return graphReady ? outcome : false;
+      // The native configure catch returns false before either completion hook.
+      if (!graphReady || outcome !== true) return graphReady ? outcome : false;
+      for (const hook of hooks.filter(name=>name.startsWith('after'))) {
+        if (hook === 'afterLoadGraph' && deferLoads) await new Promise(resolve=>{
+          loadResumers.push(resolve);
+          for (const waiter of loadWaiters.splice(0)) waiter();
+        });
+        if (staleCompletionGraph) current.extra.kvd.verification_load_id = 'previous-request';
+        await extension[hook]?.();
+      }
+      return (loads.length - 1) in returnedOutcomes ? returnedOutcomes[loads.length - 1] : true;
     },
   };
+  if (dropLoadReturn) {
+    const original = app.loadGraphData;
+    // Same return-discarding semantics as the independently fetched live wrapper.
+    app.loadGraphData = async function (...args) { await original.apply(this,args); };
+  }
   Object.defineProperty(app,'isGraphReady',{get:()=>graphReady});
   Object.defineProperty(app, 'graph', {get() {
     assert.ok(graphReady, 'checker accessed the graph before initialization');
@@ -64,11 +91,11 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
       Object.defineProperty(node,'title',{get:()=>data.title,set:value=>{data.title=value;}});
       return node;
     });
-    return {_nodes:nodes, links:current.links, serialize:()=>structuredClone(current),
+    return {_nodes:nodes, links:current.links, extra:current.extra, serialize:()=>structuredClone(current),
       getNodeById:id=>nodes.find(node=>node.id === id)};
   }});
   const context = vm.createContext({
-    URL, URLSearchParams, structuredClone,
+    URL, URLSearchParams, structuredClone, crypto:{randomUUID},
     location:{search:query},
     document:{
       createElement() { const element = {style:{}, setAttribute(){}, textContent:''}; elements.push(element); return element; },
@@ -119,6 +146,10 @@ async function harness({query='?kvd-check=foundation&phase=display', outcomes=[]
       while (writes.length < count) await new Promise(resolve=>writeWaiters.push(resolve));
       return writes[count-1];
     },
+    async whenLoadPaused() {
+      while (!loadResumers.length) await new Promise(resolve=>loadWaiters.push(resolve));
+      return loadResumers[0];
+    },
   };
 }
 
@@ -158,6 +189,110 @@ test('a caught native configure failure returning false cannot produce PASS', as
     assert.match(host.receipt().reason,/native.*load/i);
     assert.equal(host.language(),'en');
   }
+});
+
+test('a return-dropping wrapper requires the full per-call native lifecycle and exact graph', async()=>{
+  const host = await harness({query:'?kvd-check=foundation&phase=roundtrip',dropLoadReturn:true});
+  host.setGraphReady();
+  await host.extension.afterLoadGraph();
+  await host.flush();
+  assert.equal(host.receipt().status,'PASS');
+  assert.equal(host.receipt().native_loads.length,2);
+  for (const load of host.receipt().native_loads) {
+    assert.equal(load.return_type,'undefined');
+    assert.equal(load.return_value,'undefined');
+    assert.deepEqual(load.hooks,['beforeLoadGraph','beforeConfigureGraph','afterConfigureGraph','afterLoadGraph']);
+    assert.equal(load.requested_graph_matched,true);
+    assert.equal(load.completion,'native_lifecycle_and_graph');
+  }
+  assert.equal(host.receipt().native_serialization,'passed');
+});
+
+test('hidden native abort or incomplete lifecycle never accepts a void/true result', async()=>{
+  for (const options of [
+    {dropLoadReturn:true,outcomes:[false]},
+    {dropLoadReturn:true,loadHookSequences:[['beforeLoadGraph','beforeConfigureGraph','afterConfigureGraph']]},
+    {loadHookSequences:[['afterLoadGraph']]},
+    {dropLoadReturn:true,loadHookSequences:[['beforeLoadGraph','beforeLoadGraph','beforeConfigureGraph','afterConfigureGraph','afterLoadGraph']]},
+    {loadHookSequences:[['beforeLoadGraph','beforeConfigureGraph','afterLoadGraph','afterConfigureGraph']]},
+    {returnedOutcomes:[null]}, {returnedOutcomes:[1]}, {returnedOutcomes:['true']},
+  ]) {
+    const host = await harness(options);
+    host.setGraphReady();
+    await host.extension.afterLoadGraph();
+    await host.flush();
+    assert.equal(host.receipt().status,'FAIL');
+    assert.equal(host.saved(),undefined);
+    assert.match(host.receipt().reason,/native.*load/i);
+    assert.ok(Array.isArray(host.receipt().native_loads),'failed loads must retain their observed return and hook evidence');
+    assert.equal(host.receipt().native_loads.length,1);
+    assert.ok(host.receipt().native_loads[0].return_type);
+  }
+});
+
+test('failed native loads retain typed return and readiness diagnostics without claiming success', async()=>{
+  const host = await harness({outcomes:[false]});
+  host.setGraphReady();
+  await host.extension.afterLoadGraph();
+  await host.flush();
+  const receipt = host.receipt();
+  assert.equal(receipt.status,'FAIL');
+  assert.ok(Array.isArray(receipt.native_loads),'failed loads must retain diagnostics');
+  assert.equal(receipt.native_loads[0].return_type,'boolean');
+  assert.equal(receipt.native_loads[0].return_value,false);
+  assert.deepEqual(receipt.native_loads[0].hooks,['beforeLoadGraph','beforeConfigureGraph']);
+  assert.equal(receipt.native_loads[0].ready_before.graph,true);
+  assert.equal(receipt.native_loads[0].ready_after.canvas,true);
+  assert.match(receipt.error_stack,/Native.*load/i);
+  assert.equal(receipt.native_loads[0].completion,undefined);
+});
+
+test('native promise rejection retains its actual error and stack, including a stackless rejection', async()=>{
+  for (const rejection of [new Error('Native load rejection'),undefined]) {
+    const host = await harness({rejections:[rejection]});
+    host.setGraphReady();
+    await host.extension.afterLoadGraph();
+    await host.flush();
+    const receipt = host.receipt();
+    assert.equal(receipt.status,'FAIL');
+    assert.equal(receipt.native_loads[0].rejected,true);
+    assert.equal(receipt.native_loads[0].error,String(rejection?.message ?? rejection));
+    assert.equal(receipt.native_loads[0].error_stack,rejection?.stack ?? null);
+    assert.equal(receipt.error_stack,rejection?.stack ?? null);
+    assert.equal(receipt.reason,String(rejection?.message ?? rejection));
+    assert.equal(receipt.serialized_workflow,undefined);
+    assert.equal(host.saved(),undefined);
+  }
+});
+
+test('stale lifecycle data cannot complete this request even with identical nodes and links', async()=>{
+  for (const options of [{staleConfigureData:true},{staleCompletionGraph:true}]) {
+    const host = await harness({dropLoadReturn:true,...options});
+    host.setGraphReady();
+    await host.extension.afterLoadGraph();
+    await host.flush();
+    assert.equal(host.receipt().status,'FAIL');
+    assert.match(host.receipt().reason,/native.*load/i);
+    assert.equal(host.receipt().serialized_workflow,undefined);
+    assert.equal(host.saved(),undefined);
+  }
+});
+
+test('a stalled call and an unrelated completion event cannot create successful evidence', async()=>{
+  const host = await harness({deferLoads:true,dropLoadReturn:true});
+  host.setGraphReady();
+  await host.extension.afterLoadGraph();
+  const running = host.flush();
+  const resume = await host.whenLoadPaused();
+  await host.extension.afterLoadGraph(); // Stale event while the actual native call is still pending.
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(host.receipt(),undefined);
+  assert.equal(host.saved(),undefined);
+  resume(); // The real completion now produces a duplicate event, which must reject.
+  await running;
+  assert.equal(host.receipt().status,'FAIL');
+  assert.match(host.receipt().reason,/native.*load/i);
+  assert.equal(host.receipt().serialized_workflow,undefined);
 });
 
 test('first-load widget corruption rejects even when later serialization is stable', async()=>{
@@ -203,7 +338,13 @@ test('completed native roundtrip checks preserve fixture data and persist RU', a
   assert.equal(host.receipt().persisted_language,'ru');
   const expected = structuredClone(fixture);
   expected.nodes[1].title = 'KVD check · custom / Сцена';
-  assert.deepEqual(host.loads[1].data,expected);
+  const loaded = structuredClone(host.loads[1].data);
+  assert.equal(loaded.extra.kvd.verification_load_id,host.receipt().native_loads[1].load_id);
+  assert.notEqual(host.receipt().native_loads[0].load_id,host.receipt().native_loads[1].load_id);
+  delete loaded.extra.kvd.verification_load_id;
+  assert.deepEqual(loaded,expected);
+  assert.deepEqual(host.receipt().serialized_workflow,expected);
+  assert.deepEqual(JSON.parse(host.saved()),expected,'transient load IDs must not alter the saved fixture');
 });
 
 test('unset preference remains distinct from EN default before verified RU persistence', async()=>{
@@ -264,6 +405,21 @@ test('persist phase requires the saved native graph and existing RU preference',
   assert.match(missing.receipt().reason,/persist/i);
 });
 
+test('a stale saved graph with different types or values is rejected before native loading', async()=>{
+  for (const change of [graph=>{graph.nodes[0].type='UnexpectedNode';},
+    graph=>{graph.nodes[2].widgets_values[2]=true;}]) {
+    const saved = structuredClone(fixture);
+    change(saved);
+    const host = await harness({query:'?kvd-check=foundation&phase=persist',settingLanguage:'ru',savedWorkflow:saved});
+    host.setGraphReady();
+    await host.extension.afterLoadGraph();
+    await host.flush();
+    assert.equal(host.receipt().status,'FAIL');
+    assert.equal(host.loads.length,0,'only the approved Project fixture may reach native loading');
+    assert.match(host.receipt().reason,/saved.*fixture/i);
+  }
+});
+
 test('F12: pending/rejected native save cannot produce PASS or a persisted fixture', async()=>{
   const host = await harness({query:'?kvd-check=foundation&phase=roundtrip',deferWrites:true});
   host.setGraphReady();
@@ -313,7 +469,8 @@ test('F12: resolved HTTP-error save and unavailable readback cannot claim persis
 });
 
 test('F13: each reload requires owned panels and a usable canvas', async()=>{
-  for (const options of [{losePanelsOnReload:true},{loseCanvasOnReload:true},{losePanelsAfterFinalRead:true}]) {
+  for (const options of [{losePanelsOnReload:true},{loseCanvasOnReload:true},{losePanelsAfterFinalRead:true},
+    {dropLoadReturn:true,losePanelsOnReload:true}]) {
     const host = await harness({query:'?kvd-check=foundation&phase=roundtrip',...options});
     host.setGraphReady();
     await host.extension.afterLoadGraph();

@@ -8,8 +8,8 @@ This Markdown directory is our journal, **not an AO built-in scheduler**. Cards 
 |---|---|---|
 | First M0 | Original documentation outcome | Published D0, included by the accepted merged C0 |
 | M0-V2V-REVISION | Research/documentation owner | Accepted merged C0; brief and source ledger preserved |
-| [M1-01 foundation](M1-01-FOUNDATION.md) | Assigned foundation owner | Source/CPU approved205; registration PASS; UI correction review/live gate pending, CF unaccepted |
-| [M1-02 media](M1-02-MEDIA.md) | Media owner, unassigned | PROPOSED / NOT STARTED; checked CF |
+| [M1-01 foundation](M1-01-FOUNDATION.md) | Assigned foundation owner | Reviewed ac335 deployed; registration/served source PASS; selector partial; native graph/layout BLOCKED; new checker review pending; CF unaccepted |
+| [M1-02 media](M1-02-MEDIA.md) | Coordinator-assigned media owner | Read-only preflight on reviewed ac335; CPU implementation after explicit release; no runtime/browser/GPU allocation |
 | [M1-03 H3](M1-03-H3.md) | Adapter owner, unassigned | PROPOSED / NOT STARTED; CF start, actual CM for finish |
 | [M1-04 human handoff](M1-04-GPU-GATE.md) | Future handoff owner; human generation | GATED on CH; prepare real workflow; GPU NOT PERFORMED until human evidence |
 | [M2-01 editor](M2-01-EDITOR.md) | Editor owner, unassigned | PROPOSED / GATED; accepted real CG |
@@ -33,6 +33,7 @@ GPU/H3/ComfyUI/ports/output/venv/model changes are sequential under one explicit
 | D0 | Exact task research/document base; published first M0 | 1bfcc50e204797862b2bbc014fce00e4694c122c |
 | C0 | Accepted revised M0 common commit | 7960568eff779c8c35c3d28a985a243368b91c26; includes M0 final9dac703183e3e56929432054f5ebc6d63c26d8e2 |
 | CF | Reviewed/checked foundation | NOT ACCEPTED; draftPR2 corrected candidate pinned through AO; live gate BLOCKED |
+| M1-02 CPU interface base | Explicit source-only dependency exception | ac335b87c966b3353c5115c663d4344ff08c01a0; read-only preflight, then coordinator-released CPU work; no full CF/UI acceptance or main merge |
 | CM | CF + checked media outcome | NOT CREATED |
 | CH | CM + reviewed/checked adapter integration | NOT CREATED |
 | CG | CH + real reviewed sample and accepted GPU decision | NOT CREATED; GPU NOT PERFORMED |
@@ -65,4 +66,26 @@ corrections. The owner corrected both checker and ordinary selector using a
 shared awaited save plus status-checked server readback of only KVD.Language.
 Localized saving/error/current/stored/recovery state and repeated final panel
 assertions have meaningful negative/success module tests. The new checked
-candidate goes to pinned review; no live acceptance or deployment release follows.
+candidate was independently approved at ac335; its exact archive was then
+deployed with unchanged backend. Actual ordinary EN/RU selector text and saved
+own preference/readback/restoration were observed; other preference hashes
+stayed unchanged. Complete layout/native roundtrip remains blocked. A served
+wrapper discards the native load result; its exact runtime value is unrecorded.
+The new owned checker captures return/stack/readiness and correlates the full
+native per-call hook sequence with exact graph/panel assertions and a transient
+request ID. Its 29 frontend
+checks pass on synthetic hosts, including hidden-abort cases. That new source
+needs pinned review before deployment; installed ac335 stays fixed. No CF or
+shared-resource release follows from partial browser evidence.
+
+The coordinator assigned a second implementer for M1-02 read-only preflight
+from exact source-reviewed `ac335b87c966b3353c5115c663d4344ff08c01a0`.
+CPU-only owned media/planning/assembly work follows its explicit preflight
+release while UI/CF remains blocked. This is a dependency-order exception,
+not a main merge or runtime/GPU grant. Foundation still owns shared contracts,
+package/dependencies, frontend and central docs and is the only ComfyUI owner.
+Media shared-interface changes return to foundation/coordinator; no moving or
+unreviewed branch is integrated. Two implementers maximum; review stays separate.
+The coordinator authorized media's checked publication as a stacked PR targeting
+the foundation feature branch. Its CPU dependency remains frozen at ac335;
+later UI/docs changes grant no live acceptance or unreviewed integration.
