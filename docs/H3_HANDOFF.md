@@ -312,8 +312,15 @@ save/reload still require the separate live gate.
 
 Verification details and unperformed checks are recorded in
 [M1_ADAPTER.md](validation/M1_ADAPTER.md). Publication is released as one draft
-stacked on the exact CM69ed media branch; independent full H3 source/CPU review
-and the separate human/native/GPU gates remain pending.
+stacked on the exact CM69ed media branch. The
+[completed d5be source/CPU review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/4#pullrequestreview-5419547665)
+requested only H4/H5. Correction commit
+`cd38bf8e6a77d776aa0e18c6785f85524e004307` adds typed redacted rejection for
+nonfinite native schema options and malformed dtype containers, preserving
+valid schema/header fingerprints. The current owner Python run passes398
+with the native-Canny/POSIX skips;54 frontend passes are retained at unchanged
+blobs. Independent correction review and separate human/native/GPU gates remain
+pending. Manual workflow artifacts and setup instructions are unchanged.
 
 ## Original released implementation plan (historical)
 

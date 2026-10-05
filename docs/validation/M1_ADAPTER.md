@@ -2,8 +2,8 @@
 
 Evidence boundary: **source/schema, CPU media and constructed decoded RGB/PCM**.
 No private source video, generated output, native executor/queue, model load,
-live UI, weights, inference or GPU operation occurred. Independent full H3
-source review and installed/human acceptance remain pending. Both workflows
+live UI, weights, inference or GPU operation occurred. Independent correction
+review and installed/human acceptance remain pending. Both workflows
 are diagnostic, with muted outputs.
 
 The whole independently reviewed media common
@@ -17,7 +17,8 @@ Exact reviewed local media-test amendment88b844 and foundationf231 (including
 c08) were then normally merged whole, preserving every parent. Their full SHAs
 and merge commits are in [the handoff](../H3_HANDOFF.md). Shared owner content
 is included exactly; it was not manually rewritten. Published media/foundation
-refs remain69ed/c923. Independent full H3 review still follows this candidate.
+refs remain69ed/c923. The completed d5be review requested only H4/H5; the
+correction candidate still requires independent review.
 
 The isolated environment retains the unchanged verification lock. No
 Torch/Kornia/runtime package was installed. Existing FFmpeg/ffprobe
@@ -28,10 +29,11 @@ media I/O; private executable/capture paths and detailed receipts stay in AO.
 
 | Check | Actual outcome / limit |
 | --- | --- |
-| Final integrated Python CPU suite | 381 passed, zero failures, two explicit skips in85.22s after both reviewed whole merges and owned widget corrections; prior340PASS/2FAIL/2SKIP preserved below |
+| Current correction Python CPU suite | 398 passed, zero failures, two explicit skips in92.17s at correction commit cd38bf8; includes17 new metadata cases and unchanged integrated media/workflow coverage |
+| Prior d5be Python CPU suite | Retained381 passes/two explicit skips in85.22s; earlier340PASS/2FAIL/2SKIP preserved below |
 | Media/H3 integration regressions | 16 passes: real normalization/preparation, explicit off, exact authored prompt, actual GraphBuilder links, constructed decoded AV, finalization, result selection and export |
 | Aggregate control disk budget | One pass: constructed raw RGB plus recipe receipt share the actual reviewed operation quota; these are not Canny contour bytes |
-| Both workflow schema preflights | 13 focused passes: actual integrated classes plus immutable32-class capture and PreviewImage supplement; explicit native widget sockets, typed ports and unchanged10/15 preparation /23/43 generation nodes/links |
+| Both workflow schema preflights | 13 cases included in the current Python suite; artifacts/metadata remain unchanged from d5be, with immutable33 native schemas, explicit widget sockets, typed ports and10/15 preparation /23/43 generation nodes/links |
 | Native Canny synthetic contour | **NOT PERFORMED**; isolated environment lacks native Comfy/Torch/Kornia. Opt-in skip is not a fallback/mock contour receipt |
 | Native GraphBuilder | Hash-checked actual stdlib-only source `dabb3f75952a1398891ed87ad853d4ea9c929f322ce6997d4ea916adbc2f209d`; no native executor/sampler/model import or call |
 | Graph/profile/header checks | Actual links/ports/required parameters, exact prompt/u64 seed, structural off, stale/profile/AdaLN/v1-v2/dtype/malformed-envelope rejection; checkpoint headers and model availability are explicitly synthetic |
@@ -39,7 +41,7 @@ media I/O; private executable/capture paths and detailed receipts stay in AO.
 | Source/global audio | Original global PCM and nonzero source offset retained byte-for-byte in synthetic export; no audio-guide conditioning |
 | Generated audio bridge | Constructed stereo32k PCM on the actual 40Hz/800-sample native grid; useful trim, reported endpoint pad, one resample to Project rate/layout, absolute Q counts and two-window impulse boundary; native Torch AUDIO conversion unperformed |
 | Collection/history | Actual reviewed selection, complete Project.media closure, current JSON array, distinct attempt artifact IDs, changed PCM digest, and partial coverage rejection without source fallback |
-| EN/RU/frontend | 54 passed, zero failures/skips in484.0403ms; actual shared/owned modules in synthetic hosts, not live H3 UI acceptance |
+| EN/RU/frontend | Retained54 passes, zero failures/skips in484.0403ms at d5be; all frontend/test blobs unchanged, no rerun. Synthetic hosts do not establish live H3 UI acceptance |
 | Resource metadata | Original 32-class capture and separate PreviewImage supplement hashes checked. Baseline UNET filename absent: honest `MODEL_INCOMPATIBLE` before checkpoint access |
 | Installed custom nodes, real workflow/contours/H3/GPU/quality/cancel/VRAM and human result | **NOT PERFORMED / BLOCKED** at separately allocated runtime and human gates |
 
@@ -104,6 +106,22 @@ Actual-module regressions preserve all three corrections:
   `MODEL_INCOMPATIBLE` before expansion. No native loader/dtype execution.
 - H3: malformed envelope/sections/core revision yield useful redacted
   `MODEL_INCOMPATIBLE` before GraphBuilder/model-provider access.
+
+## Completed review and H4/H5 correction
+
+The [complete d5be review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/4#pullrequestreview-5419547665)
+requested only H4/H5. Correction commit
+`cd38bf8e6a77d776aa0e18c6785f85524e004307` rejects nonfinite native schema
+numbers before fingerprint/GraphBuilder use and validates scalar dtype strings
+before header lookup. Errors remain redacted `MODEL_INCOMPATIBLE`; no blanket
+exception catch was added. All33 supplied finite schema fingerprints and valid
+tiny header content hashes remain unchanged.
+
+The new regressions first produced11 failures/six passes, including the actual
+raw ValueError/TypeError triggers. Focused correction/nearby checks then passed52
+cases; the one current full Python run passed398 with the two explicit skips.
+These are owner synthetic/source receipts, not independent correction approval
+or native Canny/H3/GPU evidence. Detailed logs and publication receipts stay in AO.
 
 ## Reproduction
 
