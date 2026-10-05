@@ -1,8 +1,7 @@
-"""Directory identity protection and same-destination publication leases.
+"""Local path checks and cooperative publication leases.
 
-Windows holds non-delete-sharing handles to every path component. POSIX uses
-directory-relative descriptors and O_NOFOLLOW. Optional native APIs are imported
-only on their platform; no third-party runtime dependency is required.
+Supported input is a stable, user-selected local folder with regular files.
+These standard Python operations are not an OS isolation boundary.
 """
 from contextlib import contextmanager
 import errno
@@ -10,153 +9,90 @@ import os
 from pathlib import Path
 import stat
 
-from ..errors import fail
+from ..errors import ContractError, fail
 from .validation import validate_locator
 
 
-def _win_api():
-    import ctypes
-    from ctypes import wintypes
-    api = ctypes.WinDLL("kernel32", use_last_error=True)
-    api.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD,
-        wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
-    api.CreateFileW.restype = wintypes.HANDLE
-    api.GetFileAttributesW.argtypes = [wintypes.LPCWSTR]
-    api.GetFileAttributesW.restype = wintypes.DWORD
-    api.CloseHandle.argtypes = [wintypes.HANDLE]
-    api.CloseHandle.restype = wintypes.BOOL
-    return ctypes, api
-
-
-def _win_open(path, access, share, disposition, *, directory=False):
-    ctypes, api = _win_api()
-    # OPEN_REPARSE_POINT; directories additionally require BACKUP_SEMANTICS.
-    flags = 0x00200000 | (0x02000000 if directory else 0)
-    handle = api.CreateFileW(str(path), access, share, None, disposition, flags, None)
-    if handle == ctypes.c_void_p(-1).value:
-        raise ctypes.WinError(ctypes.get_last_error())
+def _resolve_path(value):
+    """Normalize paths without exposing resolver errors or machine paths."""
     try:
-        attributes = api.GetFileAttributesW(str(path))
-        if attributes == 0xFFFFFFFF:
-            raise ctypes.WinError(ctypes.get_last_error())
-        if attributes & 0x400:  # FILE_ATTRIBUTE_REPARSE_POINT
-            fail("INVALID_LOCATOR", "Project I/O cannot follow a reparse point.")
-        if bool(attributes & 0x10) != directory:
-            fail("PROJECT_IO_ERROR", "The project path has an unexpected file type.")
-        return handle
-    except BaseException:
-        api.CloseHandle(handle)
-        raise
+        return Path(value).resolve()
+    except (OSError, RuntimeError, TypeError, ValueError):
+        # Python 3.11 reports symlink loops as RuntimeError; newer versions may
+        # use OSError. Suppress the context, which can include an absolute path.
+        raise ContractError("PROJECT_IO_ERROR", "The project path cannot be resolved.") from None
 
 
-def _win_fd(path, *, write=False):
-    import msvcrt
-    _, api = _win_api()
-    # Readers deny write/delete sharing while the bytes are read. A lease file
-    # shares read/write with other contenders, but denies replacement/deletion.
-    handle = _win_open(path, 0xC0000000 if write else 0x80000000,
-                       3 if write else 1, 4 if write else 3)
+def selected_path(project_root, relative_path):
+    validate_locator(relative_path)
+    root = _resolve_path(project_root)
     try:
-        return msvcrt.open_osfhandle(handle, (os.O_RDWR if write else os.O_RDONLY) | os.O_BINARY)
-    except BaseException:
-        api.CloseHandle(handle)
-        raise
+        is_folder = root.is_dir()
+    except (OSError, ValueError):
+        raise ContractError("PROJECT_IO_ERROR", "The selected project folder cannot be opened.") from None
+    if not is_folder:
+        fail("PROJECT_IO_ERROR", "Select an existing local project folder.")
+    target = _resolve_path(root.joinpath(*relative_path.split("/")))
+    if not target.is_relative_to(root) or target == root:
+        fail("INVALID_LOCATOR", "The locator escapes the selected project folder.")
+    return target
 
 
 class Parent:
-    def __init__(self, path, fd=None):
-        self.path, self.fd = path, fd
+    def __init__(self, path):
+        self.path = path
 
     def read(self, name):
-        fd = _win_fd(self.path / name) if os.name == "nt" else os.open(
-            name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=self.fd)
-        try:
-            if not stat.S_ISREG(os.fstat(fd).st_mode):
-                fail("PROJECT_IO_ERROR", "Project input must be a regular file.")
-            return os.fdopen(fd, "rb")
-        except BaseException:
-            os.close(fd)
-            raise
+        path = self.path / name
+        # Check before opening: a stable FIFO/device must never enter a blocking
+        # read. Folder/file replacement during this operation is unsupported.
+        if not stat.S_ISREG(path.stat().st_mode):
+            fail("PROJECT_IO_ERROR", "Project input must be a regular file.")
+        return path.open("rb")
 
     def exists(self, name):
         try:
-            info = os.stat(self.path / name, follow_symlinks=False) if os.name == "nt" else os.stat(
-                name, dir_fd=self.fd, follow_symlinks=False)
-            if not stat.S_ISREG(info.st_mode):
+            if not stat.S_ISREG((self.path / name).stat().st_mode):
                 fail("INVALID_LOCATOR", "Project destination must be a regular file.")
             return True
         except FileNotFoundError:
             return False
 
     def publish(self, temporary, name, overwrite):
-        if os.name == "nt":
-            source, target = self.path / temporary, self.path / name
-            if overwrite:
-                os.replace(source, target)
-            else:
-                os.link(source, target)
-        elif overwrite:
-            os.replace(temporary, name, src_dir_fd=self.fd, dst_dir_fd=self.fd)
+        source, target = self.path / temporary, self.path / name
+        if overwrite:
+            os.replace(source, target)
         else:
-            os.link(temporary, name, src_dir_fd=self.fd, dst_dir_fd=self.fd, follow_symlinks=False)
+            # Atomic no-clobber publication; unsupported filesystems return an
+            # I/O error without falling back to a partial destination write.
+            os.link(source, target)
 
     def unlink(self, name):
         try:
-            if os.name == "nt": os.unlink(self.path / name)
-            else: os.unlink(name, dir_fd=self.fd)
+            (self.path / name).unlink()
         except FileNotFoundError:
             pass
 
 
 @contextmanager
-def protected_parent(project_root, relative_path, *, create=False):
-    validate_locator(relative_path)
-    root = Path(project_root).resolve()
-    if not root.is_dir():
-        raise FileNotFoundError("Selected project folder is unavailable")
-    target = root.joinpath(*relative_path.split("/"))
-    handles = []
-    try:
-        if os.name == "nt":
-            _, api = _win_api()
-            for directory in (*reversed(target.parent.parents), target.parent):
-                if create and directory.is_relative_to(root) and directory != root:
-                    try: os.mkdir(directory)
-                    except FileExistsError: pass
-                # No FILE_SHARE_DELETE: rename/replacement of this component is
-                # denied for the entire staging, read/check and publication.
-                # FILE_LIST_DIRECTORY participates in Windows sharing checks;
-                # metadata-only access (0/READ_ATTRIBUTES) does not block rename.
-                handles.append(_win_open(directory, 1, 3, 3, directory=True))
-            yield Parent(target.parent), target.name
-        else:
-            if not hasattr(os, "O_NOFOLLOW"):
-                fail("PROJECT_IO_ERROR", "This platform lacks protected directory-relative I/O.")
-            current = os.open(target.anchor, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
-            handles.append(current)
-            path = Path(target.anchor)
-            for component in target.parent.parts[1:]:
-                path = path / component
-                if create and path.is_relative_to(root) and path != root:
-                    try: os.mkdir(component, dir_fd=current)
-                    except FileExistsError: pass
-                current = os.open(component, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=current)
-                handles.append(current)
-            yield Parent(target.parent, current), target.name
-    finally:
-        for handle in reversed(handles):
-            if os.name == "nt": api.CloseHandle(handle)
-            else: os.close(handle)
+def local_parent(project_root, relative_path, *, create=False):
+    target = selected_path(project_root, relative_path)
+    if create:
+        target.parent.mkdir(parents=True, exist_ok=True)
+    yield Parent(target.parent), target.name
 
 
 @contextmanager
 def publication_lease(parent, name):
-    # Persistent empty metadata file; the OS releases the lease on process exit.
-    # Never unlink it on release: replacing its inode would split writer locks.
-    # One lease per parent also covers case/short-name aliases on Windows.
-    lock_name = ".kvd-save.lock"
-    fd = _win_fd(parent.path / lock_name, write=True) if os.name == "nt" else os.open(
-        lock_name, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600, dir_fd=parent.fd)
+    # Existing cooperative guard, not a filesystem security boundary. Never
+    # unlink the persistent lease: replacement would split concurrent writers.
+    lock_path = parent.path / ".kvd-save.lock"
+    try:
+        if lock_path.is_symlink() or not stat.S_ISREG(lock_path.stat().st_mode):
+            fail("PROJECT_IO_ERROR", "Project publication lease must be a regular file.")
+    except FileNotFoundError:
+        pass
+    fd = os.open(lock_path, os.O_RDWR | os.O_CREAT | getattr(os, "O_BINARY", 0), 0o600)
     acquired = False
     try:
         if not stat.S_ISREG(os.fstat(fd).st_mode):

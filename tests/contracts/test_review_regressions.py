@@ -1,7 +1,11 @@
 """Independent-review regressions use synthetic JSON and temporary files only."""
 from copy import deepcopy
+from contextlib import contextmanager
 import json
-import sys
+import os
+from pathlib import Path
+import stat
+from types import SimpleNamespace
 
 import pytest
 from jsonschema import Draft202012Validator
@@ -108,28 +112,8 @@ def test_malformed_migration_returns_typed_error_and_preserves_source(tmp_path):
         assert not (tmp_path / "migrated.json").exists()
 
 
-@pytest.mark.skipif(sys.platform != "win32", reason="Actual Windows directory sharing guarantee")
-def test_actual_windows_parent_swap_before_staging_is_denied(tmp_path, monkeypatch):
-    root, outside = tmp_path / "root", tmp_path / "outside"
-    inside = root / "inside"
-    inside.mkdir(parents=True); outside.mkdir()
-    original_stage = io.tempfile.NamedTemporaryFile
-    def swap_then_stage(*args, **kwargs):
-        inside.rename(root / "original-inside")
-        inside.symlink_to(outside, target_is_directory=True)
-        return original_stage(*args, **kwargs)
-    monkeypatch.setattr(io.tempfile, "NamedTemporaryFile", swap_then_stage)
-    with pytest.raises(ContractError, match="PROJECT_IO_ERROR"):
-        io.save_project(Project.from_dict(project()), root, "inside/project.json")
-    assert inside.is_dir() and not inside.is_symlink()
-    assert not list(outside.iterdir())
-    assert not (inside / "project.json").exists()
-
-
 @pytest.mark.parametrize("hook", ["stage_project", "named_temporary"])
 def test_interleaved_staging_cannot_overwrite_a_newer_revision(tmp_path, monkeypatch, hook):
-    if hook == "named_temporary" and sys.platform != "win32":
-        pytest.skip("Original review hook targets Windows NamedTemporaryFile staging")
     p1, p2, p3 = project(), project(), project()
     p2.update(revision=2); p2["defaults"]["seed"] = "2"
     p3.update(revision=3); p3["defaults"]["seed"] = "3"
@@ -148,26 +132,6 @@ def test_interleaved_staging_cannot_overwrite_a_newer_revision(tmp_path, monkeyp
         io.save_project(Project.from_dict(p2), tmp_path, "project.json", overwrite=True)
     assert io.load_project(tmp_path, "project.json")["revision"] == 3
     assert not list(tmp_path.glob(".kvd-*.partial"))
-
-
-@pytest.mark.skipif(sys.platform != "win32", reason="Actual Windows directory sharing guarantee")
-def test_actual_windows_parent_swap_at_publish_preserves_original(tmp_path, monkeypatch):
-    from kmin_video_director.contracts.confined_io import Parent
-    root, outside = tmp_path / "root", tmp_path / "outside"
-    inside = root / "inside"
-    inside.mkdir(parents=True); outside.mkdir()
-    before = io.save_project(Project.from_dict(project()), root, "inside/project.json").read_bytes()
-    p2 = project(); p2["revision"] = 2
-    def swap_at_publish(*args):
-        inside.rename(root / "original-inside")
-        inside.symlink_to(outside, target_is_directory=True)
-        raise AssertionError("Protected Windows parent was replaced")
-    monkeypatch.setattr(Parent, "publish", swap_at_publish)
-    with pytest.raises(ContractError, match="PROJECT_IO_ERROR"):
-        io.save_project(Project.from_dict(p2), root, "inside/project.json", overwrite=True)
-    assert (inside / "project.json").read_bytes() == before
-    assert not list(outside.iterdir())
-    assert not list(inside.glob(".kvd-*.partial"))
 
 
 def test_failed_staging_keeps_original_and_sanitizes_error(tmp_path, monkeypatch):
@@ -208,3 +172,172 @@ def test_publication_lease_prevents_interleaving_after_revision_check(tmp_path, 
 def test_additional_portable_windows_device_names_are_rejected(tmp_path, name):
     with pytest.raises(ContractError, match="INVALID_LOCATOR"):
         io.resolve_locator(tmp_path, name)
+
+
+@pytest.mark.parametrize("entrypoint", ["save", "load", "migration", "locator", "asset_check"])
+def test_cyclic_selected_root_is_typed_redacted_and_does_not_mutate(tmp_path, entrypoint):
+    validated = Project.from_dict(project())
+    original = io.save_project(validated, tmp_path, "project.json").read_bytes()
+    first, second = tmp_path / "a", tmp_path / "b"
+    first.symlink_to(second, target_is_directory=True)
+    second.symlink_to(first, target_is_directory=True)
+    actions = {
+        "save": lambda: io.save_project(validated, first, "project.json"),
+        "load": lambda: io.load_project(first, "project.json"),
+        "migration": lambda: io.migrate_v1_example(first, "project.json", "migrated.json"),
+        "locator": lambda: io.resolve_locator(first, "project.json"),
+        "asset_check": lambda: io.resolve_project(validated, asset_root=first, check_assets=True),
+    }
+    names_before = sorted(path.name for path in tmp_path.iterdir())
+    with pytest.raises(ContractError, match="PROJECT_IO_ERROR") as error:
+        actions[entrypoint]()
+    assert str(tmp_path) not in json.dumps(error.value.to_dict())
+    assert str(tmp_path) not in str(error.value)
+    assert error.value.__suppress_context__  # Raw resolver diagnostics must not leak in a traceback.
+    assert (tmp_path / "project.json").read_bytes() == original
+    assert sorted(path.name for path in tmp_path.iterdir()) == names_before
+    assert not list(tmp_path.glob(".kvd-*.partial"))
+
+
+@pytest.mark.parametrize("entrypoint", ["locator", "migration_source", "migration_destination"])
+def test_cyclic_locator_resolution_is_typed_and_preserves_original(tmp_path, entrypoint):
+    original = io.save_project(Project.from_dict(project()), tmp_path, "project.json").read_bytes()
+    first, second = tmp_path / "a", tmp_path / "b"
+    first.symlink_to(second, target_is_directory=True)
+    second.symlink_to(first, target_is_directory=True)
+    actions = {
+        "locator": lambda: io.resolve_locator(tmp_path, "a/project.json"),
+        "migration_source": lambda: io.migrate_v1_example(tmp_path, "a/project.json", "migrated.json"),
+        "migration_destination": lambda: io.migrate_v1_example(tmp_path, "project.json", "a/migrated.json"),
+    }
+    with pytest.raises(ContractError, match="PROJECT_IO_ERROR") as error:
+        actions[entrypoint]()
+    assert str(tmp_path) not in json.dumps(error.value.to_dict())
+    assert error.value.__suppress_context__
+    assert (tmp_path / "project.json").read_bytes() == original
+    assert not (tmp_path / "migrated.json").exists()
+    assert not list(tmp_path.glob(".kvd-*.partial"))
+
+
+def test_invalid_selected_root_type_uses_the_shared_io_error(tmp_path):
+    with pytest.raises(ContractError, match="PROJECT_IO_ERROR") as error:
+        io.save_project(Project.from_dict(project()), None, "project.json")
+    assert error.value.__suppress_context__
+    assert not list(tmp_path.iterdir())
+
+
+def test_selected_project_folder_must_already_exist(tmp_path):
+    selected = tmp_path / "missing folder"
+    with pytest.raises(ContractError, match="PROJECT_IO_ERROR"):
+        io.resolve_locator(selected, "project.json")
+    with pytest.raises(ContractError, match="PROJECT_IO_ERROR"):
+        io.save_project(Project.from_dict(project()), selected, "project.json")
+    assert not selected.exists()
+
+
+def test_nonregular_input_is_rejected_before_open(tmp_path, monkeypatch):
+    """Synthetic stat result; this is not a POSIX FIFO runtime receipt."""
+    from kmin_video_director.contracts.confined_io import Parent
+    selected = tmp_path / "special.json"
+    selected.write_bytes(b"synthetic")
+    actual_stat, actual_open = Path.stat, Path.open
+    def special_stat(path, *args, **kwargs):
+        if path == selected:
+            return SimpleNamespace(st_mode=stat.S_IFIFO)
+        return actual_stat(path, *args, **kwargs)
+    def reject_open(path, *args, **kwargs):
+        if path == selected:
+            raise AssertionError("A nonregular input must be rejected before opening")
+        return actual_open(path, *args, **kwargs)
+    monkeypatch.setattr(Path, "stat", special_stat)
+    monkeypatch.setattr(Path, "open", reject_open)
+    with pytest.raises(ContractError, match="PROJECT_IO_ERROR"):
+        with Parent(tmp_path).read("special.json"):
+            pass
+
+
+@pytest.mark.skipif(os.name != "posix", reason="POSIX FIFO runtime NOT PERFORMED on Windows")
+def test_posix_fifo_input_is_rejected_as_nonregular(tmp_path):
+    os.mkfifo(tmp_path / "project.json")
+    with pytest.raises(ContractError, match="PROJECT_IO_ERROR"):
+        io.load_project(tmp_path, "project.json")
+
+
+@pytest.mark.parametrize("kind,code", [("missing", "SOURCE_MISSING"),
+    ("malformed", "INVALID_JSON"), ("directory", "PROJECT_IO_ERROR")])
+def test_normal_load_errors_are_typed_and_leave_input_unchanged(tmp_path, kind, code):
+    selected = tmp_path / "project.json"
+    if kind == "malformed": selected.write_bytes(b"{malformed")
+    if kind == "directory": selected.mkdir()
+    with pytest.raises(ContractError, match=code) as error:
+        io.load_project(tmp_path, "project.json")
+    assert str(tmp_path) not in json.dumps(error.value.to_dict())
+    if kind == "malformed": assert selected.read_bytes() == b"{malformed"
+    if kind == "directory": assert not list(selected.iterdir())
+    if kind == "missing": assert not selected.exists()
+
+
+@pytest.mark.parametrize("failure", ["read", "stage", "publish"])
+def test_ordinary_io_failures_preserve_old_project_and_cleanup(tmp_path, monkeypatch, failure):
+    from kmin_video_director.contracts.confined_io import Parent
+    selected = io.save_project(Project.from_dict(project()), tmp_path, "project.json")
+    original = selected.read_bytes()
+    def denied(*args, **kwargs):
+        raise PermissionError("Synthetic ordinary I/O failure at " + str(tmp_path))
+    if failure == "read": monkeypatch.setattr(Parent, "read", denied)
+    if failure == "stage": monkeypatch.setattr(io.tempfile, "NamedTemporaryFile", denied)
+    if failure == "publish": monkeypatch.setattr(Parent, "publish", denied)
+    p2 = project(); p2["revision"] = 2
+    with pytest.raises(ContractError, match="PROJECT_IO_ERROR") as error:
+        io.save_project(Project.from_dict(p2), tmp_path, "project.json", overwrite=True)
+    assert str(tmp_path) not in json.dumps(error.value.to_dict())
+    assert error.value.__suppress_context__
+    assert selected.read_bytes() == original
+    assert not list(tmp_path.glob(".kvd-*.partial"))
+
+
+def test_committed_save_is_not_reported_failed_on_late_cleanup_error(tmp_path, monkeypatch, caplog):
+    selected = io.save_project(Project.from_dict(project()), tmp_path, "project.json")
+    actual_lease = io.publication_lease
+    @contextmanager
+    def late_cleanup_failure(*args, **kwargs):
+        with actual_lease(*args, **kwargs):
+            yield
+        raise OSError("Synthetic cleanup failure at " + str(tmp_path))
+    monkeypatch.setattr(io, "publication_lease", late_cleanup_failure)
+    p2 = project(); p2["revision"] = 2
+    updated = Project.from_dict(p2)
+    assert io.save_project(updated, tmp_path, "project.json", overwrite=True) == selected
+    assert io.load_project(tmp_path, "project.json") == updated
+    assert not list(tmp_path.glob(".kvd-*.partial"))
+    assert "committed" in caplog.text
+    assert str(tmp_path) not in caplog.text
+
+
+def test_unreadable_folder_resolution_has_a_typed_redacted_error(tmp_path, monkeypatch):
+    def denied(*args, **kwargs):
+        raise PermissionError("Synthetic folder permission error at " + str(tmp_path))
+    monkeypatch.setattr(Path, "is_dir", denied)
+    with pytest.raises(ContractError, match="PROJECT_IO_ERROR") as error:
+        io.resolve_locator(tmp_path, "project.json")
+    assert str(tmp_path) not in json.dumps(error.value.to_dict())
+    assert error.value.__suppress_context__
+
+
+@pytest.mark.parametrize("change", ["older", "same_revision_edits", "other_project"])
+def test_rejected_overwrite_preserves_current_project(tmp_path, change):
+    current = project(); current["revision"] = 2
+    selected = io.save_project(Project.from_dict(current), tmp_path, "project.json")
+    original = selected.read_bytes()
+    candidate = deepcopy(current)
+    if change == "older": candidate["revision"] = 1
+    if change == "same_revision_edits": candidate["defaults"]["seed"] = "43"
+    if change == "other_project":
+        candidate["id"] = "project-other"
+        for segment in candidate["segments"]:
+            segment["project_id"] = candidate["id"]
+    validated_candidate = Project.from_dict(candidate)
+    with pytest.raises(ContractError, match="STALE_DEPENDENCY"):
+        io.save_project(validated_candidate, tmp_path, "project.json", overwrite=True)
+    assert selected.read_bytes() == original
+    assert not list(tmp_path.glob(".kvd-*.partial"))

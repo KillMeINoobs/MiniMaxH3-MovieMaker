@@ -1,7 +1,7 @@
 # Contracts 2.0.0
 
 **M1 implementation checkpoint:** schema 2.0.0 records, semantic validation,
-canonical serialization, confined Project I/O, migration and four Project nodes
+canonical serialization, local Project I/O, migration and four Project nodes
 now exist. Actual imports, signatures, field spellings and extension ownership
 are documented in [FOUNDATION_HANDOFF](FOUNDATION_HANDOFF.md); exported
 [schemas](../schemas/project.schema.json) and synthetic fixtures are checked.
@@ -9,6 +9,9 @@ Media/render/analysis/reference/continuation operations remain future work;
 their protocols are interfaces, not execution handlers. Live registration/UI
 is BLOCKED and CF is not accepted. [Validation](validation/M1_FOUNDATION.md)
 separates CPU evidence from the unperformed browser/media/GPU gates.
+The later [local storage decision](decisions/M1_LOCAL_STORAGE_SCOPE.md) defines
+stable-folder, regular-file operating assumptions and supersedes earlier OS
+isolation claims. Record/window/control validation and 2.0.0 interfaces are unchanged.
 
 The remaining design text and partial JSON examples originated in M0. They
 explain product intent; use the implemented handoff/schemas for exact APIs and

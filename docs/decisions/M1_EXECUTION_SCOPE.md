@@ -59,9 +59,12 @@ M1 now implements the shared records, Project nodes and presentation foundation
 in the [actual handoff](../FOUNDATION_HANDOFF.md). The
 [validation receipt](../validation/M1_FOUNDATION.md) records synthetic CPU,
 Windows filesystem and interface checks separately from blocked live UI work.
-An independent review requested concrete F1-F9 corrections; the owner supplies
-regressions and a new full pushed candidate for incremental review. No CF or
-downstream acceptance follows from a draft PR or owner checks.
+Separate review confirmed F2-F9 improvements and identified remaining storage
+issues. The human then narrowed storage to ordinary stable local folders in the
+[local storage decision](M1_LOCAL_STORAGE_SCOPE.md). The special directory-handle
+layer is retired; useful typed-error/revision fixes and normal-use regressions
+remain. A new exact candidate requires review against that explicit revised
+contract. No CF/downstream acceptance follows from a draft PR or owner checks.
 
 The existing Desktop restart cannot be operated safely by available native
 automation. The supported instance-picker UI restart is reserved for the human

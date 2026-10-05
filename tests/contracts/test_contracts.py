@@ -122,11 +122,12 @@ def test_canonical_hash_inheritance_and_cache():
 def test_load_save_and_migration_preserve_original(tmp_path):
     c = api()
     p = c.Project.from_dict(project())
-    path = c.save_project(p, tmp_path, "Папка/project.kvd.json")
-    assert c.load_project(tmp_path, "Папка/project.kvd.json") == p
+    relative = "Папка с пробелами/проект 01.kvd.json"
+    path = c.save_project(p, tmp_path, relative)
+    assert c.load_project(tmp_path, relative) == p
     before = path.read_bytes()
     with pytest.raises(c.ContractError, match="TARGET_EXISTS"):
-        c.save_project(p, tmp_path, "Папка/project.kvd.json")
+        c.save_project(p, tmp_path, relative)
     assert path.read_bytes() == before
     v1 = project()
     v1["schema_version"] = "1.0.0"

@@ -88,13 +88,16 @@ independent Draft 2020-12 validator, exercises Project-only I/O in temporary
 folders, blocks optional imports and checks every downstream call shape. It
 performs no media decoding, model inference or ComfyUI queue submission.
 
-Project I/O holds protected directory identities during read/stage/publication.
-Windows uses read-access handles that deny component rename; POSIX uses
-`dir_fd` and `O_NOFOLLOW`. Project I/O rejects reparse/symlink components and
-requires an existing selected root. Same-folder API writers use an OS lease
-with publish-time revision checks; a busy save is retryable, and a stale save
-cannot replace a successfully saved newer revision. Windows race regressions
-passed; POSIX runtime checks have not been performed in this Windows session.
+Project load/save supports an existing user-selected local folder, regular files
+and a stable folder layout during operations. Standard Python operations check
+relative paths and regular inputs, stage complete JSON and publish atomically
+where replace/link is supported. Explicit overwrite and the existing cooperative
+publication/revision guard protect normal API saves from stale revisions. Missing,
+malformed and cyclic paths give typed errors. This is ordinary local storage;
+it provides no OS security boundary against another process deliberately changing
+filesystem objects during I/O. See the [storage scope](docs/decisions/M1_LOCAL_STORAGE_SCOPE.md)
+and [validation receipt](docs/validation/M1_FOUNDATION.md) for the changed operating
+assumptions and historical review. POSIX runtime checks remain NOT PERFORMED.
 
 ## Project documents
 

@@ -43,26 +43,34 @@ order and finite, safe JSON numbers. Seeds are canonical decimal strings in
 0..2^64−1. `schema_version` belongs to data; interface version is independent.
 
 Relative locators use `/`, preserve Unicode/spaces and reject absolute/drive/UNC
-paths, URIs, traversal, reserved Windows names and ambiguous separators. Runtime
-resolution additionally checks symlink containment. Save stages a complete file
-and atomically activates it; new destinations cannot be clobbered. Explicit
-overwrite requires the same Project ID and a current revision, with changed
-edits advancing revision. Staging precedes the revision comparison; comparison
-and publication share an OS lease, so an interleaved newer successful save
-cannot be replaced. `PROJECT_BUSY` is retryable. An empty `.kvd-save.lock` file
-persists in each save folder; the OS releases its lease on process exit. Do not
-unlink that file to clear a running writer. Writers using this API share the
-lease; an unrelated editor does not participate in the revision protocol.
+paths, URIs, traversal, reserved Windows names and ambiguous separators. Select
+an existing local folder with ordinary regular files and a stable folder layout
+during operations. Resolution checks that the current path remains inside that
+folder, including a stable link that would otherwise escape it. This is the
+[M1 local storage contract](decisions/M1_LOCAL_STORAGE_SCOPE.md), not an OS
+security boundary against another process changing filesystem objects during I/O.
+No directory-handle/native filesystem isolation layer is used.
 
-Actual I/O holds directory identities through read, staging and publication.
-Windows uses `FILE_LIST_DIRECTORY` access and no delete sharing for every
-component; metadata-only handles cannot supply this guarantee. POSIX uses
-directory-relative descriptors with `O_NOFOLLOW`. Nested reparse/symlink paths
-are rejected; select an existing actual root. `resolve_locator` returns a
-checked Path but is not itself a reservation for a later external write.
-Filesystems without protected/atomic operations return a typed error. I/O
-messages omit machine paths. Windows race regressions are recorded; POSIX
-runtime verification remains NOT PERFORMED in this Windows session.
+Standard Python operations stage and flush the complete JSON in the destination
+folder. New-file publication uses an atomic no-clobber link; explicit overwrite
+uses atomic replacement. A filesystem must support the required operation or
+the save returns a typed error without writing a partial destination. Overwrite
+requires the same Project ID and a current revision; changed edits advance it.
+Staging precedes revision comparison under the same cooperative publication
+lease, so API writers cannot replace a successfully saved newer revision with an
+older one. `PROJECT_BUSY` is retryable. The empty `.kvd-save.lock` remains in the
+save folder; the OS releases the lease on process exit. Do not unlink an active
+lease. Unrelated editors do not participate in this revision protocol.
+
+Publication is the commit point. Ordinary failures before it preserve the old
+bytes and clean the temporary file when filesystem access permits. A cleanup
+error after publication logs a path-redacted warning and returns the committed
+save, avoiding a false failure after replacement. Readers check regular-file
+type before opening. Root/locator resolution, including cycles, uses shared
+typed errors with path-bearing exception context suppressed. Migration preserves
+its source. `resolve_locator` returns a checked Path for this stable layout; it
+does not reserve a path for later external use. Windows normal-use receipts are
+recorded; POSIX runtime/FIFO verification remains NOT PERFORMED in this session.
 
 ## Downstream call signatures
 

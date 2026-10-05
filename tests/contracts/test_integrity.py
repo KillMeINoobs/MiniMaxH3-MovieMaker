@@ -46,7 +46,7 @@ def test_control_profile_compatibility_and_source_stream_closure():
         Project.from_dict(p)
 
 
-def test_asset_hash_verification_is_explicit_and_confined(tmp_path):
+def test_asset_hash_verification_is_explicit_and_listed(tmp_path):
     p = Project.from_dict(project())
     assert resolve_project(p).assets_checked is False
     with pytest.raises(ContractError, match="SOURCE_MISSING"):

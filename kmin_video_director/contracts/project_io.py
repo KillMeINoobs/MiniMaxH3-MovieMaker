@@ -1,7 +1,7 @@
-"""Confined project I/O. No relink search, downloads or media decoding."""
+"""Project I/O for stable local folders. No search, downloads or media decoding."""
 import os
+import logging
 import tempfile
-import uuid
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
@@ -11,30 +11,27 @@ from ..errors import ContractError, fail
 from .records import Project, Settings
 from .serialization import MAX_PROJECT_BYTES, canonical_bytes, digest_bytes, loads, parse_json
 from .validation import validate_locator
-from .confined_io import protected_parent, publication_lease
+from .confined_io import selected_path, local_parent, publication_lease
+
+LOGGER = logging.getLogger(__name__)
 
 
 def resolve_locator(project_root, relative_path):
-    validate_locator(relative_path)
-    root = Path(project_root).resolve()
-    path = root.joinpath(*relative_path.split("/")).resolve()
-    if not path.is_relative_to(root) or path == root:
-        fail("INVALID_LOCATOR", "The locator escapes the selected project folder.")
-    return path
+    return selected_path(project_root, relative_path)
 
 
 def _read(root, relative_path):
     try:
-        with protected_parent(root, relative_path) as (parent, name):
+        with local_parent(root, relative_path) as (parent, name):
             with parent.read(name) as stream:
                 value = stream.read(MAX_PROJECT_BYTES + 1)
         if len(value) > MAX_PROJECT_BYTES:
             fail("RESOURCE_LIMIT", "Project JSON exceeds the 8 MiB limit.")
         return value
     except FileNotFoundError:
-        fail("SOURCE_MISSING", "Project file is missing.", stage="load")
+        raise ContractError("SOURCE_MISSING", "Project file is missing.", stage="load") from None
     except OSError:
-        fail("PROJECT_IO_ERROR", "Project file cannot be read.", stage="load")
+        raise ContractError("PROJECT_IO_ERROR", "Project file cannot be read.", stage="load") from None
 
 
 def load_project(project_root, relative_path):
@@ -50,8 +47,9 @@ def save_project(project, project_root, relative_path, *, overwrite=False):
     payload = canonical_bytes(project) + b"\n"
     if len(payload) > MAX_PROJECT_BYTES:
         fail("RESOURCE_LIMIT", "Project JSON exceeds the 8 MiB limit.")
+    published_path = None
     try:
-        with protected_parent(project_root, relative_path, create=True) as (parent, name):
+        with local_parent(project_root, relative_path, create=True) as (parent, name):
             temporary = None
             try:
                 temporary = _stage_project(parent, payload)
@@ -68,26 +66,28 @@ def save_project(project, project_root, relative_path, *, overwrite=False):
                         if project != previous and project["revision"] == previous["revision"]:
                             fail("STALE_DEPENDENCY", "Saved edits must increment the project revision.", stage="save")
                     parent.publish(temporary, name, overwrite)
+                    published_path = parent.path / name
                     if overwrite: temporary = None
-                return parent.path / name
+                return published_path
             finally:
                 if temporary is not None: parent.unlink(temporary)
-    except FileExistsError:
-        fail("TARGET_EXISTS", "The destination already exists.", stage="save")
     except ContractError:
         raise
-    except OSError:
-        fail("PROJECT_IO_ERROR", "Atomic project save failed; no partial file is activated.", stage="save")
+    except OSError as error:
+        if published_path is not None:
+            # Publication is the commit point. A later cleanup problem must not
+            # falsely report a failed save after a complete file was activated.
+            LOGGER.warning("Project save committed; temporary or lease cleanup could not finish.")
+            return published_path
+        if isinstance(error, FileExistsError):
+            raise ContractError("TARGET_EXISTS", "The destination already exists.", stage="save") from None
+        raise ContractError("PROJECT_IO_ERROR", "Atomic project save failed; no partial file is activated.",
+                            stage="save") from None
 
 
 def _stage_project(parent, payload):
-    if os.name == "nt":
-        stream = tempfile.NamedTemporaryFile(dir=parent.path, prefix=".kvd-", suffix=".partial", delete=False)
-        name = Path(stream.name).name
-    else:
-        name = ".kvd-" + uuid.uuid4().hex + ".partial"
-        fd = os.open(name, os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o600, dir_fd=parent.fd)
-        stream = os.fdopen(fd, "wb")
+    stream = tempfile.NamedTemporaryFile(dir=parent.path, prefix=".kvd-", suffix=".partial", delete=False)
+    name = Path(stream.name).name
     try:
         with stream:
             stream.write(payload)
@@ -123,13 +123,14 @@ def resolve_project(project, *, asset_root=None, check_assets=False):
         for media in data["media"].values():
             try:
                 size, hash = 0, hashlib.sha256()
-                with protected_parent(asset_root, media["locator"]["path"]) as (parent, name):
+                with local_parent(asset_root, media["locator"]["path"]) as (parent, name):
                     with parent.read(name) as stream:
                         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
                             size += len(chunk)
                             hash.update(chunk)
             except OSError:
-                fail("SOURCE_MISSING", "A listed asset cannot be opened.", details={"media_id": media["id"]})
+                raise ContractError("SOURCE_MISSING", "A listed asset cannot be opened.",
+                                    details={"media_id": media["id"]}) from None
             if size != media["fingerprint"]["byte_size"] or hash.hexdigest() != media["fingerprint"]["digest"]["hex"]:
                 fail("SOURCE_CHANGED", "A listed asset differs from its recorded content.", details={"media_id": media["id"]})
     return ResolvedProject(project, MappingProxyType(values), MappingProxyType(origins), check_assets)

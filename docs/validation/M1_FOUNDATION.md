@@ -10,11 +10,12 @@ It does **not** accept CF; a separate reviewer checks the pinned final candidate
 
 | Check | Result / scope |
 |---|---|
-| Synthetic Python contracts/import/I/O/conformance | PASS: 83 tests on Windows; no failures/skips. |
+| Synthetic Python contracts/import/I/O/conformance | PASS: 103 tests on Windows; one POSIX FIFO test skipped, no failures. |
 | Draft 2020-12 schemas and examples | PASS: 16 exported schemas; 15 synthetic record fixtures; schema bytes match declarative source. |
 | Project serialization/migration | PASS: Unicode/spaces, immutable settings, full u64 seeds, duplicate keys, version/features, explicit migration/source preservation. |
-| Actual Windows filesystem races | PASS: parent replacement denied during staging and publication; outside folder stays empty; original bytes survive failure. |
+| Ordinary local I/O failures | PASS: read/staging/flush/publication failures preserve old bytes and clean temporary files. A post-publication cleanup error logs a redacted warning and returns the committed save. |
 | Concurrent Project API writers | PASS: newer revision remains saved; publish-time lease defers a competing writer with retryable PROJECT_BUSY. |
+| Invalid/cyclic path resolution | PASS: save/load/migration/locator/explicit asset checks return redacted PROJECT_IO_ERROR for a cyclic selected root; cyclic migration source/destination paths preserve original bytes. |
 | Optional dependencies absent | PASS: subprocess blocks media/model/ComfyUI/schema packages; four Project classes still import and expose inputs. |
 | Nine downstream callable interfaces | PASS: typed examples bind actual signatures; every unimplemented operation rejects registry dispatch; no handler invoked. |
 | EN/RU helper invariants | PASS: one Node test file asserts English default, translated labels/errors, unchanged keys/values/links, custom titles and foreign-node preservation. |
@@ -23,7 +24,7 @@ It does **not** accept CF; a separate reviewer checks the pinned final candidate
 | Live `/object_info` registration | BLOCKED: deterministic old package staged, supported existing Desktop restart unavailable to automation. No registration PASS claimed. |
 | Actual frontend import/console/layout | BLOCKED: requires that restart and registered nodes. No EN/RU screenshots or console PASS claimed. |
 | Language persistence + native workflow save/reload | BLOCKED in actual browser; pure helper checks are not a browser receipt. |
-| POSIX protected I/O runtime | NOT PERFORMED in this Windows session; implementation uses dir_fd/O_NOFOLLOW. |
+| POSIX local I/O/FIFO runtime | NOT PERFORMED in this Windows session; platform-specific FIFO test is skipped. Windows unit test uses a synthetic nonregular stat result to check rejection before open. |
 | CPU media decoding / real user video | NOT PERFORMED by foundation. |
 | H3/VLM/enhancer generation / GPU / quality / fit | NOT PERFORMED. No queue submission, model load, weight download or output inspection. |
 | CI | No checks registered on the draft PR; no CI PASS. |
@@ -45,10 +46,17 @@ Synthetic manifests labelled `mock`/`source_only`/`missing` are conformance data
 not actual video artifacts. Direct Project-only node tests run in temporary
 folders. No native execution or generated pixels are produced by these tests.
 
-## Independent review findings and owner regressions
+## Historical review and current owner verification
 
-The independent review requested changes on `260a37dadc04477d1d0779f188ffaf5ebff0c35b`.
-The owner reproduced failures before fixes. The regression suite is
+Reviews requested changes on `260a37dadc04477d1d0779f188ffaf5ebff0c35b` and
+`fdce306ce6b7ac4c38491b593b6a821555d224c3`. The final
+[exact fdce receipt](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2#pullrequestreview-5409824233)
+confirmed F2-F9 resolved, F1b still open, F10 raw path errors and source-derived
+F11 FIFO blocking. The human then explicitly narrowed storage in the
+[local storage decision](../decisions/M1_LOCAL_STORAGE_SCOPE.md). Current checks
+use its regular-file/stable-folder contract, preserving typed-error/revision
+improvements. Prior adversarial evidence remains historical, not a fixed-case
+or current acceptance claim. The regression suite is
 [test_review_regressions.py](../../tests/contracts/test_review_regressions.py),
 with the package-discovery case in
 [test_registration.py](../../tests/imports/test_registration.py).
@@ -56,7 +64,7 @@ The table records owner verification; it is not an independent approval.
 
 | Finding | Correction / regression |
 |---|---|
-| F1: parent-swap write escape | Windows FILE_LIST_DIRECTORY handles deny delete sharing across every component through staging/publication. Original NamedTemporaryFile swap fails with typed PROJECT_IO_ERROR before an outside write; late publish swap preserves original. Metadata-only handles were experimentally insufficient and are not used. |
+| F1/F1b: historical OS isolation failure | Earlier rename/swap checks passed, but the final fdce review proved an in-place junction escape. This is not labelled fixed. Explicit human scope now requires stable local folder layout; the special directory-handle layer and two adversarial rename/swap tests are retired. Basic static relative-path/containment checks remain. |
 | F2: active result/input linkage | Existing window, segment, generation key, exact global/local ranges/counts/dimensions and canonical useful-media links are checked. Wrong key/window/range/media/geometry reject. Passthrough needs explicit segment selection and matching validated coverage. |
 | F3: concurrent newer revision loss | Stage first, then compare current ID/revision under the same OS lease as atomic publication. Original scheduling hook saves revision 3; revision 2 rejects STALE_DEPENDENCY, leaving 3 intact. A post-check competing publication gets retryable PROJECT_BUSY. |
 | F4: hidden owned-package ImportError | Explicit lexical child-package imports replace walk_packages' silent omission; broken child returns EXTENSION_IMPORT_ERROR. Optional backends stay lazy. |
@@ -65,10 +73,20 @@ The table records owner verification; it is not an independent approval.
 | F7: opaque report interpretation | Semantic traversal follows declared schema fields. Finite owner reports remain opaque, including seed/range-like keys; nonfinite JSON still raises INVALID_JSON. No raw ValueError/TypeError. |
 | F8: malformed legacy defaults | Shape guard and typed migration handling reject list/text/null/numeric defaults, preserve source bytes and create no destination. |
 | F9: incompatible frozen profile | Each frozen window checks selected control/profile links and exact current effective settings. Exclusion returns MODEL_INCOMPATIBLE; a permitted but divergent snapshot returns STALE_DEPENDENCY. |
+| F10: raw cyclic-root resolver error | One shared resolver converts native resolution/type failures to PROJECT_IO_ERROR and suppresses path-bearing exception context. Nine initially failing regressions cover cyclic roots in five entry points, cyclic source/destination locators and an invalid root type; originals and folder contents remain unchanged. |
+| F11: source-derived FIFO blocking | Reader checks regular-file type before open under stable-layout assumptions. A Windows unit test verifies rejection without opening a synthetic FIFO stat result; a real POSIX FIFO test is present but skipped here. Actual POSIX execution remains NOT PERFORMED. |
+
+The owner preserves the useful local F10 correction while simplifying I/O to
+standard Python operations. Fresh normal-use checks cover Unicode/spaces,
+explicit overwrite, current/stale revisions, missing/unreadable/malformed
+inputs, pre-open type checks, original-preserving migration and injected
+ordinary failures. No prior adversarial probe script is rerun under this task.
+The new exact committed candidate needs separate review against the revised
+contract; owner tests are not source approval or CF acceptance.
 
 The earlier EOF, default/segment control compatibility, selected streams and
 per-side context/padding/state-length corrections remain covered. Previously
-passing 43/47-test suites did not prove the later race/linkage guarantees.
+passing 43/47/83-test suites did not prove OS filesystem isolation.
 
 ## Browser check procedure after the human restart
 
