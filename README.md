@@ -8,10 +8,15 @@ implemented here. Photorealism, GPU fit and video quality remain unverified.
 
 This is a **draft foundation**. Synthetic CPU and presentation checks are
 recorded in [M1 foundation validation](docs/validation/M1_FOUNDATION.md).
-The human restarted the reviewed `20541f9` snapshot; all four Project classes
-registered successfully. Browser appearance/save/reload remain **BLOCKED** by
-an observed fixture-loading error. Interface persistence and checker corrections need separate
-review and a fresh live check. **GPU NOT PERFORMED.**
+The human restarted reviewed205; the later source/CPU-reviewed `ac335b8`
+snapshot retains its identical backend and all four registered Project classes.
+The ordinary selector saved Russian and restored English with verified server
+readback. Complete browser layout/native graph save/reload remain **BLOCKED**.
+The daf57 checker review requested bounded failure/recovery and transient-marker
+cleanup. The coherent correction and extension-aware shared tests have 36
+frontend and 29 focused import/conformance checks passing; these owner results
+need pinned review and a fresh live check. Installed ac335 remains unchanged.
+**GPU NOT PERFORMED.**
 No workflow was queued, model loaded, inference performed or user video decoded.
 
 ## Available nodes
@@ -33,7 +38,8 @@ KVD node panel, or **Settings → KVD → Interface → Language / Язык (EN 
 The persisted setting is `KVD.Language`. Changing language translates our
 labels, help, errors and status; stable keys, values, enum semantics and
 connections remain unchanged. Native ComfyUI and other packs keep their own
-presentation. Actual browser verification is still blocked.
+presentation. Selector text/save readback has partial actual browser evidence;
+complete layout and graph roundtrip acceptance is still blocked.
 
 ## Portable data and extension interfaces
 

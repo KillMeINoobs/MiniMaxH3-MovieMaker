@@ -1,8 +1,11 @@
 # KVD-WORKER/2.0.0 implementation handoff
 
 This file documents actual imports, types and signatures. The foundation owns
-shared files; consumers start only from the exact pushed, separately checked CF
-assigned through AO. A symbolic CF label is insufficient. Media/adapter code
+shared files; consumers use the exact pushed, separately checked interface base
+assigned through AO. Full CF is unaccepted. After read-only preflight, the
+coordinator released M1-02 CPU-only implementation from source-reviewed ac335,
+with no shared-runtime/browser allocation.
+That exception does not accept UI/CF or integrate downstream code. Media/adapter code
 does not exist in this foundation. No callable handler for the nine downstream
 operations is registered yet.
 
@@ -116,8 +119,10 @@ They are not model-load or GPU receipts.
 The [all-nine call examples](../tests/contracts/worker_examples.py) construct
 validated records and typed runtime envelopes for every protocol. The
 [conformance test](../tests/imports/test_worker_conformance.py) binds each
-example to its actual signature, checks argument types and confirms that no
-operation handler is registered. It never invokes an operation. Synthetic
+example to its actual signature and checks argument types without invoking an
+operation or assuming which handlers are registered. Separate cases verify all
+nine unsupported errors against an explicitly empty registry and construct a
+synthetic extension with guard handlers to prove call-shape independence. Synthetic
 links, opaque unmaterialized values and planned results describe a boundary;
 they are not an executable graph, decoded tensor or successful export.
 
@@ -166,6 +171,12 @@ or raises `UNSUPPORTED_CAPABILITY`. Optional modules must remain import-safe;
 missing optional backends fail when explicitly requested. No shared-file edit
 is needed to add a node module.
 
+The shared import test requires the four foundation IDs as a subset and calls
+`INPUT_TYPES()` on every discovered owned class with optional packages blocked.
+Synthetic extension cases accept an import-safe added node, reject eager
+optional imports at module/metadata stages, and retain the missing-foundation-ID
+guard. Discovery, duplicate and broken-owned-package checks remain separate.
+
 Add owned JS files under `web/<owner>/`; ComfyUI discovers them through the root
 `WEB_DIRECTORY="./web"`. Import `registerPresentation` from the relative
 `common/presentation.js` module and register EN/RU `title`, `help`, `fields`
@@ -183,12 +194,28 @@ return to foundation. No dependency installation, model download or automatic
 generation belongs in node import, discovery or frontend setup.
 
 The human-restarted, source-approved `20541f938306ff6bbf80c01565fd318ea3bcbd82`
-snapshot registered all four classes. Its opt-in UI fixture aborted loading,
-so presentation/reload acceptance remains blocked. The checker follow-up waits
-for the public `afterLoadGraph` lifecycle hook, checks `app.isGraphReady` and
-canvas availability, and requires `loadGraphData` to return `true` for each
-native load. It checks graph/canvas/panels after every load and again before
-acceptance. A caught load failure or missing final panel cannot count as PASS. These APIs are declared
+snapshot registered all four classes. Source/CPU-reviewed
+`ac335b87c966b3353c5115c663d4344ff08c01a0` was subsequently deployed from its
+exact archive; its unchanged backend and four-class catalog were verified.
+Ordinary selector interaction saved RU and restored effective EN with server
+readback. Complete layout/native graph roundtrip acceptance remains blocked.
+
+The opt-in checker waits for the public initial `afterLoadGraph` hook and checks
+`app.isGraphReady` and canvas availability. Each requested load records its
+actual return type/value, readiness, rejection/stack and ordered native hooks:
+`beforeLoadGraph`, `beforeConfigureGraph`, `afterConfigureGraph`, `afterLoadGraph`.
+The configured input must match that request, including a fresh transient ID
+in only the synthetic fixture's owned metadata. Configuration/completion must
+retain that ID; stale events/data reject. Reserved IDs from saved input are
+stripped before a fresh internal ID is assigned. All-outcome cleanup removes
+only the matching current ID; serialized output/cache is marker-free, with
+other metadata and custom titles preserved. A fulfilled undefined result from
+a return-discarding wrapper requires the complete per-call sequence plus exact
+serialized fixture data, four owned panels, two links and a usable canvas.
+True also requires those assertions; false, rejected, unrelated, incomplete,
+duplicated or out-of-order loads fail. Graph/canvas/panels are checked after
+every load and again before acceptance. A caught load failure or missing final
+panel cannot count as PASS. These APIs are declared
 by the checked frontend's
 [v1.53.6 extension interface](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/types/comfy.ts)
 and [application API](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/scripts/app.ts).
@@ -196,8 +223,20 @@ The deferred callback avoids recursively awaiting the loader from its own hook;
 elapsed time is not the readiness condition. Only the explicit opt-in synthetic
 fixture is loaded, with asset scans skipped and no queue call. Failed checks
 attempt to restore the original KVD preference, reporting success only after
-verified persistence. This correction has synthetic
-tests; its updated live behavior still requires review/deployment acceptance.
+verified persistence. Each requested asynchronous native load has a 15-second
+failure deadline; failure restoration and final preference readback each have
+their own 15-second deadline. Expiry invalidates acceptance and records pending
+return state. It cannot establish readiness or cancel native work. Browser
+timers cannot preempt a synchronously blocked event loop. Late settlements are
+handled and logged as unaccepted; they cannot retry, save a fixture, revive PASS
+or remove a newer request's marker. Only a successful opted-in check exposes its
+synthetic native serialized workflow in the console receipt.
+
+The [exact-daf review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2#pullrequestreview-5414488723)
+requested F15/F16 changes after its 29 frontend tests passed. The coherent owner
+correction has 36 frontend checks and 29 focused shared import/conformance
+checks passing. These results require a new pinned review before deployment and
+actual browser acceptance. The installed ac335 checker remains unchanged.
 See the [validation receipt](validation/M1_FOUNDATION.md).
 
 The owned [language settings helper](../web/common/language-settings.js) is
@@ -210,7 +249,7 @@ server readback and cached locale, and returns the observed stored value.
 reported separately from an explicitly stored English value. The native void
 setter is unsuitable for save/restoration evidence. Its async/store/API behavior
 is pinned in [settings](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/scripts/ui/settings.ts),
-[store](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/stores/settingStore.ts)
+[store](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/platform/settings/settingStore.ts)
 and [API](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/scripts/api.ts).
 An HTTP-error or fulfilled write without matching readback cannot imply a save.
 The selector shows localized pending/error state, current versus observed saved

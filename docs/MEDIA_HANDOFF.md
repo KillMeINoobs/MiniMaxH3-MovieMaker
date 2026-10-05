@@ -1,9 +1,16 @@
 # M1 media implementation plan and handoff
 
-Source dependency: `ac335b87c966b3353c5115c663d4344ff08c01a0`, descended
-from accepted C0. This is the explicitly released, separately source/CPU-reviewed
-dependency; PR2 is draft, live foundation UI is BLOCKED and full CF is unaccepted.
-The preserved brief and shared interfaces remain unchanged.
+Initial implementation `cd1b90f5e5d91d9c01d9fd5123dc7a2ab26f81b7` has direct
+parent `ac335b87c966b3353c5115c663d4344ff08c01a0`, descended from accepted C0.
+The M1-02-INTEGRATE-C923 release now integrates the entire exact common commit
+`c923d9e4292ea40e4a3f37f2feace8fa252eecb4` through a normal merge preserving
+that published media history. Its separate
+[source/synthetic review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2#pullrequestreview-5415254811)
+approved the common correction, including extension-aware shared tests.
+All media implementation/tests, five signatures, eight node IDs, recipes and
+export formats are unchanged by this integration. The preserved brief and
+shared data/schema/worker interfaces remain unchanged. PR2 is draft/unmerged;
+live foundation UI is BLOCKED and full CF remains unaccepted.
 
 The approved design uses standard-library Python with an explicitly selected
 external FFmpeg/ffprobe backend. Source frames and timestamps stream through
@@ -192,6 +199,10 @@ store, automatic execution, foreign-node customization or language-triggered I/O
 was introduced. Visual appearance and native serialization still need the later
 allocated human live gate.
 
+The integrated [CPU receipt](validation/M1_MEDIA.md) records161 passed,
+one POSIX-only skip on Windows and no failures. The six historical ac335 shared
+assertion failures are resolved by the reviewed common tests imported from
+exact c923. Shared files match that commit; no media-owned shared amendment was
+made. The [existing draft stacked PR3](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/3)
+and AO handoff carry the frozen candidate SHA/tree for independent media review.
 Synthetic CPU exports do not establish H3, real-video or live UI acceptance.
-Shared import tests on ac335 have the known extension-assertion dependency owned
-by foundation; see the receipt for exact observed failures.
