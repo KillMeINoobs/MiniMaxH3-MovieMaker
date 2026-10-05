@@ -1,6 +1,8 @@
 // Opt-in frontend conformance tool. Inert on normal pages. Never queues or executes nodes.
 import { app } from '../../scripts/app.js';
+import { api } from '../../scripts/api.js';
 import { getLanguage, setLanguage } from './common/presentation.js';
+import { SETTING_ID, effectiveLanguage, readPersistedLanguage, persistLanguage } from './common/language-settings.js';
 
 function semanticWorkflow(graph) {
   return JSON.stringify({nodes: graph.nodes.map(n => ({id:n.id,type:n.type,mode:n.mode ?? 0,
@@ -38,12 +40,16 @@ async function verify({banner, phase}) {
     const receipt = {scope:'actual ComfyUI frontend; registration/serialization only',gpu:'not_performed',
       queued:false,phase};
     let initialLanguage;
+    let languageTouched = false;
     try {
       check(['roundtrip','persist','display'].includes(phase),'Unknown verification phase');
       check(app.isGraphReady === true,'Native graph initialization has not completed');
       check(app.canvas?.ds,'Native canvas is unavailable');
-      initialLanguage = app.ui.settings.getSettingValue('KVD.Language') ?? 'en';
+      initialLanguage = app.ui.settings.getSettingValue(SETTING_ID) ?? 'en';
       receipt.initial_language = initialLanguage;
+      receipt.initial_persisted_language = await readPersistedLanguage(api);
+      check(initialLanguage === effectiveLanguage(receipt.initial_persisted_language) && getLanguage() === initialLanguage,
+        'Initial displayed and persisted KVD languages do not agree');
       const response = await fetch(new URL('./examples/foundation_project.json', import.meta.url));
       check(response.ok,'Fixture unavailable');
       const fixture = await response.json();
@@ -54,26 +60,32 @@ async function verify({banner, phase}) {
         for (const [id,title] of expectedTitles)
           check(app.graph.getNodeById(id)?.title === title,'Custom title changed during native loading or language change');
       };
+      const checkLoadedGraph = () => {
+        check(app.isGraphReady === true,'Native graph initialization has not completed');
+        check(app.canvas?.ds,'Native canvas is unavailable');
+        check(app.graph._nodes.length === 4,'Expected four actual Project nodes');
+        check(app.graph._nodes.every(n=>n._kvdPanel),'KVD presentation did not initialize after loading');
+        check(Object.keys(app.graph.links).length === 2,'Expected two native graph links');
+      };
       const load = async data => {
         const completed = await app.loadGraphData(data,true,true,null,{skipAssetScans:true});
         check(completed === true,'Native workflow load did not complete');
+        checkLoadedGraph();
       };
       await load(selected);
       checkTitles();
       const before = semanticWorkflow(app.graph.serialize());
       check(before === semanticWorkflow(selected),'Fixture data changed during native loading');
-      check(app.graph._nodes.length === 4,'Expected four actual Project nodes');
-      check(app.graph._nodes.every(n=>n._kvdPanel),'KVD presentation did not initialize');
-      check(Object.keys(app.graph.links).length === 2,'Expected two native graph links');
       if (phase === 'roundtrip') {
         // Exercise a custom title without changing the committed fixture or semantic keys.
         const title = 'KVD check · custom / Сцена';
         app.graph.getNodeById(2).title = title;
         expectedTitles.set(2,title);
-        await app.ui.settings.setSettingValue('KVD.Language','en'); setLanguage('en');
+        languageTouched = true;
+        await persistLanguage(app.ui.settings,api,'en'); setLanguage('en');
         check(getLanguage() === 'en','English setting did not apply');
         checkTitles();
-        await app.ui.settings.setSettingValue('KVD.Language','ru'); setLanguage('ru');
+        await persistLanguage(app.ui.settings,api,'ru'); setLanguage('ru');
         check(getLanguage() === 'ru','Russian setting did not apply');
         checkTitles();
         const serialized = app.graph.serialize();
@@ -81,17 +93,29 @@ async function verify({banner, phase}) {
         await load(serialized);
         check(semanticWorkflow(app.graph.serialize()) === before,'Native save/configure roundtrip changed data');
         checkTitles();
-        receipt.language_roundtrip = 'passed'; receipt.native_serialization = 'passed';
       } else if (phase === 'persist') {
         check(saved && initialLanguage === 'ru' && getLanguage() === 'ru','Russian did not persist over page reload');
         check(semanticWorkflow(app.graph.serialize()) === semanticWorkflow(JSON.parse(saved)),'Page reload changed saved workflow');
-        receipt.page_reload_persistence = 'passed';
       }
+      receipt.persisted_language = await readPersistedLanguage(api);
+      receipt.current_language = getLanguage();
+      receipt.displayed_language = getLanguage();
+      check(effectiveLanguage(receipt.persisted_language) === receipt.displayed_language,
+        'Final displayed and persisted KVD languages do not agree');
+      checkLoadedGraph();
+      checkTitles();
       const actual = app.graph.serialize();
+      check(semanticWorkflow(actual) === before,'Final graph keys, values or connections changed');
       const input = app.graph.getNodeById(1).widgets.find(w=>w.name === 'project_json').value;
       check(input.includes('Сцена') && input.includes('18446744073709551615'),'Unicode or seed value lost');
       receipt.nodes = actual.nodes.map(n=>n.type); receipt.links = actual.links.length;
-      receipt.current_language = getLanguage();
+      if (phase === 'roundtrip') {
+        check(receipt.persisted_language === 'ru','Russian persistence could not be verified');
+        receipt.language_roundtrip = 'passed'; receipt.native_serialization = 'passed';
+      } else if (phase === 'persist') {
+        check(receipt.persisted_language === 'ru','Russian persistence could not be verified');
+        receipt.page_reload_persistence = 'passed';
+      }
       receipt.custom_titles = expectedTitles.size ? 'passed' : 'not_checked';
       // Center only this explicitly loaded synthetic fixture, not a human graph.
       app.canvas.ds.scale = 0.75;
@@ -104,16 +128,21 @@ async function verify({banner, phase}) {
       console.info('[KVD verification]',JSON.stringify(receipt));
     } catch (error) {
       receipt.status = 'FAIL'; receipt.reason = String(error.message);
-      if (initialLanguage && getLanguage() !== initialLanguage) {
+      if (languageTouched) {
         try {
-          await app.ui.settings.setSettingValue('KVD.Language',initialLanguage);
+          const restored = await persistLanguage(app.ui.settings,api,initialLanguage);
           setLanguage(initialLanguage);
           receipt.original_language_restored = true;
+          receipt.restored_displayed_language = getLanguage();
+          receipt.restored_persisted_language = restored;
         } catch {
           receipt.original_language_restored = false;
-          receipt.reason += '; original KVD language could not be restored';
+          receipt.reason += '; original KVD preference restoration failed or could not be verified';
         }
       }
+      receipt.displayed_language = getLanguage();
+      try { receipt.persisted_language = await readPersistedLanguage(api); }
+      catch { receipt.persisted_language = 'unverified'; }
       banner.textContent = 'KVD foundation: FAIL · ' + error.message;
       console.error('[KVD verification]',JSON.stringify(receipt));
     }

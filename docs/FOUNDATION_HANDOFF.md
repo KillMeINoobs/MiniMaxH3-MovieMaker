@@ -187,16 +187,36 @@ snapshot registered all four classes. Its opt-in UI fixture aborted loading,
 so presentation/reload acceptance remains blocked. The checker follow-up waits
 for the public `afterLoadGraph` lifecycle hook, checks `app.isGraphReady` and
 canvas availability, and requires `loadGraphData` to return `true` for each
-native load. A caught load failure cannot count as PASS. These APIs are declared
+native load. It checks graph/canvas/panels after every load and again before
+acceptance. A caught load failure or missing final panel cannot count as PASS. These APIs are declared
 by the checked frontend's
 [v1.53.6 extension interface](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/types/comfy.ts)
 and [application API](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/scripts/app.ts).
 The deferred callback avoids recursively awaiting the loader from its own hook;
 elapsed time is not the readiness condition. Only the explicit opt-in synthetic
 fixture is loaded, with asset scans skipped and no queue call. Failed checks
-restore the original KVD preference when possible. This correction has synthetic
+attempt to restore the original KVD preference, reporting success only after
+verified persistence. This correction has synthetic
 tests; its updated live behavior still requires review/deployment acceptance.
 See the [validation receipt](validation/M1_FOUNDATION.md).
+
+The owned [language settings helper](../web/common/language-settings.js) is
+shared by the real selector and checker. `SETTING_ID` remains `KVD.Language`.
+`readPersistedLanguage(api)` returns `Promise<"en" | "ru" | null>` from a
+status-checked native `api.fetchApi` read of only that preference.
+`persistLanguage(settings, api, locale)` awaits `setSettingValueAsync`, verifies
+server readback and cached locale, and returns the observed stored value.
+`effectiveLanguage(null)` is the declared English default; null is still
+reported separately from an explicitly stored English value. The native void
+setter is unsuitable for save/restoration evidence. Its async/store/API behavior
+is pinned in [settings](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/scripts/ui/settings.ts),
+[store](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/stores/settingStore.ts)
+and [API](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/scripts/api.ts).
+An HTTP-error or fulfilled write without matching readback cannot imply a save.
+The selector shows localized pending/error state, current versus observed saved
+language, and whether recovery was confirmed. It retains a failed save error
+even when restoring the old preference succeeds. Other preferences, port keys,
+values, custom titles and foreign-node presentation remain untouched.
 
 ## Version, migration and unsupported features
 

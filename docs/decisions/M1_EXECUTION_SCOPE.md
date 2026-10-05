@@ -75,3 +75,11 @@ new browser evidence. No deployed patch or additional restart is performed at
 this follow-up stage. No private IPC/lifecycle endpoint, shell kill, second
 server or stale CLI restart is used. Foundation retains shared-runtime ownership
 and generation reservation is NONE.
+
+After the exact-31 review requested F12/F13 changes, the coordinator released
+one owned correction for both the checker and ordinary KVD language selector,
+including directly required shared helpers/tests/docs. Persistence/restoration
+needs supported awaited APIs and verified own-setting readback; final graph
+presentation must survive reload. This is source/CPU work and feature
+publication only. Installed 205 stays untouched until independent approval;
+no live retry, restart, queue or generation is released by this correction.

@@ -139,3 +139,9 @@ The 22 changed paths are documentation only; staged `git diff --check` passed. O
 ## M1-01 checkpoint, 2026-10-05
 
 Foundation owns shared schemas/contracts/registration/errors/version/dependencies and UI settings/translations. Actual schema 2.0.0 records, canonical portable Project I/O, four Project nodes and nine callable downstream protocols exist. The human narrowed storage to ordinary stable local folders in the [local storage decision](decisions/M1_LOCAL_STORAGE_SCOPE.md), superseding OS isolation claims after the fdce review. Independent source/CPU review approved `20541f938306ff6bbf80c01565fd318ea3bcbd82` under that contract. Its human-restarted snapshot registered all four classes. The opt-in UI fixture hit a loading error and falsely logged PASS, so appearance/persisted language/workflow reload remain BLOCKED. The scoped checker correction has negative and successful synthetic-host tests; its new exact candidate needs separate review and actual browser evidence. See [M1 foundation validation](validation/M1_FOUNDATION.md). GPU/video NOT PERFORMED; no CF acceptance, resource release or downstream launch. M1-04 is manual-generation handoff, M2/M3 remain gated.
+
+Exact-31 review then found unverified setting persistence/restoration and missing
+final panels (F12/F13). The owner follow-up includes the ordinary language
+selector, a shared awaited save/readback helper and localized honest failure
+state, plus repeated graph/panel checks. These source/CPU corrections require
+a new pinned review; the installed 205 snapshot and live/CF gates remain unchanged.

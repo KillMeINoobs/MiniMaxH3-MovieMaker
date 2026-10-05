@@ -10,7 +10,7 @@ This is a **draft foundation**. Synthetic CPU and presentation checks are
 recorded in [M1 foundation validation](docs/validation/M1_FOUNDATION.md).
 The human restarted the reviewed `20541f9` snapshot; all four Project classes
 registered successfully. Browser appearance/save/reload remain **BLOCKED** by
-an observed fixture-loading error. Its opt-in checker correction needs separate
+an observed fixture-loading error. Interface persistence and checker corrections need separate
 review and a fresh live check. **GPU NOT PERFORMED.**
 No workflow was queued, model loaded, inference performed or user video decoded.
 
@@ -81,7 +81,7 @@ are in [requirements-verify.lock](requirements-verify.lock).
 python -m venv .venv
 .venv/Scripts/python -m pip install -r requirements-verify.lock
 .venv/Scripts/python -m pytest tests/contracts tests/imports -q
-node --experimental-vm-modules --test tests/ui/presentation.test.mjs tests/ui/verification.test.mjs
+node --experimental-vm-modules --test tests/ui/presentation.test.mjs tests/ui/language.test.mjs tests/ui/verification.test.mjs
 git diff <accepted-base> HEAD --check
 ```
 

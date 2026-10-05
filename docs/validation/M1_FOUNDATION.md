@@ -18,8 +18,8 @@ It does **not** accept CF; a separate reviewer checks the pinned final candidate
 | Invalid/cyclic path resolution | PASS: save/load/migration/locator/explicit asset checks return redacted PROJECT_IO_ERROR for a cyclic selected root; cyclic migration source/destination paths preserve original bytes. |
 | Optional dependencies absent | PASS: subprocess blocks media/model/ComfyUI/schema packages; four Project classes still import and expose inputs. |
 | Nine downstream callable interfaces | PASS: typed examples bind actual signatures; every unimplemented operation rejects registry dispatch; no handler invoked. |
-| EN/RU helper and checker regressions | PASS: 11 Node checks; pure presentation invariants plus ten actual-module tests against a synthetic host. They do not prove browser appearance/persistence. |
-| Frontend syntax | PASS: shared presentation, extension and opt-in checker parse. |
+| EN/RU selector/helper/checker regressions | PASS: 22 Node checks; presentation invariants, six actual-selector tests and 15 actual-checker tests against synthetic native hosts. They do not prove browser appearance/persistence. |
+| Frontend syntax | PASS: presentation, verified language helper, extension and opt-in checker parse. |
 | Diff/brief/ledger/privacy | Checked before publication; final exact receipts are recorded with the candidate in AO. |
 | Live `/object_info` registration | PASS at reviewed `20541f938306ff6bbf80c01565fd318ea3bcbd82` after the human restart: four actual classes, own module, matching inputs/outputs; readonly MCP fixture validation has zero errors and one intentional disconnected-load warning. |
 | Actual frontend import/console/layout | BLOCKED: own fixture load aborted with a null-canvas error; the old checker incorrectly logged PASS. No accepted EN/RU screenshots or updated live behavior claimed. Foreign-pack errors are recorded separately. |
@@ -33,8 +33,9 @@ Commands used in the isolated verification environment:
 
 ```text
 .venv/Scripts/python -m pytest tests/contracts tests/imports -q
-node --experimental-vm-modules --test tests/ui/presentation.test.mjs tests/ui/verification.test.mjs
+node --experimental-vm-modules --test tests/ui/presentation.test.mjs tests/ui/language.test.mjs tests/ui/verification.test.mjs
 node --check web/common/presentation.js
+node --check web/common/language-settings.js
 node --check web/kvd.js
 node --check web/zz_verification.js
 git diff --check
@@ -91,6 +92,45 @@ candidate requires separate pinned review before the deployed files change.
 Screenshots were not obtained because the AO capture timed out; actual console,
 errors, catalog and restart receipts remain private AO artifacts. CF remains
 unaccepted and shared-runtime ownership is retained.
+
+## F12/F13 persistence and final presentation correction
+
+Independent [exact-31 review](https://github.com/KillMeINoobs/MiniMaxH3-MovieMaker/pull/2#pullrequestreview-5412694609)
+requested changes on `31f242a12adf5facb1e5ccba798f1d0c64f1b9da`. Its synthetic
+repros use the extracted pinned native void setter. They demonstrate checker
+PASS while RU persistence is pending/rejected, an unverified restored claim,
+and PASS after a successful reload loses the owned panels. The owner reproduced
+those cases without runtime access or modifying reviewer originals. The same
+setter misuse was source-derived in the ordinary node selector; the coordinator
+included it in this UI outcome before implementation.
+
+The real selector and checker now share an awaited `setSettingValueAsync` call
+and status-checked, per-key server readback. Native store writes can resolve
+HTTP-error responses or skip unchanged cached values, so their resolved promise
+alone is insufficient. Primary [settings](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/scripts/ui/settings.ts),
+[store](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/stores/settingStore.ts)
+and [API](https://github.com/Comfy-Org/ComfyUI_frontend/blob/v1.53.6/src/scripts/api.ts)
+were checked. Only `KVD.Language` is read/written. Unset (`null`) and its effective
+English default remain distinct from explicitly persisted values.
+
+The checker records displayed and verified persisted language separately.
+Rejected, pending, malformed or unavailable save/readback cannot produce PASS
+or a successful fixture. A restored claim requires an awaited write and matching
+readback; failed or unverified recovery is reported explicitly. Every required
+load and the final acceptance point check graph/canvas, four owned panels,
+semantic data and links before the snapshot is published.
+
+The ordinary selector shows localized saving/error status and actual current
+versus observed saved language. It attempts verified recovery after failed
+saves, retains SETTINGS_ERROR even when recovery succeeds, and reports unknown
+persistence or failed recovery honestly. Six actual-module selector tests cover
+default EN, RU/EN success, pending and rejected writes, fulfilled HTTP failure,
+unavailable readback and failed recovery; they retain data/custom-title/foreign
+node assertions. The checker host models a void setter, a promise setter,
+independent server state and controlled deferred/rejected writes. Regression
+checks include late panel loss and malformed readback. These are source/CPU
+receipts; corrected live behavior and CF remain unaccepted. Installed 205 is
+unchanged by this follow-up. GPU/video/POSIX runtime remain NOT PERFORMED.
 
 ## Historical review and current owner verification
 

@@ -56,3 +56,14 @@ the corrected browser path is checked. Foreign-pack errors stay separate; no
 foreign fix, deployed patch or additional restart is performed. The new exact
 candidate needs independent pinned review, then actual EN/RU screenshots and
 save/reload evidence before CF. Shared-runtime allocation remains retained.
+
+Exact `31f242a12adf5facb1e5ccba798f1d0c64f1b9da` review requested F12/F13
+changes: the native void setting setter hid pending/rejected persistence and
+restoration, and the checker accepted missing panels after reload. The owner
+reproduced these cases; coordinator scope included the same source-derived
+ordinary-selector defect. Both paths now use the shared awaited setter and
+status-checked per-key readback, with honest current/stored/recovery evidence
+and localized save errors. Graph/canvas/panels and semantic data are checked
+after required loads and before final checker acceptance. Source/CPU checks
+pass; the new exact candidate requires pinned review. Installed 205 remains
+untouched and corrected browser acceptance/CF remain blocked.

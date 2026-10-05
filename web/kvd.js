@@ -1,9 +1,9 @@
 import { app } from '../../scripts/app.js';
 import { api } from '../../scripts/api.js';
 import { registerPresentation, presentationFor, applyPresentation, getLanguage, setLanguage,
-         onLanguageChange, statusText, errorText } from './common/presentation.js';
+         onLanguageChange, statusText, errorText, languageStateText } from './common/presentation.js';
+import { SETTING_ID, effectiveLanguage, readPersistedLanguage, persistLanguage } from './common/language-settings.js';
 
-const SETTING_ID = 'KVD.Language';
 const fields = {
   en: {project:'Project',project_json:'Project JSON',validation_report:'Validation report',
        project_root:'Project folder',project_file:'Relative filename',overwrite:'Overwrite existing file',saved_file:'Saved filename'},
@@ -47,19 +47,48 @@ function refreshNode(node) {
   heading.textContent = getLanguage() === 'ru' ? 'Переносимый проект' : 'Portable project';
   help.textContent = presentation.help;
   selector.value = getLanguage();
-  status.textContent = statusText(node._kvdStatus || 'STRUCTURE_ONLY');
+  selector.disabled = node._kvdLanguageStatus === 'SETTINGS_SAVING';
+  status.textContent = statusText(node._kvdLanguageStatus || node._kvdStatus || 'STRUCTURE_ONLY');
+  if (node._kvdLanguageStatus)
+    status.textContent += ' ' + languageStateText({...node._kvdLanguageEvidence,displayed:getLanguage()});
 }
 
+let languageChangePending = false;
+function languageStatus(status,evidence) {
+  for (const node of app.graph?._nodes || []) if (node._kvdPanel) {
+    node._kvdLanguageStatus = status;
+    node._kvdLanguageEvidence = evidence;
+    refreshNode(node);
+  }
+}
 async function changeLanguage(value) {
+  if (languageChangePending) return;
+  languageChangePending = true;
+  let previousPersisted, writeAttempted = false;
+  languageStatus('SETTINGS_SAVING',{displayed:getLanguage()});
   try {
-    await app.ui.settings.setSettingValue(SETTING_ID, value);
+    previousPersisted = await readPersistedLanguage(api);
+    writeAttempted = true;
+    const persisted = await persistLanguage(app.ui.settings,api,value);
     setLanguage(value);
+    languageStatus(undefined,{displayed:getLanguage(),persisted});
   } catch (error) {
-    for (const node of app.graph?._nodes || []) if (node._kvdPanel) {
-      node._kvdStatus = 'SETTINGS_ERROR';
-      refreshNode(node);
+    let restored;
+    if (writeAttempted) {
+      restored = false;
+      try {
+        const original = effectiveLanguage(previousPersisted);
+        await persistLanguage(app.ui.settings,api,original);
+        setLanguage(original);
+        restored = true;
+      } catch {} // Displayed state alone must not claim restoration.
     }
+    let persisted;
+    try { persisted = await readPersistedLanguage(api); } catch {}
+    languageStatus('SETTINGS_ERROR',{displayed:getLanguage(),persisted,restored});
     console.error('[KVD] Interface preference could not be saved');
+  } finally {
+    languageChangePending = false;
   }
 }
 
@@ -106,7 +135,7 @@ app.registerExtension({
   setup() {
     const link = document.createElement('link'); link.rel = 'stylesheet'; link.href = new URL('./theme.css', import.meta.url).href;
     document.head.append(link);
-    setLanguage(app.ui.settings.getSettingValue(SETTING_ID, 'en') === 'ru' ? 'ru' : 'en');
+    setLanguage(app.ui.settings.getSettingValue(SETTING_ID) === 'ru' ? 'ru' : 'en');
     onLanguageChange(() => {
       for (const node of app.graph?._nodes || []) refreshNode(node);
     });

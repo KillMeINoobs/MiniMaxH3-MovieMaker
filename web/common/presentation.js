@@ -90,9 +90,21 @@ export function errorText(code) {
 }
 export function statusText(code) {
   const table = {
+    SETTINGS_SAVING: ['Saving interface preference…', 'Сохранение настройки языка…'],
     STRUCTURE_ONLY: ['Structure checks · media is not opened', 'Проверка структуры · медиа не открывается'],
     STRUCTURE_VALID: ['Project structure validated · assets not checked', 'Структура проекта проверена · ресурсы не проверены'],
     PROJECT_SAVED: ['Project saved locally', 'Проект сохранён локально'],
   };
   return table[code]?.[language === 'ru' ? 1 : 0] || errorText(code);
+}
+
+export function languageStateText({displayed = language,persisted,restored}) {
+  const names = {en:'English',ru:'Русский'};
+  const saved = persisted === null ? (language === 'ru' ? 'По умолчанию · English' : 'Default · English')
+    : names[persisted] || (language === 'ru' ? 'Не подтверждено' : 'Unverified');
+  let text = language === 'ru' ? `Сейчас: ${names[displayed]}. Сохранено: ${saved}.`
+    : `Current: ${names[displayed]}. Saved: ${saved}.`;
+  if (restored === true) text += language === 'ru' ? ' Прежняя настройка подтверждена.' : 'Previous preference confirmed.';
+  if (restored === false) text += language === 'ru' ? ' Восстановление не подтверждено.' : 'Restoration unverified.';
+  return text;
 }
